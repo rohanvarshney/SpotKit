@@ -1,0 +1,17 @@
+# Dependencies & Build Artifacts
+**/node_modules/
+**/node_modules
+**/dist/
+**/dist-ssr/
+_site/
+
+# Personal / Historical Spotify Exports (Never commit to public repo)
+SESH/rova_historical_data/
+*my_spotify_data*.zip
+
+# Logs & OS files
+*.log
+npm-debug.log*
+.DS_Store
+**/.DS_Store
+*.local

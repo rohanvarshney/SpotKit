@@ -1,0 +1,64 @@
+name: Deploy SpotKit Suite to GitHub Pages
+
+on:
+  push:
+    branches: ['main']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build TopAlbums
+        working-directory: ./TopAlbums
+        run: |
+          npm install
+          npm run build
+
+      - name: Build SESH
+        working-directory: ./SESH/frontend
+        run: |
+          npm install
+          npm run build
+
+      - name: Stage SpotKit Hub and all 3 tools
+        run: |
+          mkdir -p _site/TopAlbums _site/SESH _site/DJMyPlaylist
+          cp index.html _site/index.html
+          cp -R TopAlbums/dist/* _site/TopAlbums/
+          cp -R SESH/frontend/dist/* _site/SESH/
+          cp -R DJMyPlaylist/* _site/DJMyPlaylist/
+          touch _site/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

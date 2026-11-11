@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SpotKit — Personal Spotify Analytics &amp; Playlist Suite</title>
+    <style>
+      :root {
+        --sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          sans-serif;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: var(--sans);
+        background:
+          radial-gradient(1100px circle at 15% 10%, rgba(30, 215, 96, 0.14), transparent 55%),
+          radial-gradient(1100px circle at 85% 5%, rgba(168, 85, 247, 0.16), transparent 55%),
+          #0b0b10;
+        color: rgba(255, 255, 255, 0.92);
+        line-height: 1.5;
+      }
+      .shell {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 48px 24px 80px;
+      }
+      .hero {
+        text-align: center;
+        max-width: 680px;
+        margin: 0 auto 44px;
+      }
+      .heroBadge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 5px 12px;
+        border-radius: 999px;
+        background: rgba(30, 215, 96, 0.14);
+        color: #4ade80;
+        border: 1px solid rgba(30, 215, 96, 0.3);
+      }
+      h1 {
+        font-size: 48px;
+        font-weight: 850;
+        letter-spacing: -0.025em;
+        margin: 16px 0 12px;
+        line-height: 1.1;
+      }
+      h1 span {
+        color: #1ed760;
+      }
+      .subtitle {
+        font-size: 17px;
+        color: rgba(255, 255, 255, 0.68);
+        margin: 0;
+      }
+      .toolsGrid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      }
+      @media (max-width: 900px) {
+        .toolsGrid {
+          grid-template-columns: 1fr;
+        }
+        h1 {
+          font-size: 36px;
+        }
+      }
+      .toolCard {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-decoration: none;
+        color: inherit;
+        background: rgba(255, 255, 255, 0.045);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 20px;
+        padding: 28px 26px;
+        backdrop-filter: blur(12px);
+        transition: transform 0.16s ease, border-color 0.16s ease,
+          box-shadow 0.16s ease;
+      }
+      .toolCard:hover {
+        transform: translateY(-4px);
+        border-color: rgba(30, 215, 96, 0.45);
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+      }
+      .toolCard.wip:hover {
+        border-color: rgba(245, 158, 11, 0.45);
+      }
+      .cardTop {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      .toolIcon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .statusPill {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 999px;
+      }
+      .statusPill.live {
+        background: rgba(30, 215, 96, 0.15);
+        color: #4ade80;
+        border: 1px solid rgba(30, 215, 96, 0.32);
+      }
+      .statusPill.wip {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.35);
+      }
+      .toolTitle {
+        font-size: 22px;
+        font-weight: 800;
+        margin: 0 0 8px;
+      }
+      .toolDesc {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.68);
+        margin: 0 0 20px;
+      }
+      .tagList {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 22px;
+      }
+      .tag {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 9px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.78);
+      }
+      .ctaLink {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 750;
+        color: #4ade80;
+      }
+      .toolCard.wip .ctaLink {
+        color: #fbbf24;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="hero">
+        <div class="heroBadge">SPOTKIT SUITE</div>
+        <h1><span>SpotKit</span> Web Tools</h1>
+        <p class="subtitle">
+          Browser-native tools for exploring your Spotify listening history,
+          ranking your true favourite albums, and sequencing playlists.
+        </p>
+      </header>
+
+      <main class="toolsGrid">
+        <!-- Tool 1: TopAlbums -->
+        <a href="./TopAlbums/" class="toolCard">
+          <div>
+            <div class="cardTop">
+              <div class="toolIcon">💿</div>
+              <span class="statusPill live">Live</span>
+            </div>
+            <h2 class="toolTitle">TopAlbums</h2>
+            <p class="toolDesc">
+              Connects via Spotify OAuth PKCE to scan your <em>Liked Songs</em>
+              and <em>Top 50 Tracks</em>, ranking your favourite albums by
+              completion proportion and depth.
+            </p>
+            <div class="tagList">
+              <span class="tag">Spotify Web API</span>
+              <span class="tag">Bayesian % Liked</span>
+              <span class="tag">Tracklist Diff</span>
+            </div>
+          </div>
+          <span class="ctaLink">Launch TopAlbums →</span>
+        </a>
+
+        <!-- Tool 2: SESH -->
+        <a href="./SESH/" class="toolCard">
+          <div>
+            <div class="cardTop">
+              <div class="toolIcon">📊</div>
+              <span class="statusPill live">Live</span>
+            </div>
+            <h2 class="toolTitle">SESH</h2>
+            <p class="toolDesc">
+              Drop your <code>my_spotify_data.zip</code> Extended Streaming
+              History export to visualize top songs, albums, and artists across
+              any time window or calendar year.
+            </p>
+            <div class="tagList">
+              <span class="tag">ZIP Export Parser</span>
+              <span class="tag">Web Worker</span>
+              <span class="tag">All-Time Stats</span>
+            </div>
+          </div>
+          <span class="ctaLink">Launch SESH →</span>
+        </a>
+
+        <!-- Tool 3: DJMyPlaylist -->
+        <a href="./DJMyPlaylist/" class="toolCard wip">
+          <div>
+            <div class="cardTop">
+              <div class="toolIcon">🎧</div>
+              <span class="statusPill wip">Work in Progress</span>
+            </div>
+            <h2 class="toolTitle">DJMyPlaylist</h2>
+            <p class="toolDesc">
+              Reads key signature (Camelot wheel) and BPM metadata from an
+              existing playlist to generate the ideal track sequence for
+              seamless DJ transitions.
+            </p>
+            <div class="tagList">
+              <span class="tag">Key Signature</span>
+              <span class="tag">BPM Matching</span>
+              <span class="tag">Set Ordering</span>
+            </div>
+          </div>
+          <span class="ctaLink">View WIP Preview →</span>
+        </a>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DJMyPlaylist (WIP) — SpotKit</title>
+    <style>
+      :root {
+        --sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          sans-serif;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: var(--sans);
+        background:
+          radial-gradient(1000px circle at 20% 15%, rgba(245, 158, 11, 0.15), transparent 55%),
+          radial-gradient(1000px circle at 85% 10%, rgba(236, 72, 153, 0.16), transparent 55%),
+          #0b0b10;
+        color: rgba(255, 255, 255, 0.92);
+        line-height: 1.5;
+      }
+      .shell {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 28px 24px 72px;
+      }
+      .topNav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 36px;
+      }
+      .brand {
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        text-decoration: none;
+        color: #fff;
+      }
+      .brand span {
+        color: #1ed760;
+      }
+      .backLink {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 650;
+        color: rgba(255, 255, 255, 0.78);
+        text-decoration: none;
+        padding: 8px 14px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        transition: all 0.15s ease;
+      }
+      .backLink:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.045);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 40px 36px;
+        backdrop-filter: blur(12px);
+      }
+      .badgeRow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 5px 12px;
+        border-radius: 999px;
+      }
+      .badge.wip {
+        background: rgba(245, 158, 11, 0.16);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.38);
+      }
+      .badge.sub {
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      h1 {
+        font-size: 42px;
+        line-height: 1.12;
+        font-weight: 850;
+        margin: 16px 0 14px;
+        letter-spacing: -0.02em;
+      }
+      h1 span {
+        background: linear-gradient(90deg, #fbbf24, #ec4899);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .lead {
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.72);
+        max-width: 680px;
+        margin: 0;
+      }
+      .wipBanner {
+        margin-top: 26px;
+        padding: 16px 18px;
+        border-radius: 14px;
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        color: #fde68a;
+        font-size: 14px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-top: 28px;
+      }
+      @media (max-width: 760px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        h1 {
+          font-size: 32px;
+        }
+      }
+      .featureBox {
+        padding: 18px;
+        border-radius: 14px;
+        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+      }
+      .featureIcon {
+        font-size: 22px;
+        margin-bottom: 8px;
+      }
+      .featureTitle {
+        font-size: 15px;
+        font-weight: 750;
+        margin: 0 0 6px;
+        color: #fff;
+      }
+      .featureDesc {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.62);
+        margin: 0;
+      }
+      .previewStrip {
+        margin-top: 28px;
+        padding: 16px 20px;
+        border-radius: 14px;
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px dashed rgba(255, 255, 255, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.65);
+      }
+      .camelotFlow {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .node {
+        padding: 4px 10px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <nav class="topNav">
+        <a href="../" class="brand"><span>SpotKit</span> / DJMyPlaylist</a>
+        <a href="../" class="backLink">← Back to SpotKit Hub</a>
+      </nav>
+
+      <main class="card">
+        <div class="badgeRow">
+          <span class="badge wip">🚧 Work in Progress</span>
+          <span class="badge sub">Harmonic &amp; Tempo Playlist Sequencer</span>
+        </div>
+
+        <h1>
+          Turn any Spotify playlist into a <span>seamless DJ set.</span>
+        </h1>
+
+        <p class="lead">
+          <strong>DJMyPlaylist</strong> takes an existing playlist, analyzes
+          each track’s <strong>key signature</strong> and <strong>BPM</strong>,
+          and computes the optimal track ordering so every transition flows
+          harmonically and rhythmically.
+        </p>
+
+        <div class="wipBanner">
+          <span style="font-size: 18px">🛠️</span>
+          <div>
+            <strong>Currently Under Development (WIP)</strong> — This page is a
+            placeholder preview for the upcoming DJMyPlaylist tool in the
+            SpotKit suite. Interactive playlist loading and sequencing
+            algorithms are not yet active.
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="featureBox">
+            <div class="featureIcon">🎹</div>
+            <h3 class="featureTitle">Harmonic Key Matching</h3>
+            <p class="featureDesc">
+              Maps tracks onto the Camelot Wheel so adjacent songs share
+              compatible keys (same key, relative major/minor, or ±1 fifth).
+            </p>
+          </div>
+
+          <div class="featureBox">
+            <div class="featureIcon">⏱️</div>
+            <h3 class="featureTitle">BPM &amp; Energy Flow</h3>
+            <p class="featureDesc">
+              Minimizes abrupt tempo jumps between songs and supports smooth
+              warm-up ramps, peak-hour arcs, or cooldown curves.
+            </p>
+          </div>
+
+          <div class="featureBox">
+            <div class="featureIcon">🎧</div>
+            <h3 class="featureTitle">Optimal Set Ordering</h3>
+            <p class="featureDesc">
+              Solves for the lowest-friction path across your playlist and saves
+              the reordered sequence back to your Spotify account.
+            </p>
+          </div>
+        </div>
+
+        <div class="previewStrip">
+          <span>CONCEPT TRANSITION PATH</span>
+          <div class="camelotFlow">
+            <span class="node">Track A • 8A (Am) • 122 BPM</span>
+            <span>→</span>
+            <span class="node">Track B • 8A (Am) • 124 BPM</span>
+            <span>→</span>
+            <span class="node">Track C • 9A (Em) • 125 BPM</span>
+            <span>→</span>
+            <span class="node">Track D • 9B (G) • 126 BPM</span>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

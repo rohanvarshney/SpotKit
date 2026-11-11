@@ -1,0 +1,295 @@
+/* App shell */
+.appShell {
+  min-height: 100vh;
+  background: radial-gradient(1000px circle at 30% 20%, rgba(124, 58, 237, 0.18), transparent 60%),
+    radial-gradient(1000px circle at 80% 0%, rgba(16, 185, 129, 0.16), transparent 55%),
+    #0b0b10;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.appHeader {
+  padding: 28px 20px 12px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.brandTitle {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.brandSubtitle {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+}
+
+.appMain {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 16px 20px 60px;
+}
+
+/* UI primitives */
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.muted {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.button.secondary {
+  background: transparent;
+}
+
+.dropzone {
+  margin-top: 16px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.22);
+  border-radius: 16px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.dropzoneInner {
+  padding: 26px 18px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.18);
+  text-align: center;
+}
+
+.dropTitle {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.dropHint {
+  margin: 10px 0;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 13px;
+}
+
+.progressRow {
+  margin-top: 14px;
+}
+
+.progressBar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.85), rgba(124, 58, 237, 0.85));
+}
+
+.progressMeta {
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+}
+
+.errorBox {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 0, 80, 0.12);
+  border: 1px solid rgba(255, 0, 80, 0.18);
+  color: rgba(255, 255, 255, 0.9);
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
+.topList {
+  margin-top: 12px;
+  padding-left: 18px;
+}
+
+.topList li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.topLabel {
+  font-weight: 600;
+}
+
+.topMeta {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.toggle {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 13px;
+}
+
+.toggle input {
+  width: 18px;
+  height: 18px;
+}
+
+/* Dashboard */
+.dashHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dashActions {
+  padding-top: 6px;
+}
+
+.controls {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.segBtn {
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.76);
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.segBtn.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.scopeRow {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.select {
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  min-width: 220px;
+}
+
+.grid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 980px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.gridCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.gridTitle {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.chartWrap {
+  width: 100%;
+}
+
+.tableWrap {
+  width: 100%;
+  overflow: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 10px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  vertical-align: top;
+}
+
+.table th {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cellTitle {
+  font-weight: 650;
+}

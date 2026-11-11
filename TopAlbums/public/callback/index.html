@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connecting to Spotify… — TopAlbums</title>
+    <script>
+      // Forward OAuth PKCE query parameters (?code=...&state=...) from /callback to the app root
+      // so static hosts like GitHub Pages never hit a 404 on /callback regardless of trailing slash.
+      (function () {
+        var basePath =
+          window.location.pathname.replace(
+            /\/callback\/?(?:index\.html)?$/,
+            '/',
+          ) || '/';
+        var search = window.location.search || '';
+        var hash = window.location.hash || '';
+        window.location.replace(basePath + search + hash);
+      })();
+    </script>
+  </head>
+  <body style="background:#0b0b10;color:#fff;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;">
+    <p>Completing Spotify sign-in…</p>
+  </body>
+</html>
