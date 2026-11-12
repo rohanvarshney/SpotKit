@@ -557,12 +557,12 @@ export function DashboardView({
             <table className="rankingTable">
               <thead>
                 <tr>
-                  <th style={{ width: 56 }}>Rank</th>
+                  <th style={{ width: 52 }}>Rank</th>
                   <th>Album</th>
                   <th>Artist</th>
                   <th>Year</th>
                   <th>Liked / Total</th>
-                  <th style={{ minWidth: 150 }}>% Liked</th>
+                  <th style={{ minWidth: 124 }}>% Liked</th>
                   <th>
                     Top 50 Hits
                     <InfoTooltip

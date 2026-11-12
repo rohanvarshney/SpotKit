@@ -992,18 +992,12 @@
    ========================================= */
 .tableCard {
   padding: 0;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .tableWrap {
   width: 100%;
-  overflow-x: visible;
-}
-
-@media (max-width: 900px) {
-  .tableWrap {
-    overflow-x: auto;
-  }
+  overflow-x: auto;
 }
 
 .rankingTable thead .infoPopover {
@@ -1026,7 +1020,7 @@
 }
 
 .rankingTable thead th {
-  padding: 14px 16px;
+  padding: 14px 10px;
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
@@ -1035,6 +1029,16 @@
   background: rgba(0, 0, 0, 0.25);
   border-bottom: 1px solid rgba(255, 255, 255, 0.09);
   white-space: nowrap;
+}
+
+.rankingTable thead th:first-child,
+.rankingRow td:first-child {
+  padding-left: 16px;
+}
+
+.rankingTable thead th:last-child,
+.rankingRow td:last-child {
+  padding-right: 16px;
 }
 
 .rankingRow {
@@ -1052,7 +1056,7 @@
 }
 
 .rankingRow td {
-  padding: 12px 16px;
+  padding: 12px 10px;
   vertical-align: middle;
 }
 
@@ -1060,6 +1064,11 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
+}
+
+.tableAlbumCell > div {
+  min-width: 0;
 }
 
 .tableThumb {
@@ -1084,6 +1093,7 @@
   font-weight: 750;
   font-size: 14px;
   color: #fff;
+  overflow-wrap: break-word;
 }
 
 .tableInlineBadges {
@@ -1106,6 +1116,7 @@
 .tableArtistCell {
   color: rgba(255, 255, 255, 0.78);
   font-weight: 500;
+  overflow-wrap: break-word;
 }
 
 .monoCell {
@@ -1118,19 +1129,20 @@
 .tablePctCell {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .tablePctVal {
   font-family: var(--mono);
   font-weight: 800;
   color: #4ade80;
-  width: 40px;
+  width: 38px;
+  flex-shrink: 0;
 }
 
 .tableMiniBar {
   flex: 1;
-  min-width: 70px;
+  min-width: 52px;
   height: 7px;
 }
 
@@ -1143,6 +1155,7 @@
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .tableExpandBtn:hover {
@@ -1208,6 +1221,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
 }
 
 .metaBadge.flame {
