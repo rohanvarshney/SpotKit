@@ -115,7 +115,6 @@ export interface ScoringWeights {
   proportionWeight: number // 0..100
   volumeWeight: number // 0..100
   topTracksWeight: number // 0..100
-  popularityWeight: number // 0..100
   recencyWeight: number // 0..100
 }
 

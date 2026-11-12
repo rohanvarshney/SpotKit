@@ -10,10 +10,9 @@ import type {
 } from '../types/spotify'
 
 export const DEFAULT_WEIGHTS: ScoringWeights = {
-  proportionWeight: 52,
-  volumeWeight: 22,
-  topTracksWeight: 14,
-  popularityWeight: 7,
+  proportionWeight: 55,
+  volumeWeight: 25,
+  topTracksWeight: 15,
   recencyWeight: 5,
 }
 
@@ -202,7 +201,6 @@ export function scoreAndFilterAlbums(
     activeWeights.proportionWeight +
       activeWeights.volumeWeight +
       activeWeights.topTracksWeight +
-      activeWeights.popularityWeight +
       activeWeights.recencyWeight,
   )
 
@@ -415,7 +413,6 @@ export function scoreAndFilterAlbums(
       (proportionComponent * activeWeights.proportionWeight +
         volumeComponent * activeWeights.volumeWeight +
         topTracksBoostScore * activeWeights.topTracksWeight +
-        averagePopularity * activeWeights.popularityWeight +
         recencyScore * activeWeights.recencyWeight) /
       totalWeightSum
 

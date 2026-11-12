@@ -235,7 +235,7 @@ export function DashboardView({
               Ranking Formula
               <InfoTooltip
                 title="How Ranking Works"
-                body="Weighted Score combines Bayesian-smoothed % Liked (52%), Liked Song Volume (22%), Top 50 Tracks Boost (14%), Track Popularity (7%), and Recency of Likes (5%) so 1-track singles don't beat full albums."
+                body="Weighted Score combines Bayesian-smoothed % Liked (55%), Liked Song Volume (25%), Top 50 Tracks Boost (15%), and Recency of Likes (5%) so 1-track singles don't beat full albums."
               />
             </span>
             <div className="segmented">
@@ -319,8 +319,12 @@ export function DashboardView({
             <div className="slidersGrid">
               <label className="sliderLabel">
                 <span>
-                  Bayesian % Liked:{' '}
-                  <strong>{customWeights.proportionWeight}</strong>
+                  Bayesian % Liked
+                  <InfoTooltip
+                    title="Bayesian-Smoothed % Liked"
+                    body="Confidence-adjusted % Liked: (liked + 3.2 × 0.28) ÷ (total + 3.2). Pulls tiny 1–2 track singles toward a 28% baseline so a 1/1 single doesn't automatically outrank a 14/15 full album."
+                  />
+                  : <strong>{customWeights.proportionWeight}</strong>
                 </span>
                 <input
                   type="range"
@@ -363,24 +367,6 @@ export function DashboardView({
                   onChange={(e) =>
                     handleWeightChange(
                       'topTracksWeight',
-                      Number(e.target.value),
-                    )
-                  }
-                />
-              </label>
-              <label className="sliderLabel">
-                <span>
-                  Track Popularity:{' '}
-                  <strong>{customWeights.popularityWeight}</strong>
-                </span>
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  value={customWeights.popularityWeight}
-                  onChange={(e) =>
-                    handleWeightChange(
-                      'popularityWeight',
                       Number(e.target.value),
                     )
                   }
@@ -570,7 +556,6 @@ export function DashboardView({
                       body="Number of songs on this album that appear in your Spotify Top 50 most-played tracks (4-week, 6-month, or all-time)."
                     />
                   </th>
-                  <th>Avg Pop.</th>
                   <th>Score</th>
                   <th style={{ textAlign: 'right' }}>Tracklist</th>
                 </tr>
@@ -664,9 +649,6 @@ export function DashboardView({
                             <span className="muted">—</span>
                           )}
                         </td>
-                        <td className="monoCell">
-                          {Math.round(album.averagePopularity)}
-                        </td>
                         <td>
                           <span className="scorePill">
                             {album.finalScore.toFixed(1)}
@@ -687,7 +669,7 @@ export function DashboardView({
                       </tr>
                       {isExpanded && (
                         <tr className="tableDrawerRow">
-                          <td colSpan={10} style={{ padding: 0 }}>
+                          <td colSpan={9} style={{ padding: 0 }}>
                             <TracklistDrawerContent
                               album={album}
                               trackFilter={trackFilter}
@@ -715,7 +697,7 @@ export function DashboardView({
                       )}
                       {showTableBrandBreak && (
                         <tr className="tableBrandDividerRow" aria-hidden="true">
-                          <td colSpan={10}>
+                          <td colSpan={9}>
                             <BrandSignatureRow
                               variant="table"
                               index={Math.floor(rank / tableInterval)}
@@ -1260,7 +1242,13 @@ function TracklistDrawerContent({
     <div className="tracklistDrawer">
       <div className="breakdownStrip">
         <div className="breakdownItem">
-          <span className="breakdownLabel">Bayesian %</span>
+          <span className="breakdownLabel">
+            Bayesian %
+            <InfoTooltip
+              title="Bayesian-Smoothed % Liked"
+              body="Confidence-adjusted % Liked: (liked + 3.2 × 0.28) ÷ (total + 3.2). Pulls tiny 1–2 track singles toward a 28% baseline while rewarding high completion on deep, full-length albums."
+            />
+          </span>
           <strong>
             {Math.round(album.scoreBreakdown.proportionComponent)}
           </strong>
@@ -1272,12 +1260,6 @@ function TracklistDrawerContent({
         <div className="breakdownItem">
           <span className="breakdownLabel">Top 50 Boost</span>
           <strong>{Math.round(album.scoreBreakdown.topTracksComponent)}</strong>
-        </div>
-        <div className="breakdownItem">
-          <span className="breakdownLabel">Avg Popularity</span>
-          <strong>
-            {Math.round(album.scoreBreakdown.popularityComponent)}
-          </strong>
         </div>
         <div className="breakdownItem">
           <span className="breakdownLabel">Recency</span>
