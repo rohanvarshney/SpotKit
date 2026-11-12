@@ -96,15 +96,7 @@ export function LoginView({
             className="button demoBtn"
             onClick={() => onStartDemo(true)}
           >
-            ▶ Try Interactive Demo (with Loading Screen)
-          </button>
-
-          <button
-            type="button"
-            className="button secondary"
-            onClick={() => onStartDemo(false)}
-          >
-            Skip to Demo Dashboard
+            ▶ Try Interactive Demo
           </button>
         </div>
 

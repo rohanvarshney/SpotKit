@@ -4,6 +4,7 @@ import type {
   SpotifyAlbumFull,
   SpotifySavedTrackItem,
   SpotifyTrackFull,
+  SpotifyTrackSimple,
   SpotifyUserProfile,
   TopTrackTimeRange,
   UserTopTrackEntry,
@@ -49,6 +50,44 @@ interface PaginatedResponse<T> {
   limit: number
   offset: number
   next: string | null
+}
+
+export async function fetchSingleAlbumFull(
+  albumId: string,
+  accessToken: string,
+): Promise<SpotifyAlbumFull> {
+  const alb = await spotifyFetch<SpotifyAlbumFull>(
+    `/albums/${albumId}`,
+    accessToken,
+  )
+
+  // If the album has more than 50 tracks (or a paginated `tracks.next` cursor),
+  // fetch all remaining pages from /v1/albums/{id}/tracks so the tracklist is complete.
+  let nextTracksUrl: string | null =
+    alb.tracks?.next ??
+    (alb.total_tracks > (alb.tracks?.items?.length || 0)
+      ? `/albums/${alb.id}/tracks?limit=50&offset=${alb.tracks?.items?.length || 50}`
+      : null)
+
+  while (nextTracksUrl) {
+    try {
+      const tracksPage = await spotifyFetch<
+        PaginatedResponse<SpotifyTrackSimple>
+      >(nextTracksUrl, accessToken)
+      if (tracksPage.items?.length) {
+        alb.tracks.items.push(...tracksPage.items)
+      }
+      nextTracksUrl = tracksPage.next
+    } catch {
+      // Stop paginating this album's extra tracks if an error occurs
+      break
+    }
+  }
+
+  if (alb.tracks) {
+    alb.tracks.next = null
+  }
+  return alb
 }
 
 export async function fetchUserLibraryAndMetadata(
@@ -175,8 +214,9 @@ export async function fetchUserLibraryAndMetadata(
     `Indexed ${Object.keys(topTracksMap).length} unique Top Tracks across time scopes`,
   )
 
-  // Stage 4: Determine candidate albums to hydrate full tracklists (/v1/albums?ids=...)
-  // We prioritize albums where the user has >= 2 liked songs (up to top 160 albums) so batch hydration is fast and respects rate limits.
+  // Stage 4: Determine candidate albums to hydrate full tracklists (/v1/albums/{id})
+  // Note: Spotify removed the bulk `GET /v1/albums?ids=...` endpoint in 2026 for Dev Mode apps,
+  // so we fetch candidate albums individually via `GET /v1/albums/{id}` with bounded concurrency.
   const albumLikedCounts = new Map<string, number>()
   for (const item of savedTracks) {
     const albId = item.track.album?.id
@@ -186,30 +226,30 @@ export async function fetchUserLibraryAndMetadata(
 
   const candidateAlbumIds = Array.from(albumLikedCounts.entries())
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 180)
+    .slice(0, 120)
     .map(([id]) => id)
 
   const hydratedAlbumsMap: Record<string, SpotifyAlbumFull> = {}
-  const batchSize = 20
+  const concurrency = 6
 
-  for (let i = 0; i < candidateAlbumIds.length; i += batchSize) {
-    const batch = candidateAlbumIds.slice(i, i + batchSize)
-    try {
-      const res = await spotifyFetch<{ albums: (SpotifyAlbumFull | null)[] }>(
-        `/albums?ids=${batch.join(',')}`,
-        accessToken,
+  for (let i = 0; i < candidateAlbumIds.length; i += concurrency) {
+    const batch = candidateAlbumIds.slice(i, i + concurrency)
+    const settled = await Promise.allSettled(
+      batch.map((albId) => fetchSingleAlbumFull(albId, accessToken)),
+    )
+
+    let firstHydrated: SpotifyAlbumFull | null = null
+    for (const res of settled) {
+      if (res.status === 'fulfilled' && res.value?.id) {
+        hydratedAlbumsMap[res.value.id] = res.value
+        if (!firstHydrated) firstHydrated = res.value
+      }
+    }
+
+    if (firstHydrated) {
+      pushRecent(
+        `Hydrated tracklist: ${firstHydrated.name} (${firstHydrated.total_tracks} tracks)`,
       )
-      for (const alb of res.albums) {
-        if (alb && alb.id) {
-          hydratedAlbumsMap[alb.id] = alb
-        }
-      }
-      const firstHydrated = res.albums.find(Boolean)
-      if (firstHydrated) {
-        pushRecent(`Hydrated tracklist: ${firstHydrated.name} (${firstHydrated.total_tracks} tracks)`)
-      }
-    } catch {
-      // If a batch fails, we still fall back to simple album metadata from savedTracks
     }
 
     const hydratedCount = Math.min(candidateAlbumIds.length, i + batch.length)

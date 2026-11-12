@@ -3,9 +3,13 @@ import './App.css'
 import { DashboardView } from './components/DashboardView'
 import { LoadingView } from './components/LoadingView'
 import { LoginView } from './components/LoginView'
-import { fetchUserLibraryAndMetadata } from './lib/spotifyApi'
+import {
+  fetchSingleAlbumFull,
+  fetchUserLibraryAndMetadata,
+} from './lib/spotifyApi'
 import {
   clearSpotifySession,
+  getValidAccessToken,
   handleOAuthCallbackIfPresent,
   startSpotifyLogin,
 } from './lib/spotifyAuth'
@@ -183,6 +187,23 @@ export function App() {
     setScreen('login')
   }
 
+  const handleHydrateAlbumOnDemand = async (albumId: string) => {
+    if (!dataset || dataset.isDemo || dataset.hydratedAlbumsMap[albumId]) return
+    const token = await getValidAccessToken()
+    if (!token) return
+    const fullAlbum = await fetchSingleAlbumFull(albumId, token)
+    setDataset((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        hydratedAlbumsMap: {
+          ...prev.hydratedAlbumsMap,
+          [albumId]: fullAlbum,
+        },
+      }
+    })
+  }
+
   return (
     <div className="appShell">
       <header className="appHeader">
@@ -223,6 +244,7 @@ export function App() {
             dataset={dataset}
             onLogout={handleLogout}
             onConnectRealSpotify={handleLoginClick}
+            onHydrateAlbum={handleHydrateAlbumOnDemand}
           />
         )}
       </main>

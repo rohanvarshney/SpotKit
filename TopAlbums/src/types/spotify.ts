@@ -56,6 +56,7 @@ export interface SpotifyAlbumFull extends SpotifyAlbumSimple {
   tracks: {
     items: SpotifyTrackSimple[]
     total: number
+    next?: string | null
   }
 }
 
