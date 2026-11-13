@@ -25,21 +25,29 @@ export function TopEntitiesTable({ items, topN }: Props) {
       <table className="table">
         <thead>
           <tr>
-            <th style={{ width: 44 }}>#</th>
-            <th>Name</th>
-            <th style={{ width: 130, textAlign: 'right' }}>Time</th>
-            <th style={{ width: 110, textAlign: 'right' }}>Plays</th>
+            <th style={{ width: 52 }}>Rank</th>
+            <th>Title / Artist</th>
+            <th style={{ width: 110, textAlign: 'right' }}>Time</th>
+            <th style={{ width: 96, textAlign: 'right' }}>Streams</th>
           </tr>
         </thead>
         <tbody>
           {slice.map((it, idx) => (
             <tr key={it.key}>
-              <td className="muted">{idx + 1}</td>
+              <td>
+                <span className={idx < 3 ? 'rankBadge top3' : 'rankBadge'}>
+                  #{idx + 1}
+                </span>
+              </td>
               <td>
                 <div className="cellTitle">{it.label}</div>
               </td>
-              <td style={{ textAlign: 'right' }}>{fmtMinutes(it.msPlayed)}</td>
-              <td style={{ textAlign: 'right' }}>{it.playCount.toLocaleString()}</td>
+              <td className="cellMetric" style={{ textAlign: 'right' }}>
+                {fmtMinutes(it.msPlayed)}
+              </td>
+              <td className="cellMetric" style={{ textAlign: 'right' }}>
+                {it.playCount.toLocaleString()}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -47,4 +55,3 @@ export function TopEntitiesTable({ items, topN }: Props) {
     </div>
   )
 }
-

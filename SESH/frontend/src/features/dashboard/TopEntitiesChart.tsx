@@ -26,7 +26,7 @@ type ChartRow = {
 function toRows(items: TopEntity[], topN: number): ChartRow[] {
   return items.slice(0, topN).map((it) => ({
     key: it.key,
-    label: it.label.length > 42 ? `${it.label.slice(0, 42)}…` : it.label,
+    label: it.label.length > 36 ? `${it.label.slice(0, 36)}…` : it.label,
     minutes: Math.round(it.msPlayed / 1000 / 60),
   }))
 }
@@ -36,35 +36,44 @@ export function TopEntitiesChart({ items, topN }: Props) {
 
   return (
     <div className="chartWrap">
-      <ResponsiveContainer width="100%" height={360}>
-        <BarChart data={data} layout="vertical" margin={{ top: 8, right: 16, bottom: 8, left: 12 }}>
+      <ResponsiveContainer width="100%" height={400}>
+        <BarChart
+          data={data}
+          layout="vertical"
+          margin={{ top: 6, right: 18, bottom: 6, left: 8 }}
+        >
           <CartesianGrid stroke="rgba(255,255,255,0.06)" horizontal={false} />
           <XAxis
             type="number"
-            tick={{ fill: 'rgba(255,255,255,0.65)', fontSize: 12 }}
+            tick={{ fill: 'rgba(255,255,255,0.62)', fontSize: 12 }}
             stroke="rgba(255,255,255,0.12)"
           />
           <YAxis
             type="category"
             dataKey="label"
-            width={220}
-            tick={{ fill: 'rgba(255,255,255,0.75)', fontSize: 12 }}
+            width={200}
+            tick={{ fill: 'rgba(255,255,255,0.82)', fontSize: 12 }}
             stroke="rgba(255,255,255,0.12)"
           />
           <Tooltip
+            cursor={{ fill: 'rgba(255,255,255,0.04)' }}
             contentStyle={{
-              background: 'rgba(10,10,16,0.96)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: 10,
-              color: 'rgba(255,255,255,0.92)',
+              background: '#161622',
+              border: '1px solid rgba(255,255,255,0.16)',
+              borderRadius: 12,
+              color: 'rgba(255,255,255,0.94)',
+              boxShadow: '0 12px 28px rgba(0,0,0,0.6)',
             }}
-            labelStyle={{ color: 'rgba(255,255,255,0.75)' }}
-            formatter={(value) => [`${value} min`, 'Time']}
+            labelStyle={{ color: '#4ade80', fontWeight: 700, marginBottom: 4 }}
+            formatter={(value) => [`${Number(value).toLocaleString()} min`, 'Listening Time']}
           />
-          <Bar dataKey="minutes" fill="rgba(16, 185, 129, 0.85)" radius={[8, 8, 8, 8]} />
+          <Bar
+            dataKey="minutes"
+            fill="#1ed760"
+            radius={[0, 8, 8, 0]}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>
   )
 }
-

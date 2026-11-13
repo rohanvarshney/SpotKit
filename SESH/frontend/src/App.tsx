@@ -2,7 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
 import { useEffect, useRef, useState } from 'react'
-import type { ProcessorProgress, SummaryResult, WorkerResponse } from './lib/spotify/types'
+import type {
+  ProcessorProgress,
+  SummaryResult,
+  WorkerResponse,
+} from './lib/spotify/types'
 import { Dashboard } from './features/dashboard/Dashboard'
 import { ProcessingScreen } from './features/loading/ProcessingScreen'
 import { UploadDropzone } from './features/upload/UploadDropzone'
@@ -10,14 +14,15 @@ import { mockSummary } from './mocks/mockSummary'
 import './App.css'
 
 function App() {
-  const [mode, setMode] = useState<'idle' | 'processing' | 'results' | 'error'>('idle')
+  const [mode, setMode] = useState<'idle' | 'processing' | 'results' | 'error'>(
+    'idle',
+  )
   const [progress, setProgress] = useState<ProcessorProgress | null>(null)
   const [summary, setSummary] = useState<SummaryResult | null>(null)
+  const [isDemo, setIsDemo] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [mockMode, setMockMode] = useState(false)
 
   const workerRef = useRef<Worker | null>(null)
-
   const topN = 25
 
   useEffect(() => {
@@ -30,13 +35,17 @@ function App() {
   const onFile = async (file: File) => {
     setError(null)
     setSummary(null)
-    setProgress({ stage: 'unzip', message: 'Starting…' })
+    setIsDemo(false)
+    setProgress({ stage: 'unzip', message: 'Opening ZIP archive…' })
     setMode('processing')
 
     if (workerRef.current) workerRef.current.terminate()
-    const w = new Worker(new URL('./workers/spotifyProcessor.worker.ts', import.meta.url), {
-      type: 'module',
-    })
+    const w = new Worker(
+      new URL('./workers/spotifyProcessor.worker.ts', import.meta.url),
+      {
+        type: 'module',
+      },
+    )
     workerRef.current = w
 
     w.onmessage = (e: MessageEvent<WorkerResponse>) => {
@@ -62,48 +71,46 @@ function App() {
 
   return (
     <div className="appShell">
-      <header className="appHeader" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div className="brand" style={{ textAlign: 'left' }}>
-          <div className="brandTitle">SESH</div>
-          <div className="brandSubtitle">Spotify Extended Streaming History</div>
+      <header className="appHeader">
+        <div className="headerRow">
+          <div>
+            <div className="brandTitle">
+              <span className="brandAccent">SpotKit</span> / SESH
+            </div>
+            <div className="brandSubtitle">
+              Spotify Extended Streaming History archive visualizer
+            </div>
+          </div>
+          <a href="../" className="button secondary small">
+            ← SpotKit Hub
+          </a>
         </div>
-        <a href="../" className="button secondary" style={{ textDecoration: 'none', fontSize: 13 }}>
-          ← SpotKit Hub
-        </a>
       </header>
 
       <main className="appMain">
         {mode === 'idle' && (
           <UploadDropzone
-            title="Upload your Spotify data ZIP"
+            title={
+              <>
+                Explore your complete <span>Spotify listening history.</span>
+              </>
+            }
             subtitle={
               <>
-                Processing happens locally in your browser. Drop <code>my_spotify_data.zip</code> to generate your stats.
+                <strong>SESH</strong> unpacks and analyzes your{' '}
+                <code>my_spotify_data.zip</code> Extended Streaming History
+                export 100% locally in your browser—ranking your top songs,
+                albums, and artists across rolling time windows and every
+                calendar year.
               </>
             }
             onFile={(f) => onFile(f)}
-            extra={
-              <div className="row">
-                <label className="toggle">
-                  <input
-                    type="checkbox"
-                    checked={mockMode}
-                    onChange={(e) => setMockMode(e.target.checked)}
-                  />
-                  <span>Use mock data (for UI iteration)</span>
-                </label>
-                <button
-                  className="button secondary"
-                  onClick={() => {
-                    setSummary(mockSummary)
-                    setMode('results')
-                  }}
-                  disabled={!mockMode}
-                >
-                  Load mock dashboard
-                </button>
-              </div>
-            }
+            onLoadDemo={() => {
+              setError(null)
+              setIsDemo(true)
+              setSummary(mockSummary)
+              setMode('results')
+            }}
           />
         )}
 
@@ -120,34 +127,47 @@ function App() {
         )}
 
         {mode === 'error' && (
-          <section className="card">
-            <h1>Something went wrong</h1>
-            <pre className="errorBox">{error ?? 'Unknown error'}</pre>
-            <div className="row">
-              <button
-                className="button"
-                onClick={() => {
-                  setError(null)
-                  setMode('idle')
-                }}
-              >
-                Try again
-              </button>
-            </div>
-          </section>
+          <div className="heroContainer">
+            <section className="card">
+              <div className="heroBadge">ARCHIVE ERROR</div>
+              <h2 className="loadingTitle" style={{ marginTop: 10 }}>
+                Could not process ZIP archive
+              </h2>
+              <pre className="errorBox">{error ?? 'Unknown error'}</pre>
+              <div className="row" style={{ marginTop: 18 }}>
+                <button
+                  className="button spotifyBtn"
+                  onClick={() => {
+                    setError(null)
+                    setMode('idle')
+                  }}
+                >
+                  Try Another ZIP
+                </button>
+              </div>
+            </section>
+          </div>
         )}
 
         {mode === 'results' && summary && (
           <Dashboard
             summary={summary}
             topN={topN}
+            isDemo={isDemo}
             onReset={() => {
               setSummary(null)
+              setIsDemo(false)
               setMode('idle')
             }}
           />
         )}
       </main>
+
+      <footer className="siteFooter">
+        © 2026 Rohan Varshney. All Rights Reserved. SESH is an independent
+        project in the SpotKit suite and is not affiliated with, endorsed by, or
+        sponsored by Spotify AB.
+      </footer>
     </div>
   )
 }
