@@ -192,12 +192,17 @@ export async function fetchUserLibraryAndMetadata(
             primaryArtistName: (track.artists[0]?.name || '').toLowerCase(),
             bestRank: rank,
             ranges: [range],
+            rankByRange: { [range]: rank },
             scoreBoost: rankBoost,
           }
         } else {
           existing.bestRank = Math.min(existing.bestRank, rank)
           if (!existing.ranges.includes(range)) {
             existing.ranges.push(range)
+          }
+          existing.rankByRange = {
+            ...existing.rankByRange,
+            [range]: Math.min(existing.rankByRange?.[range] ?? rank, rank),
           }
           existing.scoreBoost = Math.min(
             1,

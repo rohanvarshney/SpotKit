@@ -78,6 +78,7 @@ export interface UserTopTrackEntry {
   primaryArtistName: string
   bestRank: number // 1..50
   ranges: TopTrackTimeRange[]
+  rankByRange?: Partial<Record<TopTrackTimeRange, number>>
   scoreBoost: number // 0..1 normalized boost for this track
 }
 

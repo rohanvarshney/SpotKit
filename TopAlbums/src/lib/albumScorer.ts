@@ -6,6 +6,7 @@ import type {
   ScoringWeights,
   SpotifyAlbumSimple,
   SpotifySavedTrackItem,
+  TopTrackTimeRange,
   UserTopTrackEntry,
 } from '../types/spotify'
 
@@ -78,25 +79,67 @@ interface AlbumBucket {
   likedTracksByNormName: Map<string, LikedTrackRecord>
 }
 
+const CANONICAL_RANGES: TopTrackTimeRange[] = [
+  'short_term',
+  'medium_term',
+  'long_term',
+]
+
+function mergeTopTrackEntries(
+  a: UserTopTrackEntry,
+  b: UserTopTrackEntry,
+): UserTopTrackEntry {
+  const rankByRange: Partial<Record<TopTrackTimeRange, number>> = {
+    ...a.rankByRange,
+  }
+  for (const r of a.ranges) {
+    if (rankByRange[r] === undefined) {
+      rankByRange[r] = a.bestRank
+    }
+  }
+  for (const r of b.ranges) {
+    const bRank = b.rankByRange?.[r] ?? b.bestRank
+    const prev = rankByRange[r]
+    rankByRange[r] = prev === undefined ? bRank : Math.min(prev, bRank)
+  }
+  const mergedRanges = CANONICAL_RANGES.filter(
+    (r) => a.ranges.includes(r) || b.ranges.includes(r),
+  )
+  const bestRank = Math.min(a.bestRank, b.bestRank)
+  const baseBoost = (51 - bestRank) / 50
+  const scoreBoost = Math.min(
+    1,
+    Math.max(a.scoreBoost, b.scoreBoost, baseBoost) +
+      0.12 * Math.max(0, mergedRanges.length - 1),
+  )
+  return {
+    trackId: a.trackId,
+    normalizedTitle: a.normalizedTitle,
+    primaryArtistName: a.primaryArtistName,
+    bestRank,
+    ranges: mergedRanges,
+    rankByRange,
+    scoreBoost,
+  }
+}
+
 function findTopTrackMatch(
   trackId: string,
   normalizedName: string,
   primaryArtist: string,
   topTracksMap: Record<string, UserTopTrackEntry>,
 ): UserTopTrackEntry | undefined {
-  if (topTracksMap[trackId]) {
-    return topTracksMap[trackId]
-  }
+  let result: UserTopTrackEntry | undefined = topTracksMap[trackId]
   const artistLower = primaryArtist.toLowerCase()
   for (const entry of Object.values(topTracksMap)) {
     if (
       entry.normalizedTitle === normalizedName &&
       entry.primaryArtistName === artistLower
     ) {
-      return entry
+      result = result ? mergeTopTrackEntries(result, entry) : entry
     }
   }
-  return undefined
+  return result
 }
 
 export function scoreAndFilterAlbums(
@@ -181,9 +224,11 @@ export function scoreAndFilterAlbums(
         topTrackInfo: topMatch,
       })
     } else {
-      // Keep higher popularity, earlier/later addedAt, and preserve any topTrackInfo
-      if (topMatch && !existingTrack.topTrackInfo) {
-        existingTrack.topTrackInfo = topMatch
+      // Keep higher popularity, earlier/later addedAt, and preserve/merge any topTrackInfo
+      if (topMatch) {
+        existingTrack.topTrackInfo = existingTrack.topTrackInfo
+          ? mergeTopTrackEntries(existingTrack.topTrackInfo, topMatch)
+          : topMatch
       }
       if ((item.track.popularity ?? 0) > existingTrack.popularity) {
         existingTrack.popularity = item.track.popularity

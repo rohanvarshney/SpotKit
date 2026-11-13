@@ -1065,12 +1065,16 @@ export function buildDemoLibraryDataset(): RawLibraryDataset {
     const trackSimples = spec.tracks.map((t, index) => {
       const trackId = `${spec.id}_trk_${index + 1}`
       if (t.topRank && t.topRanges) {
+        const rankByRange = Object.fromEntries(
+          t.topRanges.map((r, idx) => [r, Math.min(50, t.topRank! + idx * 2)]),
+        )
         topTracksMap[trackId] = {
           trackId,
           normalizedTitle: normalizeTrackTitle(t.name),
           primaryArtistName: spec.artistName.toLowerCase(),
           bestRank: t.topRank,
           ranges: t.topRanges,
+          rankByRange,
           scoreBoost: Math.min(1, (51 - t.topRank) / 50 + 0.1 * (t.topRanges.length - 1)),
         }
       }

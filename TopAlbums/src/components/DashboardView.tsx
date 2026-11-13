@@ -1353,15 +1353,17 @@ function TracklistDrawerContent({
               </span>
               <div className="trackMain">
                 <span className="trackName">{t.name}</span>
-                {t.topTrackInfo && (
-                  <span className="topTrackPill">
-                    🔥 #{t.topTrackInfo.bestRank} Top Track (
-                    {t.topTrackInfo.ranges
-                      .map((r) => RANGE_LABELS[r] || r)
-                      .join(', ')}
+                {t.topTrackInfo &&
+                  t.topTrackInfo.ranges.map((r) => {
+                    const rangeRank =
+                      t.topTrackInfo?.rankByRange?.[r] ??
+                      t.topTrackInfo?.bestRank
+                    return (
+                      <span key={r} className="topTrackPill">
+                        🔥 #{rangeRank} Top Track ({RANGE_LABELS[r] || r})
+                      </span>
                     )
-                  </span>
-                )}
+                  })}
               </div>
               <span className="trackDate">
                 {t.isLiked && t.addedAt
