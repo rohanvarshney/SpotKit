@@ -110,7 +110,7 @@ export function DashboardView({
   )
 
   const noSkipCount = useMemo(
-    () => scoredAlbums.filter((a) => a.proportionLiked >= 0.8).length,
+    () => scoredAlbums.filter((a) => isNoSkipAlbum(a)).length,
     [scoredAlbums],
   )
 
@@ -207,10 +207,10 @@ export function DashboardView({
           <div className="kpiCard">
             <div className="kpiValue accentGreen">{noSkipCount}</div>
             <div className="kpiLabel">
-              “No-Skip” Albums (≥80% Liked)
+              “No-Skip” Albums (100% Liked)
               <InfoTooltip
-                title="No-Skip Albums"
-                body="Albums where you have liked at least 80% of the entire tracklist—indicating records you love almost cover-to-cover."
+                title="No-Skip Albums (S Tier)"
+                body="Albums where you have liked 100% of the entire tracklist—earning the ★ No-Skip badge and an automatic spot in S Tier."
               />
             </div>
           </div>
@@ -463,7 +463,7 @@ export function DashboardView({
                 Grade-based Tiering
                 <InfoTooltip
                   title="Grade-based Tiering"
-                  body="Assigns albums to tiers by their Score (0–100) instead of Fibonacci bucket counts: S (≥95), A (≥90), B (≥80), C (≥70), D (≥60), and F (<60)."
+                  body="Assigns albums to tiers by score thresholds instead of Fibonacci bucket counts: S (100% / No-Skip), A (≥90%), B (≥80%), C (≥70%), D (≥60%), and F (<60%)."
                 />
               </span>
             </label>
@@ -867,10 +867,21 @@ function AlbumGridCard({
 }
 
 const TIER_LETTERS = ['S', 'A', 'B', 'C', 'D', 'F'] as const
-// 12 Fibonacci levels (2 per tier across S, A, B, C, D, F)
-const BASE_FIBONACCI_LEVELS = [
-  1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233,
+const NON_S_TIER_LETTERS = ['A', 'B', 'C', 'D', 'F'] as const
+// 10 Fibonacci levels across A, B, C, D, F (2 per tier; S tier is reserved exclusively for 100% / No-Skip albums)
+const NON_S_FIBONACCI_LEVELS = [
+  3, 5, 8, 13, 21, 34, 55, 89, 144, 233,
 ] as const
+
+export function isNoSkipAlbum(album: ScoredAlbum): boolean {
+  const unlikedCount = Math.max(0, album.totalTracks - album.likedCount)
+  const pct = Math.round(album.proportionLiked * 100)
+  return (
+    (album.totalTracks > 0 && unlikedCount === 0) ||
+    pct >= 100 ||
+    Math.round(album.finalScore) >= 100
+  )
+}
 
 export interface FibonacciLevel {
   levelIndex: number
@@ -889,60 +900,113 @@ export interface FibonacciTierGroup {
 
 /**
  * Distributes `albums` across S, A, B, C, D, and F tiers (always ending at F tier):
- * - When the user has enough albums to cover all 12 Fibonacci levels (≥608), uses the exact
- *   Fibonacci capacities (S: 1+2, A: 3+5, B: 8+13, C: 21+34, D: 55+89, F: 144+rest)
- *   and caps the final tier at F so no tiers beyond F are created.
- * - When the user has fewer albums (<608), flexibly scales the 12 Fibonacci level buckets
- *   proportionally (preserving the pyramid shape where top tiers are tight and lower tiers
- *   widen following Fibonacci weights) so albums span from S down through F tier.
+ * - S tier ALWAYS contains all (and only) "No-Skip" / 100% albums (`isNoSkipAlbum`),
+ *   regardless of which Ranking Formula or filter setting is active.
+ * - Remaining (<100%) albums are distributed across A, B, C, D, and F tiers using
+ *   2 Fibonacci levels per tier (A: 3+5, B: 8+13, C: 21+34, D: 55+89, F: 144+rest),
+ *   scaling proportionally for smaller libraries and always ending at F tier.
  */
 export function buildFibonacciTierGroups(
   albums: ScoredAlbum[],
 ): FibonacciTierGroup[] {
-  const n = albums.length
-  if (n === 0) return []
+  if (albums.length === 0) return []
 
-  const totalLevels = BASE_FIBONACCI_LEVELS.length // 12 (2 levels per tier * 6 tiers: S, A, B, C, D, F)
-  const fullFibSum = BASE_FIBONACCI_LEVELS.reduce((s, v) => s + v, 0) // 608
+  const noSkipAlbums = albums.filter((a) => isNoSkipAlbum(a))
+  const remainingAlbums = albums.filter((a) => !isNoSkipAlbum(a))
+
+  const groups: FibonacciTierGroup[] = []
+  let rankCursor = 1
+
+  // Build S Tier from all No-Skip / 100% albums
+  if (noSkipAlbums.length > 0) {
+    const sCount = noSkipAlbums.length
+    const sLevels: FibonacciLevel[] = []
+    if (sCount === 1) {
+      sLevels.push({
+        levelIndex: 0,
+        baseFibonacci: 1,
+        capacity: 1,
+        items: [{ album: noSkipAlbums[0], rank: rankCursor++ }],
+      })
+    } else {
+      // Split across S tier's 2 sub-levels in a ~1:2 Fibonacci pyramid ratio
+      const firstRowCount = Math.max(1, Math.floor(sCount / 3))
+      const firstSlice = noSkipAlbums
+        .slice(0, firstRowCount)
+        .map((album) => ({ album, rank: rankCursor++ }))
+      const secondSlice = noSkipAlbums
+        .slice(firstRowCount)
+        .map((album) => ({ album, rank: rankCursor++ }))
+      sLevels.push(
+        {
+          levelIndex: 0,
+          baseFibonacci: 1,
+          capacity: firstSlice.length,
+          items: firstSlice,
+        },
+        {
+          levelIndex: 1,
+          baseFibonacci: 2,
+          capacity: secondSlice.length,
+          items: secondSlice,
+        },
+      )
+    }
+    groups.push({
+      tierLetter: 'S',
+      tierIndex: 0,
+      levels: sLevels,
+      totalCapacity: sCount,
+      totalItems: sCount,
+    })
+  } else {
+    groups.push({
+      tierLetter: 'S',
+      tierIndex: 0,
+      levels: [],
+      totalCapacity: 0,
+      totalItems: 0,
+    })
+  }
+
+  // Distribute remaining (<100%) albums across A, B, C, D, F (10 Fibonacci levels)
+  const m = remainingAlbums.length
+  if (m === 0) {
+    return groups
+  }
+
+  const totalNonSLevels = NON_S_FIBONACCI_LEVELS.length // 10 (2 per tier across A, B, C, D, F)
+  const fullNonSFibSum = NON_S_FIBONACCI_LEVELS.reduce((s, v) => s + v, 0) // 605
 
   let capacities: number[]
 
-  if (n >= fullFibSum) {
-    // Use exact Fibonacci counts for the first 11 levels, and put all remaining into the 12th level (end of F tier)
-    capacities = [...BASE_FIBONACCI_LEVELS]
-    const first11Sum = capacities.slice(0, 11).reduce((s, v) => s + v, 0)
-    capacities[11] = n - first11Sum
-  } else if (n < TIER_LETTERS.length) {
-    // Fewer than 6 albums: 1 album per active tier, always including F as the final tier
-    capacities = new Array(totalLevels).fill(0)
-    for (let i = 0; i < n; i += 1) {
+  if (m >= fullNonSFibSum) {
+    capacities = [...NON_S_FIBONACCI_LEVELS]
+    const first9Sum = capacities.slice(0, 9).reduce((s, v) => s + v, 0)
+    capacities[9] = m - first9Sum
+  } else if (m < NON_S_TIER_LETTERS.length) {
+    // Fewer than 5 remaining albums: 1 per active tier, always ending at F tier
+    capacities = new Array(totalNonSLevels).fill(0)
+    for (let i = 0; i < m; i += 1) {
       const tierIdx =
-        i === n - 1
-          ? TIER_LETTERS.length - 1
-          : i
+        i === m - 1 ? NON_S_TIER_LETTERS.length - 1 : i
       capacities[tierIdx * 2] += 1
     }
   } else {
-    // Between 6 and 607 albums:
-    // If n >= 12, guarantee at least 1 slot in every one of the 12 sub-levels, then distribute
-    // the remaining (n - 12) albums proportionally using a compressed Fibonacci curve so S/A
-    // stay selective (~1, 2, 3...) while lower tiers expand smoothly and always end at F.
-    capacities = new Array(totalLevels).fill(0)
-
-    if (n >= totalLevels) {
-      for (let i = 0; i < totalLevels; i += 1) {
+    capacities = new Array(totalNonSLevels).fill(0)
+    if (m >= totalNonSLevels) {
+      for (let i = 0; i < totalNonSLevels; i += 1) {
         capacities[i] = 1
       }
-      const remaining = n - totalLevels
-      if (remaining > 0) {
-        const rawWeights = BASE_FIBONACCI_LEVELS.map((fib, idx) =>
-          Math.max(0, Math.pow(fib, 0.65) - (idx === 0 ? 1 : 0.85)),
+      const extra = m - totalNonSLevels
+      if (extra > 0) {
+        const rawWeights = NON_S_FIBONACCI_LEVELS.map((fib) =>
+          Math.max(0, Math.pow(fib, 0.65) - 0.85),
         )
         const weightSum = rawWeights.reduce((s, w) => s + w, 0)
-        const exactExtras = rawWeights.map((w) => (w / weightSum) * remaining)
+        const exactExtras = rawWeights.map((w) => (w / weightSum) * extra)
         const floored = exactExtras.map((v) => Math.floor(v))
-        const leftover =
-          remaining - floored.reduce((s, v) => s + v, 0)
+        const leftover = extra - floored.reduce((s, v) => s + v, 0)
 
         const remainders = exactExtras
           .map((v, idx) => ({ idx, rem: v - floored[idx] }))
@@ -951,49 +1015,55 @@ export function buildFibonacciTierGroups(
         for (let k = 0; k < leftover; k += 1) {
           floored[remainders[k].idx] += 1
         }
-        for (let i = 0; i < totalLevels; i += 1) {
+        for (let i = 0; i < totalNonSLevels; i += 1) {
           capacities[i] += floored[i]
         }
       }
     } else {
-      // 6 <= n < 12: Guarantee at least 1 album in each of the 6 tiers (S, A, B, C, D, F),
-      // then allocate the extra (n - 6) albums into the second sub-levels from F upward (Fibonacci pyramid).
-      for (let t = 0; t < TIER_LETTERS.length; t += 1) {
+      // 5 <= m < 10: 1 album in each of A, B, C, D, F, then fill second sub-levels from F upward
+      for (let t = 0; t < NON_S_TIER_LETTERS.length; t += 1) {
         capacities[t * 2] = 1
       }
-      let extra = n - TIER_LETTERS.length
-      for (let t = TIER_LETTERS.length - 1; t >= 0 && extra > 0; t -= 1) {
+      let extra = m - NON_S_TIER_LETTERS.length
+      for (
+        let t = NON_S_TIER_LETTERS.length - 1;
+        t >= 0 && extra > 0;
+        t -= 1
+      ) {
         capacities[t * 2 + 1] = 1
         extra -= 1
       }
     }
   }
 
-  const levels: FibonacciLevel[] = []
-  let cursor = 0
-  for (let i = 0; i < totalLevels; i += 1) {
+  const nonSLevels: FibonacciLevel[] = []
+  let remCursor = 0
+  for (let i = 0; i < totalNonSLevels; i += 1) {
     const cap = capacities[i]
-    const slice = albums.slice(cursor, cursor + cap).map((album, idx) => ({
-      album,
-      rank: cursor + idx + 1,
-    }))
-    levels.push({
-      levelIndex: i,
-      baseFibonacci: BASE_FIBONACCI_LEVELS[i],
+    const slice = remainingAlbums
+      .slice(remCursor, remCursor + cap)
+      .map((album) => ({
+        album,
+        rank: rankCursor++,
+      }))
+    nonSLevels.push({
+      levelIndex: i + 2,
+      baseFibonacci: NON_S_FIBONACCI_LEVELS[i],
       capacity: cap,
       items: slice,
     })
-    cursor += cap
+    remCursor += cap
   }
 
-  const groups: FibonacciTierGroup[] = []
-  for (let t = 0; t < TIER_LETTERS.length; t += 1) {
-    const pair = levels.slice(t * 2, t * 2 + 2).filter((l) => l.items.length > 0)
+  for (let t = 0; t < NON_S_TIER_LETTERS.length; t += 1) {
+    const pair = nonSLevels
+      .slice(t * 2, t * 2 + 2)
+      .filter((l) => l.items.length > 0)
     if (pair.length === 0) continue
-    const tierLetter = TIER_LETTERS[t]
+    const tierLetter = NON_S_TIER_LETTERS[t]
     groups.push({
       tierLetter,
-      tierIndex: t,
+      tierIndex: t + 1,
       levels: pair,
       totalCapacity: pair.reduce((sum, l) => sum + l.capacity, 0),
       totalItems: pair.reduce((sum, l) => sum + l.items.length, 0),
@@ -1008,7 +1078,7 @@ const GRADE_THRESHOLDS: {
   minScore: number
   label: string
 }[] = [
-  { tierLetter: 'S', minScore: 95, label: '≥ 95%' },
+  { tierLetter: 'S', minScore: 100, label: '100%' },
   { tierLetter: 'A', minScore: 90, label: '≥ 90%' },
   { tierLetter: 'B', minScore: 80, label: '≥ 80%' },
   { tierLetter: 'C', minScore: 70, label: '≥ 70%' },
@@ -1019,27 +1089,34 @@ const GRADE_THRESHOLDS: {
 export function buildGradeTierGroups(
   albums: ScoredAlbum[],
 ): FibonacciTierGroup[] {
-  const buckets = new Map<
+  const rawBuckets = new Map<
     (typeof TIER_LETTERS)[number],
-    { album: ScoredAlbum; rank: number }[]
+    ScoredAlbum[]
   >()
   for (const t of TIER_LETTERS) {
-    buckets.set(t, [])
+    rawBuckets.set(t, [])
   }
 
-  albums.forEach((album, idx) => {
-    const score = album.finalScore
-    const matched =
-      GRADE_THRESHOLDS.find((g) => score >= g.minScore) ??
-      GRADE_THRESHOLDS[GRADE_THRESHOLDS.length - 1]
-    buckets.get(matched.tierLetter)?.push({
-      album,
-      rank: idx + 1,
-    })
-  })
+  const nonSThresholds = GRADE_THRESHOLDS.slice(1)
+  for (const album of albums) {
+    if (isNoSkipAlbum(album)) {
+      rawBuckets.get('S')?.push(album)
+    } else {
+      const score = album.finalScore
+      const matched =
+        nonSThresholds.find((g) => score >= g.minScore) ??
+        nonSThresholds[nonSThresholds.length - 1]
+      rawBuckets.get(matched.tierLetter)?.push(album)
+    }
+  }
 
+  let rankCursor = 1
   return GRADE_THRESHOLDS.map((g, tierIndex) => {
-    const items = buckets.get(g.tierLetter) || []
+    const bucketAlbums = rawBuckets.get(g.tierLetter) || []
+    const items = bucketAlbums.map((album) => ({
+      album,
+      rank: rankCursor++,
+    }))
     return {
       tierLetter: g.tierLetter,
       tierIndex,
@@ -1091,9 +1168,12 @@ function FibonacciTierView({
       {tierGroups.map((group, groupIdx) => {
         const showTierBrandBreak =
           (groupIdx + 1) % 2 === 0 || groupIdx === tierGroups.length - 1
-        const gradeLabel = gradeBased
-          ? GRADE_THRESHOLDS[group.tierIndex]?.label
-          : null
+        const gradeLabel =
+          group.tierLetter === 'S'
+            ? '100%'
+            : gradeBased
+              ? GRADE_THRESHOLDS[group.tierIndex]?.label
+              : null
         return (
           <Fragment key={group.tierLetter}>
             <section
@@ -1162,9 +1242,11 @@ function FibonacciTierView({
                                     #{rank}
                                   </span>
                                   <span className="tierTilePct">
-                                    {gradeBased
-                                      ? `${album.finalScore.toFixed(0)} pts`
-                                      : `${pct}%`}
+                                    {group.tierLetter === 'S'
+                                      ? '100%'
+                                      : gradeBased
+                                        ? `${album.finalScore.toFixed(0)} pts`
+                                        : `${pct}%`}
                                   </span>
                                 </div>
                                 <div className="tierTileTitle">
