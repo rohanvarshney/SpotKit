@@ -8,7 +8,17 @@
 
 ## GitHub Pages URLs
 
-- **SpotKit Hub**: `https://<username>.github.io/SpotKit/`
-- **TopAlbums**: `https://<username>.github.io/SpotKit/TopAlbums/` (OAuth Callback: `https://<username>.github.io/SpotKit/TopAlbums/callback`)
-- **SESH**: `https://<username>.github.io/SpotKit/SESH/`
-- **DJMyPlaylist**: `https://<username>.github.io/SpotKit/DJMyPlaylist/`
+- **SpotKit Hub**: `https://rohanvarshney.github.io/SpotKit/`
+- **TopAlbums**: `https://rohanvarshney.github.io/SpotKit/TopAlbums/` (OAuth Callback: `https://rohanvarshney.github.io/SpotKit/TopAlbums/callback`)
+- **SESH**: `https://rohanvarshney.github.io/SpotKit/SESH/`
+- **DJMyPlaylist**: `https://rohanvarshney.github.io/SpotKit/DJMyPlaylist/`
+
+## Copyright & License
+
+**Copyright © 2026 Rohan Varshney. All Rights Reserved.**
+
+This repository and all associated source code, algorithms, and user interface designs are proprietary. No permission is granted to copy, modify, redistribute, or use any part of this project in commercial or derivative works without prior written authorization from the author. See [LICENSE](./LICENSE) and [NOTICE](./NOTICE) for details.
+
+## Trademark & Non-Affiliation Disclaimer
+
+**SpotKit** (`TopAlbums`, `SESH`, and `DJMyPlaylist`) is an independent project created by Rohan Varshney and is **not** affiliated with, endorsed by, sponsored by, or officially connected with **Spotify AB**. "Spotify" and related marks are registered trademarks of Spotify AB.

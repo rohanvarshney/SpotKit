@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Rohan Varshney
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 export type AlbumType = 'album' | 'single' | 'compilation'
 
 export interface SpotifyImage {

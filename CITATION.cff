@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+title: "SpotKit: Personal Spotify Analytics & Playlist Suite"
+message: "If you reference or cite SpotKit (TopAlbums, SESH, or DJMyPlaylist), please cite it using the metadata below. All rights reserved."
+type: software
+authors:
+  - given-names: Rohan
+    family-names: Varshney
+    email: rohanvar@gmail.com
+repository-code: "https://github.com/rohanvarshney/SpotKit"
+url: "https://rohanvarshney.github.io/SpotKit/"
+abstract: "A suite of client-side web utilities for ranking top albums using Bayesian completion scoring (TopAlbums), visualizing Extended Streaming History archives (SESH), and sequencing playlists by harmonic key and BPM (DJMyPlaylist)."
+keywords:
+  - spotkit
+  - topalbums
+  - sesh
+  - djmyplaylist
+  - music-analytics
+license: LicenseRef-Proprietary
+version: 1.0.0
+date-released: "2026-11-13"

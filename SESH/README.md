@@ -29,3 +29,8 @@ Open `http://127.0.0.1:5173/` and upload `my_spotify_data.zip`.
 - `frontend/`: React + Vite TypeScript application
 - `docs/`: project documentation
 - `rova_historical_data/`: local sample/export data artifacts
+
+## Copyright & Disclaimer
+
+Copyright © 2026 Rohan Varshney. All Rights Reserved. See root [LICENSE](../LICENSE) and [NOTICE](../NOTICE).
+SESH is an independent tool and is not affiliated with, endorsed by, or sponsored by Spotify AB.

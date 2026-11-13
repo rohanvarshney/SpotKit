@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Rohan Varshney
+# SPDX-License-Identifier: LicenseRef-Proprietary
+
 name: Deploy SpotKit Suite to GitHub Pages
 
 on:
@@ -41,7 +44,7 @@ jobs:
       - name: Stage SpotKit Hub and all 3 tools
         run: |
           mkdir -p _site/TopAlbums _site/SESH _site/DJMyPlaylist
-          cp index.html _site/index.html
+          cp index.html LICENSE NOTICE _site/
           cp -R TopAlbums/dist/* _site/TopAlbums/
           cp -R SESH/frontend/dist/* _site/SESH/
           cp -R DJMyPlaylist/* _site/DJMyPlaylist/

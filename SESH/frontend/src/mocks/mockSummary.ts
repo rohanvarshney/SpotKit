@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Rohan Varshney
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 import type { SummaryResult } from '../lib/spotify/types'
 
 // Derived from: /Users/rohanvarshney/Library/CloudStorage/GoogleDrive-rohanvar@gmail.com/My Drive/GitHub/SESH/rova_historical_data/Spotify Extended Streaming History/Streaming_History_Audio_2016-2017_1.json

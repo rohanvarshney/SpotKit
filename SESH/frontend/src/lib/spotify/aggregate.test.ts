@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Rohan Varshney
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 import { describe, expect, it } from 'vitest'
 import type { SpotifyExtendedStreamingRow } from './types'
 import { normalizeMusicStream, summarizeStreams } from './aggregate'

@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Rohan Varshney
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import { DashboardView } from './components/DashboardView'

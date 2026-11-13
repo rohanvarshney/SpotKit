@@ -2,6 +2,13 @@
   "name": "frontend",
   "private": true,
   "version": "0.0.0",
+  "license": "UNLICENSED",
+  "author": "Rohan Varshney <rohanvar@gmail.com> (https://github.com/rohanvarshney)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rohanvarshney/SpotKit.git",
+    "directory": "SESH/frontend"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",

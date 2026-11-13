@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Rohan Varshney
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 import { subYears } from 'date-fns'
 import type { MusicStream, SpotifyExtendedStreamingRow, SummaryResult, TimeWindowKey, TopEntity } from './types'
 

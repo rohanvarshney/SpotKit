@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Rohan Varshney
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 /**
  * Hardcoded Spotify OAuth 2.0 PKCE Configuration.
  * These built-in credentials are used by default and are not exposed in the UI override inputs.

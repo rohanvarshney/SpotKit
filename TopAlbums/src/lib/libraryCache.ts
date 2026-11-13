@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Rohan Varshney
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 import type { RawLibraryDataset, SpotifyAlbumFull } from '../types/spotify'
 
 export const DATASET_CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours

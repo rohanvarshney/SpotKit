@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Rohan Varshney
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 import { type CSSProperties, Fragment, useMemo, useState } from 'react'
 import freehandSignatureUrl from '../assets/freehand-signature-3.png'
 import brandLogoUrl from '../assets/logo.png'

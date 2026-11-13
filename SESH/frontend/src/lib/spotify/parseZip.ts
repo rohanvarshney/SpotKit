@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Rohan Varshney
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 import JSZip from 'jszip'
 import type { SpotifyExtendedStreamingRow } from './types'
 

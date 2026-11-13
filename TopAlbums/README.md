@@ -33,3 +33,8 @@ Edit `src/config/spotify.ts` to hardcode your Spotify Developer credentials:
 export const SPOTIFY_CLIENT_ID = 'YOUR_SPOTIFY_CLIENT_ID_HERE'
 export const SPOTIFY_REDIRECT_URI = 'http://127.0.0.1:5173/callback'
 ```
+
+## Copyright & Disclaimer
+
+Copyright © 2026 Rohan Varshney. All Rights Reserved. See root [LICENSE](../LICENSE) and [NOTICE](../NOTICE).
+TopAlbums is an independent tool and is not affiliated with, endorsed by, or sponsored by Spotify AB.

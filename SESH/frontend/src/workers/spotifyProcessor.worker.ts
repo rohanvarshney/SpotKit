@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Rohan Varshney
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 /// <reference lib="webworker" />
 
 import type { WorkerRequest, WorkerResponse } from '../lib/spotify/types'
