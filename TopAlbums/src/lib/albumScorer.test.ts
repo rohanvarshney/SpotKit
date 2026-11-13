@@ -11,6 +11,7 @@ import {
   scoreAndFilterAlbums,
 } from './albumScorer'
 import {
+  ALBUM_CACHE_TTL_MS,
   DATASET_CACHE_TTL_MS,
   clearCachedLibraryDataset,
   getCachedLibraryDataset,
@@ -345,8 +346,9 @@ describe('albumScorer', () => {
     ])
   })
 
-  it('caches and expires real Spotify library datasets using a 24-hour TTL', async () => {
+  it('caches and expires real Spotify library datasets using a 24-hour TTL and 7-day album TTL', async () => {
     expect(DATASET_CACHE_TTL_MS).toBe(24 * 60 * 60 * 1000)
+    expect(ALBUM_CACHE_TTL_MS).toBe(7 * 24 * 60 * 60 * 1000)
     await clearCachedLibraryDataset()
     expect(await getCachedLibraryDataset()).toBeNull()
 

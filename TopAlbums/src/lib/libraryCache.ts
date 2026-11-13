@@ -1,7 +1,7 @@
 import type { RawLibraryDataset, SpotifyAlbumFull } from '../types/spotify'
 
 export const DATASET_CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
-const ALBUM_CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000 // 30 days for immutable album tracklists
+export const ALBUM_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000 // 7 days for immutable album tracklists
 
 const DB_NAME = 'spotkit_topalbums_db'
 const DB_VERSION = 1
