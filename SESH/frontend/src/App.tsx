@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
 import { useEffect, useRef, useState } from 'react'
+import freehandSignatureUrl from './assets/freehand-signature-3.png'
+import brandLogoUrl from './assets/logo.png'
 import type {
   ProcessorProgress,
   SummaryResult,
@@ -73,12 +75,27 @@ function App() {
     <div className="appShell">
       <header className="appHeader">
         <div className="headerRow">
-          <div>
-            <div className="brandTitle">
-              <span className="brandAccent">SpotKit</span> / SESH
+          <div className="headerBrandGroup">
+            <div>
+              <div className="brandTitle">
+                <span className="brandAccent">SpotKit</span> / SESH
+              </div>
+              <div className="brandSubtitle">
+                Spotify Extended Streaming History archive visualizer
+              </div>
             </div>
-            <div className="brandSubtitle">
-              Spotify Extended Streaming History archive visualizer
+            <div className="brandBreakLogos" aria-label="Rohan Varshney Signature Mark">
+              <img
+                src={brandLogoUrl}
+                alt="RovA Logo"
+                className="brandLogoImg"
+              />
+              <span className="brandBreakDot">•</span>
+              <img
+                src={freehandSignatureUrl}
+                alt="RovA Hand Signature"
+                className="brandSignatureImg"
+              />
             </div>
           </div>
           <a href="../" className="button secondary small">

@@ -40,7 +40,43 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
         margin-bottom: 36px;
+      }
+      .brandGroup {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .brandBreakLogos {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        padding: 6px 16px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+      }
+      .brandLogoImg {
+        height: 20px;
+        width: auto;
+        display: block;
+        filter: invert(1);
+        mix-blend-mode: screen;
+        opacity: 0.85;
+      }
+      .brandSignatureImg {
+        height: 28px;
+        width: auto;
+        display: block;
+        filter: invert(1);
+        opacity: 0.9;
+      }
+      .brandBreakDot {
+        font-size: 11px;
+        color: rgba(30, 215, 96, 0.65);
       }
       .brand {
         font-size: 20px;
@@ -202,7 +238,14 @@
   <body>
     <div class="shell">
       <nav class="topNav">
-        <a href="../" class="brand"><span>SpotKit</span> / DJMyPlaylist</a>
+        <div class="brandGroup">
+          <a href="../" class="brand"><span>SpotKit</span> / DJMyPlaylist</a>
+          <div class="brandBreakLogos" aria-label="Rohan Varshney Signature Mark">
+            <img src="../assets/logo.png" alt="RovA Logo" class="brandLogoImg" />
+            <span class="brandBreakDot">•</span>
+            <img src="../assets/freehand-signature-3.png" alt="RovA Hand Signature" class="brandSignatureImg" />
+          </div>
+        </div>
         <a href="../" class="backLink">← Back to SpotKit Hub</a>
       </nav>
 

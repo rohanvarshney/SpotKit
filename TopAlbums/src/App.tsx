@@ -3,6 +3,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import './App.css'
+import freehandSignatureUrl from './assets/freehand-signature-3.png'
+import brandLogoUrl from './assets/logo.png'
 import { DashboardView } from './components/DashboardView'
 import { LoadingView } from './components/LoadingView'
 import { LoginView } from './components/LoginView'
@@ -317,13 +319,28 @@ export function App() {
     <div className="appShell">
       <header className="appHeader">
         <div className="headerRow">
-          <div>
-            <div className="brandTitle">
-              <span className="brandAccent">SpotKit</span> / TopAlbums
+          <div className="headerBrandGroup">
+            <div>
+              <div className="brandTitle">
+                <span className="brandAccent">SpotKit</span> / TopAlbums
+              </div>
+              <div className="brandSubtitle">
+                Rank your favourite albums by proportion of Liked Songs &amp;
+                listening metadata
+              </div>
             </div>
-            <div className="brandSubtitle">
-              Rank your favourite albums by proportion of Liked Songs &amp;
-              listening metadata
+            <div className="brandBreakLogos" aria-label="Rohan Varshney Signature Mark">
+              <img
+                src={brandLogoUrl}
+                alt="RovA Logo"
+                className="brandLogoImg"
+              />
+              <span className="brandBreakDot">•</span>
+              <img
+                src={freehandSignatureUrl}
+                alt="RovA Hand Signature"
+                className="brandSignatureImg"
+              />
             </div>
           </div>
           <a href="../" className="button secondary small" style={{ textDecoration: 'none' }}>

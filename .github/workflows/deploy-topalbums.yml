@@ -45,6 +45,7 @@ jobs:
         run: |
           mkdir -p _site/TopAlbums _site/SESH _site/DJMyPlaylist
           cp index.html LICENSE NOTICE _site/
+          cp -R assets _site/assets
           cp -R TopAlbums/dist/* _site/TopAlbums/
           cp -R SESH/frontend/dist/* _site/SESH/
           cp -R DJMyPlaylist/* _site/DJMyPlaylist/

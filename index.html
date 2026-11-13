@@ -41,6 +41,47 @@
         max-width: 680px;
         margin: 0 auto 44px;
       }
+      .jointLogoTopBar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        margin-bottom: 22px;
+      }
+      .brandBreakLine {
+        flex: 1;
+        max-width: 140px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+      }
+      .brandBreakLogos {
+        display: inline-flex;
+        align-items: center;
+        gap: 16px;
+        padding: 7px 20px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+      }
+      .brandLogoImg {
+        height: 22px;
+        width: auto;
+        display: block;
+        filter: invert(1);
+        mix-blend-mode: screen;
+        opacity: 0.85;
+      }
+      .brandSignatureImg {
+        height: 30px;
+        width: auto;
+        display: block;
+        filter: invert(1);
+        opacity: 0.9;
+      }
+      .brandBreakDot {
+        font-size: 11px;
+        color: rgba(30, 215, 96, 0.65);
+      }
       .heroBadge {
         display: inline-block;
         font-size: 11px;
@@ -186,6 +227,15 @@
   <body>
     <div class="shell">
       <header class="hero">
+        <div class="jointLogoTopBar" aria-label="Rohan Varshney Signature Mark">
+          <span class="brandBreakLine"></span>
+          <div class="brandBreakLogos">
+            <img src="./assets/logo.png" alt="RovA Logo" class="brandLogoImg" />
+            <span class="brandBreakDot">•</span>
+            <img src="./assets/freehand-signature-3.png" alt="RovA Hand Signature" class="brandSignatureImg" />
+          </div>
+          <span class="brandBreakLine"></span>
+        </div>
         <div class="heroBadge">SPOTKIT SUITE</div>
         <h1><span>SpotKit</span> Web Tools</h1>
         <p class="subtitle">
