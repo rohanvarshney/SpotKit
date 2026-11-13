@@ -1014,9 +1014,47 @@
 
 .rankingTable {
   width: 100%;
+  min-width: 860px;
   border-collapse: collapse;
   text-align: left;
   font-size: 13px;
+  table-layout: fixed;
+}
+
+.rankingTable th.colRank {
+  width: 64px;
+}
+
+.rankingTable th.colAlbum {
+  width: auto;
+}
+
+.rankingTable th.colArtist {
+  width: 16%;
+}
+
+.rankingTable th.colYear {
+  width: 62px;
+}
+
+.rankingTable th.colLiked {
+  width: 106px;
+}
+
+.rankingTable th.colPct {
+  width: 134px;
+}
+
+.rankingTable th.colTopHits {
+  width: 132px;
+}
+
+.rankingTable th.colScore {
+  width: 76px;
+}
+
+.rankingTable th.colTracklist {
+  width: 102px;
 }
 
 .rankingTable thead th {
@@ -1033,12 +1071,14 @@
 
 .rankingTable thead th:first-child,
 .rankingRow td:first-child {
-  padding-left: 16px;
+  padding-left: 20px;
+  white-space: nowrap;
 }
 
 .rankingTable thead th:last-child,
 .rankingRow td:last-child {
-  padding-right: 16px;
+  padding-right: 20px;
+  white-space: nowrap;
 }
 
 .rankingRow {

@@ -543,21 +543,23 @@ export function DashboardView({
             <table className="rankingTable">
               <thead>
                 <tr>
-                  <th style={{ width: 52 }}>Rank</th>
-                  <th>Album</th>
-                  <th>Artist</th>
-                  <th>Year</th>
-                  <th>Liked / Total</th>
-                  <th style={{ minWidth: 124 }}>% Liked</th>
-                  <th>
+                  <th className="colRank">Rank</th>
+                  <th className="colAlbum">Album</th>
+                  <th className="colArtist">Artist</th>
+                  <th className="colYear">Year</th>
+                  <th className="colLiked">Liked / Total</th>
+                  <th className="colPct">% Liked</th>
+                  <th className="colTopHits">
                     Top 50 Hits
                     <InfoTooltip
                       title="Top 50 Hits on Album"
                       body="Number of songs on this album that appear in your Spotify Top 50 most-played tracks (4-week, 6-month, or all-time)."
                     />
                   </th>
-                  <th>Score</th>
-                  <th style={{ textAlign: 'right' }}>Tracklist</th>
+                  <th className="colScore">Score</th>
+                  <th className="colTracklist" style={{ textAlign: 'right' }}>
+                    Tracklist
+                  </th>
                 </tr>
               </thead>
               <tbody>
