@@ -5,6 +5,7 @@ import type {
   LoadingProgress,
   RawLibraryDataset,
   SpotifyAlbumFull,
+  SpotifyAlbumSimple,
   SpotifySavedTrackItem,
   SpotifyTrackFull,
   SpotifyTrackSimple,
@@ -12,7 +13,7 @@ import type {
   TopTrackTimeRange,
   UserTopTrackEntry,
 } from '../types/spotify'
-import { normalizeTrackTitle } from './albumScorer'
+import { normalizeAlbumTitle, normalizeTrackTitle } from './albumScorer'
 import {
   getCachedHydratedAlbums,
   setCachedHydratedAlbum,
@@ -58,6 +59,197 @@ interface PaginatedResponse<T> {
   limit: number
   offset: number
   next: string | null
+}
+
+export function selectCandidateAlbumIdsToHydrate(
+  savedTracks: SpotifySavedTrackItem[],
+  maxCandidates = 200,
+): string[] {
+  const albumLikedCounts = new Map<string, number>()
+  const albumMetaById = new Map<string, SpotifyAlbumSimple>()
+  const artistLikedCounts = new Map<string, number>()
+
+  for (const item of savedTracks) {
+    const alb = item?.track?.album
+    if (!alb || !alb.id) continue
+
+    albumLikedCounts.set(alb.id, (albumLikedCounts.get(alb.id) || 0) + 1)
+    if (!albumMetaById.has(alb.id)) {
+      albumMetaById.set(alb.id, alb)
+    }
+
+    const artists = [
+      ...(item.track.artists || []),
+      ...(alb.artists || []),
+    ]
+    const seenArtistKeys = new Set<string>()
+    for (const art of artists) {
+      const key = art?.id || art?.name?.toLowerCase().trim()
+      if (key && !seenArtistKeys.has(key)) {
+        seenArtistKeys.add(key)
+        artistLikedCounts.set(key, (artistLikedCounts.get(key) || 0) + 1)
+      }
+    }
+  }
+
+  const scoredCandidates: Array<{ id: string; priority: number }> = []
+
+  for (const [albId, directLikes] of albumLikedCounts.entries()) {
+    const alb = albumMetaById.get(albId)
+    if (!alb) continue
+
+    // 1-track singles already have their entire tracklist in savedTracks, so skip hydrating them
+    if ((alb.total_tracks || 0) <= 1 && alb.album_type === 'single') {
+      continue
+    }
+
+    let maxArtistLikes = directLikes
+    for (const art of alb.artists || []) {
+      const key = art?.id || art?.name?.toLowerCase().trim()
+      if (key) {
+        maxArtistLikes = Math.max(
+          maxArtistLikes,
+          artistLikedCounts.get(key) || 0,
+        )
+      }
+    }
+
+    // Other liked songs by the same artist (e.g. standalone singles like "Savana", "Ease My Mind", "Psycho")
+    const extraArtistLikes = Math.max(0, maxArtistLikes - directLikes)
+
+    // Prioritize full albums and multi-track releases, boosting albums whose artist has extra liked singles
+    const isFullAlbumBonus = alb.album_type === 'album' ? 30 : 0
+    const deepTracklistBonus = (alb.total_tracks || 0) >= 5 ? 15 : 0
+    const priority =
+      directLikes * 10 +
+      extraArtistLikes * 6 +
+      isFullAlbumBonus +
+      deepTracklistBonus
+
+    scoredCandidates.push({ id: albId, priority })
+  }
+
+  return scoredCandidates
+    .sort((a, b) => b.priority - a.priority)
+    .slice(0, maxCandidates)
+    .map((c) => c.id)
+}
+
+export async function discoverAndHydrateParentAlbumsForSingles(
+  savedTracks: SpotifySavedTrackItem[],
+  hydratedAlbumsMap: Record<string, SpotifyAlbumFull>,
+  accessToken: string,
+  maxArtists = 15,
+): Promise<Record<string, SpotifyAlbumFull>> {
+  // Build set of artist+track pairs already covered by hydrated full albums
+  const coveredArtistTracks = new Set<string>()
+  for (const alb of Object.values(hydratedAlbumsMap)) {
+    if (!alb || alb.album_type !== 'album' || !alb.tracks?.items) continue
+    for (const trk of alb.tracks.items) {
+      const normTrack = normalizeTrackTitle(trk.name)
+      const artists = [...(trk.artists || []), ...(alb.artists || [])]
+      for (const art of artists) {
+        if (art?.id) coveredArtistTracks.add(`${art.id}::${normTrack}`)
+        if (art?.name) {
+          coveredArtistTracks.add(`${art.name.toLowerCase().trim()}::${normTrack}`)
+        }
+      }
+    }
+  }
+
+  // Group unmatched liked singles by artist ID
+  const unmatchedSinglesByArtist = new Map<
+    string,
+    { artistId: string; artistName: string; normTitles: Set<string> }
+  >()
+
+  for (const item of savedTracks) {
+    const alb = item?.track?.album
+    if (!alb || alb.album_type !== 'single') continue
+
+    const normTrack = normalizeTrackTitle(item.track.name)
+    const primaryArtist = item.track.artists?.[0] || alb.artists?.[0]
+    if (!primaryArtist?.id) continue
+
+    const isCovered =
+      coveredArtistTracks.has(`${primaryArtist.id}::${normTrack}`) ||
+      (primaryArtist.name
+        ? coveredArtistTracks.has(
+            `${primaryArtist.name.toLowerCase().trim()}::${normTrack}`,
+          )
+        : false)
+
+    if (isCovered) continue
+
+    let entry = unmatchedSinglesByArtist.get(primaryArtist.id)
+    if (!entry) {
+      entry = {
+        artistId: primaryArtist.id,
+        artistName: primaryArtist.name || '',
+        normTitles: new Set(),
+      }
+      unmatchedSinglesByArtist.set(primaryArtist.id, entry)
+    }
+    entry.normTitles.add(normTrack)
+  }
+
+  const candidateArtists = Array.from(unmatchedSinglesByArtist.values())
+    .filter((a) => a.normTitles.size >= 2)
+    .sort((a, b) => b.normTitles.size - a.normTitles.size)
+    .slice(0, maxArtists)
+
+  const discoveredMap: Record<string, SpotifyAlbumFull> = {}
+  if (candidateArtists.length === 0) return discoveredMap
+
+  const albumIdsToHydrate: Array<{
+    albumId: string
+    expectedTitles: Set<string>
+  }> = []
+
+  for (const artistEntry of candidateArtists) {
+    try {
+      const page = await spotifyFetch<PaginatedResponse<SpotifyAlbumSimple>>(
+        `/artists/${artistEntry.artistId}/albums?include_groups=album&limit=6`,
+        accessToken,
+      )
+      const seenCanonicalTitles = new Set<string>()
+      for (const alb of page.items || []) {
+        if (!alb?.id || alb.album_type !== 'album') continue
+        if (hydratedAlbumsMap[alb.id]) continue
+        const canon = normalizeAlbumTitle(alb.name).toLowerCase()
+        if (seenCanonicalTitles.has(canon)) continue
+        seenCanonicalTitles.add(canon)
+        albumIdsToHydrate.push({
+          albumId: alb.id,
+          expectedTitles: artistEntry.normTitles,
+        })
+        if (seenCanonicalTitles.size >= 2) break
+      }
+    } catch {
+      // Ignore per-artist lookup errors gracefully
+    }
+  }
+
+  for (let i = 0; i < albumIdsToHydrate.length; i += 6) {
+    const batch = albumIdsToHydrate.slice(i, i + 6)
+    const settled = await Promise.allSettled(
+      batch.map((b) => fetchSingleAlbumFull(b.albumId, accessToken)),
+    )
+    settled.forEach((res, idx) => {
+      if (res.status === 'fulfilled' && res.value?.id) {
+        const fullAlb = res.value
+        const expected = batch[idx].expectedTitles
+        const matchesAnySingle = (fullAlb.tracks?.items || []).some((trk) =>
+          expected.has(normalizeTrackTitle(trk.name)),
+        )
+        if (matchesAnySingle) {
+          discoveredMap[fullAlb.id] = fullAlb
+        }
+      }
+    })
+  }
+
+  return discoveredMap
 }
 
 export async function fetchSingleAlbumFull(
@@ -236,17 +428,7 @@ export async function fetchUserLibraryAndMetadata(
   // Stage 4: Determine candidate albums to hydrate full tracklists (/v1/albums/{id})
   // Note: Spotify removed the bulk `GET /v1/albums?ids=...` endpoint in 2026 for Dev Mode apps,
   // so we fetch candidate albums individually via `GET /v1/albums/{id}` with bounded concurrency.
-  const albumLikedCounts = new Map<string, number>()
-  for (const item of savedTracks) {
-    const albId = item.track.album?.id
-    if (!albId) continue
-    albumLikedCounts.set(albId, (albumLikedCounts.get(albId) || 0) + 1)
-  }
-
-  const candidateAlbumIds = Array.from(albumLikedCounts.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 120)
-    .map(([id]) => id)
+  const candidateAlbumIds = selectCandidateAlbumIdsToHydrate(savedTracks, 200)
 
   const cachedAlbumsMap = await getCachedHydratedAlbums(candidateAlbumIds)
   const hydratedAlbumsMap: Record<string, SpotifyAlbumFull> = {
@@ -302,6 +484,19 @@ export async function fetchUserLibraryAndMetadata(
       recentItems: [...recentItems],
       percent: Math.round(70 + ratio * 25),
     })
+  }
+
+  // Stage 4b: Discover parent LPs for artists where the user liked 2+ standalone singles (e.g. pre-release singles for an album)
+  const discoveredParentAlbums = await discoverAndHydrateParentAlbumsForSingles(
+    savedTracks,
+    hydratedAlbumsMap,
+    accessToken,
+  )
+  for (const alb of Object.values(discoveredParentAlbums)) {
+    hydratedAlbumsMap[alb.id] = alb
+    pushRecent(
+      `Matched singles to parent album: ${alb.name} (${alb.total_tracks} tracks)`,
+    )
   }
 
   onProgress({

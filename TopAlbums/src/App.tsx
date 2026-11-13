@@ -7,11 +7,14 @@ import { DashboardView } from './components/DashboardView'
 import { LoadingView } from './components/LoadingView'
 import { LoginView } from './components/LoginView'
 import {
+  discoverAndHydrateParentAlbumsForSingles,
   fetchSingleAlbumFull,
   fetchUserLibraryAndMetadata,
+  selectCandidateAlbumIdsToHydrate,
 } from './lib/spotifyApi'
 import {
   clearCachedLibraryDataset,
+  getCachedHydratedAlbums,
   getCachedLibraryDataset,
   setCachedLibraryDataset,
 } from './lib/libraryCache'
@@ -60,6 +63,65 @@ export function App() {
           if (cached && !cancelled) {
             setDataset(cached)
             setScreen('dashboard')
+
+            // Background check: if any candidate full albums (e.g. albums whose singles were liked) aren't hydrated yet, hydrate them seamlessly
+            const candidateIds = selectCandidateAlbumIdsToHydrate(
+              cached.savedTracks,
+              200,
+            )
+            const missingIds = candidateIds.filter(
+              (id) => !cached.hydratedAlbumsMap[id],
+            )
+            const fromAlbumCache =
+              missingIds.length > 0
+                ? await getCachedHydratedAlbums(missingIds)
+                : {}
+            const stillMissing = missingIds.filter(
+              (id) => !fromAlbumCache[id],
+            )
+            const activeToken = await getValidAccessToken()
+
+            const newlyHydrated = { ...fromAlbumCache }
+            if (activeToken && stillMissing.length > 0) {
+              for (let i = 0; i < stillMissing.length; i += 6) {
+                if (cancelled) break
+                const batch = stillMissing.slice(i, i + 6)
+                const settled = await Promise.allSettled(
+                  batch.map((id) => fetchSingleAlbumFull(id, activeToken)),
+                )
+                for (const res of settled) {
+                  if (res.status === 'fulfilled' && res.value?.id) {
+                    newlyHydrated[res.value.id] = res.value
+                  }
+                }
+              }
+            }
+
+            if (activeToken && !cancelled) {
+              const mergedSoFar = {
+                ...cached.hydratedAlbumsMap,
+                ...newlyHydrated,
+              }
+              const discoveredParents =
+                await discoverAndHydrateParentAlbumsForSingles(
+                  cached.savedTracks,
+                  mergedSoFar,
+                  activeToken,
+                )
+              Object.assign(newlyHydrated, discoveredParents)
+            }
+
+            if (!cancelled && Object.keys(newlyHydrated).length > 0) {
+              const updatedDataset: RawLibraryDataset = {
+                ...cached,
+                hydratedAlbumsMap: {
+                  ...cached.hydratedAlbumsMap,
+                  ...newlyHydrated,
+                },
+              }
+              setDataset(updatedDataset)
+              void setCachedLibraryDataset(updatedDataset)
+            }
             return
           }
         }

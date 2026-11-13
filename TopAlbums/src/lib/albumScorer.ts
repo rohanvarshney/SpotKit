@@ -21,9 +21,9 @@ export const DEFAULT_WEIGHTS: ScoringWeights = {
 }
 
 const EDITION_SUFFIX_PATTERNS: RegExp[] = [
-  /\s*\((?:[^)]*\b(?:deluxe|remaster(?:ed)?|expanded|anniversary|bonus|special|collector|platinum|super deluxe|edition|version|reissue|complete)\b[^)]*)\)/gi,
-  /\s*\[(?:[^\]]*\b(?:deluxe|remaster(?:ed)?|expanded|anniversary|bonus|special|collector|platinum|super deluxe|edition|version|reissue|complete)\b[^\]]*)\]/gi,
-  /\s*-\s*(?:\d{4}\s+)?(?:deluxe|remaster(?:ed)?|expanded|anniversary|bonus\s+track|special)\b.*$/gi,
+  /\s*\((?:[^)]*\b(?:deluxe|remaster(?:ed)?|expanded|anniversary|bonus|special|collector|platinum|super deluxe|edition|version|reissue|complete|radio\s+edit|original\s+mix)\b[^)]*)\)/gi,
+  /\s*\[(?:[^\]]*\b(?:deluxe|remaster(?:ed)?|expanded|anniversary|bonus|special|collector|platinum|super deluxe|edition|version|reissue|complete|radio\s+edit|original\s+mix)\b[^\]]*)\]/gi,
+  /\s*-\s*(?:\d{4}\s+)?(?:deluxe|remaster(?:ed)?|expanded|anniversary|bonus\s+track|special|radio\s+edit|single\s+version|album\s+version|original\s+mix)\b.*$/gi,
 ]
 
 export function normalizeAlbumTitle(title: string): string {
@@ -145,6 +145,24 @@ function findTopTrackMatch(
   return result
 }
 
+function mergeLikedTrackRecords(
+  existing: LikedTrackRecord,
+  incoming: LikedTrackRecord,
+): LikedTrackRecord {
+  const mergedTop =
+    existing.topTrackInfo && incoming.topTrackInfo
+      ? mergeTopTrackEntries(existing.topTrackInfo, incoming.topTrackInfo)
+      : existing.topTrackInfo || incoming.topTrackInfo
+
+  return {
+    ...existing,
+    popularity: Math.max(existing.popularity, incoming.popularity),
+    addedAt:
+      incoming.addedAt > existing.addedAt ? incoming.addedAt : existing.addedAt,
+    topTrackInfo: mergedTop,
+  }
+}
+
 export function scoreAndFilterAlbums(
   dataset: RawLibraryDataset,
   options: FilterAndSortOptions,
@@ -161,6 +179,12 @@ export function scoreAndFilterAlbums(
   } = options
 
   const buckets = new Map<string, AlbumBucket>()
+
+  // Global Liked Track cross-examination maps so songs liked as standalone Singles/EPs
+  // (e.g. "Savana", "Ease My Mind", "Psycho") are recognized as Liked inside their full album ("Chemistry").
+  const globalLikedByTrackId = new Map<string, LikedTrackRecord>()
+  const globalLikedByArtistIdAndNormName = new Map<string, LikedTrackRecord>()
+  const globalLikedByArtistNameAndNormName = new Map<string, LikedTrackRecord>()
 
   // Determine earliest and latest timestamps across library for recency normalization
   let minTimestamp = Infinity
@@ -211,34 +235,82 @@ export function scoreAndFilterAlbums(
       topTracksMap,
     )
 
+    const record: LikedTrackRecord = {
+      trackId: item.track.id,
+      name: item.track.name,
+      normalizedName: normTrack,
+      trackNumber: item.track.track_number,
+      discNumber: item.track.disc_number || 1,
+      durationMs: item.track.duration_ms,
+      popularity: item.track.popularity ?? 50,
+      addedAt: item.added_at,
+      spotifyUrl: item.track.external_urls?.spotify,
+      sourceAlbumId: album.id,
+      topTrackInfo: topMatch,
+    }
+
     const existingTrack = bucket.likedTracksByNormName.get(dedupTrackKey)
     if (!existingTrack) {
-      bucket.likedTracksByNormName.set(dedupTrackKey, {
-        trackId: item.track.id,
-        name: item.track.name,
-        normalizedName: normTrack,
-        trackNumber: item.track.track_number,
-        discNumber: item.track.disc_number || 1,
-        durationMs: item.track.duration_ms,
-        popularity: item.track.popularity ?? 50,
-        addedAt: item.added_at,
-        spotifyUrl: item.track.external_urls?.spotify,
-        sourceAlbumId: album.id,
-        topTrackInfo: topMatch,
-      })
+      bucket.likedTracksByNormName.set(dedupTrackKey, record)
     } else {
-      // Keep higher popularity, earlier/later addedAt, and preserve/merge any topTrackInfo
-      if (topMatch) {
-        existingTrack.topTrackInfo = existingTrack.topTrackInfo
-          ? mergeTopTrackEntries(existingTrack.topTrackInfo, topMatch)
-          : topMatch
+      bucket.likedTracksByNormName.set(
+        dedupTrackKey,
+        mergeLikedTrackRecords(existingTrack, record),
+      )
+    }
+
+    // Index in global cross-examination maps by track ID and all credited artist IDs/names + normalized track title
+    const prevById = globalLikedByTrackId.get(record.trackId)
+    globalLikedByTrackId.set(
+      record.trackId,
+      prevById ? mergeLikedTrackRecords(prevById, record) : record,
+    )
+
+    const allCreditedArtists = [
+      ...(item.track.artists || []),
+      ...(album.artists || []),
+    ]
+    for (const artist of allCreditedArtists) {
+      if (artist?.id) {
+        const artistIdKey = `${artist.id}::${normTrack}`
+        const prevByArtistId =
+          globalLikedByArtistIdAndNormName.get(artistIdKey)
+        globalLikedByArtistIdAndNormName.set(
+          artistIdKey,
+          prevByArtistId
+            ? mergeLikedTrackRecords(prevByArtistId, record)
+            : record,
+        )
       }
-      if ((item.track.popularity ?? 0) > existingTrack.popularity) {
-        existingTrack.popularity = item.track.popularity
+      if (artist?.name) {
+        const artistNameKey = `${artist.name.toLowerCase().trim()}::${normTrack}`
+        const prevByArtistName =
+          globalLikedByArtistNameAndNormName.get(artistNameKey)
+        globalLikedByArtistNameAndNormName.set(
+          artistNameKey,
+          prevByArtistName
+            ? mergeLikedTrackRecords(prevByArtistName, record)
+            : record,
+        )
       }
-      if (item.added_at > existingTrack.addedAt) {
-        existingTrack.addedAt = item.added_at
+    }
+  }
+
+  // Also ensure any hydrated album in hydratedAlbumsMap is represented in buckets even if all its liked songs were saved from single releases
+  for (const hydratedAlbum of Object.values(hydratedAlbumsMap)) {
+    if (!hydratedAlbum || !hydratedAlbum.id) continue
+    const key = getCanonicalAlbumKey(hydratedAlbum, deduplicateEditions)
+    let bucket = buckets.get(key)
+    if (!bucket) {
+      bucket = {
+        key,
+        albumsByEdition: new Map([[hydratedAlbum.id, hydratedAlbum]]),
+        editionLikedCounts: new Map(),
+        likedTracksByNormName: new Map(),
       }
+      buckets.set(key, bucket)
+    } else if (!bucket.albumsByEdition.has(hydratedAlbum.id)) {
+      bucket.albumsByEdition.set(hydratedAlbum.id, hydratedAlbum)
     }
   }
 
@@ -271,39 +343,15 @@ export function scoreAndFilterAlbums(
     const primaryAlbum = editions[0]
     if (!primaryAlbum) continue
 
+    if (fullAlbumsOnly && primaryAlbum.album_type !== 'album') {
+      continue
+    }
+
     const canonicalName = normalizeAlbumTitle(primaryAlbum.name)
     const displayName =
       deduplicateEditions && editions.length > 1
         ? canonicalName
         : primaryAlbum.name
-
-    // Determine effective total tracks:
-    // If multiple editions were merged, use the base edition's track count if all liked tracks fit, or the representative edition's total_tracks
-    const likedRecords = Array.from(bucket.likedTracksByNormName.values())
-    const likedCount = likedRecords.length
-
-    const hydrated =
-      hydratedAlbumsMap[primaryAlbum.id] ||
-      editions.map((e) => hydratedAlbumsMap[e.id]).find(Boolean)
-
-    let totalTracks = hydrated
-      ? hydrated.tracks.items.length || hydrated.total_tracks
-      : primaryAlbum.total_tracks
-
-    if (totalTracks < likedCount) {
-      totalTracks = likedCount
-    }
-
-    // Apply filters
-    if (fullAlbumsOnly && primaryAlbum.album_type !== 'album') {
-      continue
-    }
-    if (totalTracks < minTotalTracks) {
-      continue
-    }
-    if (likedCount < minLikedTracks) {
-      continue
-    }
 
     const primaryArtist = primaryAlbum.artists[0]?.name || 'Unknown Artist'
     if (searchQuery.trim()) {
@@ -319,25 +367,80 @@ export function scoreAndFilterAlbums(
       }
     }
 
-    // Build complete tracklist (liked + unliked tracks if hydrated)
+    const bucketLikedRecords = Array.from(bucket.likedTracksByNormName.values())
+    const effectiveLikedRecordsMap = new Map<string, LikedTrackRecord>()
+    for (const rec of bucketLikedRecords) {
+      effectiveLikedRecordsMap.set(rec.normalizedName || rec.trackId, rec)
+    }
+
+    const hydrated =
+      hydratedAlbumsMap[primaryAlbum.id] ||
+      editions.map((e) => hydratedAlbumsMap[e.id]).find(Boolean)
+
+    let totalTracks = hydrated
+      ? hydrated.tracks.items.length || hydrated.total_tracks
+      : primaryAlbum.total_tracks
+
+    // Build complete tracklist (liked + unliked tracks if hydrated) and cross-examine against global liked songs
     const tracks: AlbumTrackStatus[] = []
     let isTracklistComplete = false
 
     if (hydrated && hydrated.tracks?.items?.length > 0) {
       isTracklistComplete = true
       const unmatchedLiked = new Map(
-        likedRecords.map((r) => [r.normalizedName, r]),
+        bucketLikedRecords.map((r) => [r.normalizedName, r]),
       )
-      const byIdLiked = new Map(likedRecords.map((r) => [r.trackId, r]))
+      const byIdLiked = new Map(bucketLikedRecords.map((r) => [r.trackId, r]))
 
       for (const albumTrack of hydrated.tracks.items) {
         const normName = normalizeTrackTitle(albumTrack.name)
-        const matched =
+        let matched =
           byIdLiked.get(albumTrack.id) || unmatchedLiked.get(normName)
 
         if (matched) {
           unmatchedLiked.delete(matched.normalizedName)
           byIdLiked.delete(matched.trackId)
+        } else {
+          // Cross-examine against global Liked Songs (e.g. tracks liked as standalone Singles/EPs by the same artist)
+          matched = globalLikedByTrackId.get(albumTrack.id)
+          if (!matched) {
+            const candidateArtists = [
+              ...(albumTrack.artists || []),
+              ...(hydrated.artists || []),
+              ...(primaryAlbum.artists || []),
+            ]
+            for (const artist of candidateArtists) {
+              if (artist?.id) {
+                const byArtistId = globalLikedByArtistIdAndNormName.get(
+                  `${artist.id}::${normName}`,
+                )
+                if (byArtistId) {
+                  matched = byArtistId
+                  break
+                }
+              }
+              if (artist?.name) {
+                const byArtistName = globalLikedByArtistNameAndNormName.get(
+                  `${artist.name.toLowerCase().trim()}::${normName}`,
+                )
+                if (byArtistName) {
+                  matched = byArtistName
+                  break
+                }
+              }
+            }
+          }
+
+          if (matched) {
+            const effKey = matched.normalizedName || matched.trackId
+            const existingEff = effectiveLikedRecordsMap.get(effKey)
+            effectiveLikedRecordsMap.set(
+              effKey,
+              existingEff
+                ? mergeLikedTrackRecords(existingEff, matched)
+                : matched,
+            )
+          }
         }
 
         const topMatch =
@@ -382,7 +485,7 @@ export function scoreAndFilterAlbums(
       totalTracks = Math.max(totalTracks, tracks.length)
     } else {
       // Fallback: only liked tracks are known locally
-      const sortedLiked = [...likedRecords].sort(
+      const sortedLiked = [...bucketLikedRecords].sort(
         (a, b) =>
           a.discNumber - b.discNumber || a.trackNumber - b.trackNumber,
       )
@@ -402,7 +505,22 @@ export function scoreAndFilterAlbums(
       }
     }
 
-    const effectiveLikedCount = tracks.filter((t) => t.isLiked).length || likedCount
+    const likedRecords = Array.from(effectiveLikedRecordsMap.values())
+    const effectiveLikedCount =
+      tracks.filter((t) => t.isLiked).length || likedRecords.length
+
+    if (totalTracks < effectiveLikedCount) {
+      totalTracks = effectiveLikedCount
+    }
+
+    // Apply track count filters AFTER cross-examining hydrated tracklists against global liked singles
+    if (totalTracks < minTotalTracks) {
+      continue
+    }
+    if (effectiveLikedCount < minLikedTracks) {
+      continue
+    }
+
     const proportionLiked =
       totalTracks > 0 ? Math.min(1, effectiveLikedCount / totalTracks) : 0
 

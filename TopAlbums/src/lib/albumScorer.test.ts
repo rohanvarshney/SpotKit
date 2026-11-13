@@ -20,7 +20,10 @@ import {
   getCachedLibraryDataset,
   setCachedLibraryDataset,
 } from './libraryCache'
-import { fetchUserLibraryAndMetadata } from './spotifyApi'
+import {
+  fetchUserLibraryAndMetadata,
+  selectCandidateAlbumIdsToHydrate,
+} from './spotifyApi'
 
 describe('albumScorer', () => {
   afterEach(() => {
@@ -367,5 +370,164 @@ describe('albumScorer', () => {
     // Expired TTL should return null
     await setCachedLibraryDataset(realDataset, -1000)
     expect(await getCachedLibraryDataset()).toBeNull()
+  })
+
+  it('cross-examines standalone liked singles (e.g. Chris Lake "Savana", "Ease My Mind", "Psycho") into their hydrated full album ("Chemistry")', () => {
+    const chrisLake = { id: 'artist-chris-lake', name: 'Chris Lake' }
+    const savedTracks = [
+      {
+        added_at: '2026-02-01T00:00:00Z',
+        track: {
+          id: 'single-trk-savana',
+          name: 'Savana',
+          track_number: 1,
+          disc_number: 1,
+          duration_ms: 210000,
+          popularity: 78,
+          artists: [chrisLake],
+          album: {
+            id: 'single-alb-savana',
+            name: 'Savana',
+            album_type: 'single' as const,
+            total_tracks: 1,
+            release_date: '2025-04-10',
+            images: [],
+            artists: [chrisLake],
+          },
+        },
+      },
+      {
+        added_at: '2026-03-01T00:00:00Z',
+        track: {
+          id: 'single-trk-ease',
+          name: 'Ease My Mind',
+          track_number: 1,
+          disc_number: 1,
+          duration_ms: 225000,
+          popularity: 81,
+          artists: [chrisLake, { id: 'artist-abel', name: 'Abel Balder' }],
+          album: {
+            id: 'single-alb-ease',
+            name: 'Ease My Mind',
+            album_type: 'single' as const,
+            total_tracks: 1,
+            release_date: '2025-05-15',
+            images: [],
+            artists: [chrisLake],
+          },
+        },
+      },
+      {
+        added_at: '2026-04-01T00:00:00Z',
+        track: {
+          id: 'single-trk-psycho',
+          name: 'Psycho',
+          track_number: 1,
+          disc_number: 1,
+          duration_ms: 198000,
+          popularity: 76,
+          artists: [chrisLake],
+          album: {
+            id: 'single-alb-psycho',
+            name: 'Psycho',
+            album_type: 'single' as const,
+            total_tracks: 1,
+            release_date: '2025-06-20',
+            images: [],
+            artists: [chrisLake],
+          },
+        },
+      },
+      {
+        added_at: '2026-07-15T00:00:00Z',
+        track: {
+          id: 'alb-trk-in-my-head',
+          name: 'In My Head',
+          track_number: 4,
+          disc_number: 1,
+          duration_ms: 204000,
+          popularity: 79,
+          artists: [chrisLake],
+          album: {
+            id: 'alb-chemistry',
+            name: 'Chemistry',
+            album_type: 'album' as const,
+            total_tracks: 6,
+            release_date: '2025-07-11',
+            images: [],
+            artists: [chrisLake],
+          },
+        },
+      },
+    ]
+
+    // 1. Candidate hydration selector skips 1-track singles and prioritizes the full album "Chemistry"
+    const candidates = selectCandidateAlbumIdsToHydrate(savedTracks, 10)
+    expect(candidates).toEqual(['alb-chemistry'])
+
+    // 2. When "Chemistry" is hydrated with distinct album track IDs, all 3 liked singles are cross-examined and marked isLiked: true
+    const chemistryTrackNames = [
+      'Savana',
+      'Ease My Mind (feat. Abel Balder)',
+      'Psycho',
+      'In My Head',
+      'Summertime Blues',
+      'Chemistry Outro',
+    ]
+
+    const scored = scoreAndFilterAlbums(
+      {
+        user: { id: 'u1', display_name: 'Tester' },
+        savedTracks,
+        topTracksMap: {},
+        hydratedAlbumsMap: {
+          'alb-chemistry': {
+            id: 'alb-chemistry',
+            name: 'Chemistry',
+            album_type: 'album',
+            total_tracks: 6,
+            release_date: '2025-07-11',
+            images: [],
+            artists: [chrisLake],
+            tracks: {
+              total: 6,
+              items: chemistryTrackNames.map((name, idx) => ({
+                id: `chemistry-album-track-${idx + 1}`,
+                name,
+                track_number: idx + 1,
+                disc_number: 1,
+                duration_ms: 205000,
+                artists: [chrisLake],
+              })),
+            },
+          },
+        },
+        isDemo: false,
+        fetchedAt: '2026-11-13T00:00:00Z',
+      },
+      {
+        rankingMode: 'weighted',
+        customWeights: DEFAULT_WEIGHTS,
+        minTotalTracks: 5,
+        minLikedTracks: 2,
+        fullAlbumsOnly: true,
+        deduplicateEditions: true,
+        searchQuery: '',
+      },
+    )
+
+    expect(scored.length).toBe(1)
+    const chemistry = scored[0]
+    expect(chemistry.name).toBe('Chemistry')
+    expect(chemistry.likedCount).toBe(4)
+    expect(chemistry.totalTracks).toBe(6)
+    expect(
+      chemistry.tracks.filter((t) => t.isLiked).map((t) => t.name),
+    ).toEqual([
+      'Savana',
+      'Ease My Mind (feat. Abel Balder)',
+      'Psycho',
+      'In My Head',
+    ])
   })
 })
