@@ -8,9 +8,11 @@ import {
   getEffectiveSpotifyConfig,
   setSpotifyConfigOverride,
 } from '../config/spotify'
+import { clearCachedLibraryDataset } from '../lib/libraryCache'
+import { clearSpotifySession } from '../lib/spotifyAuth'
 
 interface LoginViewProps {
-  onLoginClick: () => void
+  onLoginClick: (forceDialog?: boolean) => void
   onStartDemo: (withLoadingPreview: boolean) => void
   error: string | null
 }
@@ -31,9 +33,30 @@ export function LoginView({
     initialOverride.redirectUriOverride,
   )
   const [savedBanner, setSavedBanner] = useState<string | null>(null)
+  const [copiedRedirect, setCopiedRedirect] = useState(false)
+
+  const isAllowlist403Error = Boolean(
+    error &&
+      (error.includes('(403)') ||
+        /not registered|developer\.spotify\.com/i.test(error)),
+  )
+
+  const handleCopyRedirectUri = async () => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(effective.redirectUri)
+        setCopiedRedirect(true)
+        setTimeout(() => setCopiedRedirect(false), 2200)
+      }
+    } catch {
+      // Clipboard access may be blocked in restricted contexts; the URI remains selectable
+    }
+  }
 
   const handleSaveConfig = (e: React.FormEvent) => {
     e.preventDefault()
+    clearSpotifySession()
+    void clearCachedLibraryDataset()
     setSpotifyConfigOverride(clientIdInput, redirectInput)
     setEffective(getEffectiveSpotifyConfig())
     setSavedBanner(
@@ -45,6 +68,8 @@ export function LoginView({
   }
 
   const handleResetToDefault = () => {
+    clearSpotifySession()
+    void clearCachedLibraryDataset()
     clearSpotifyConfigOverride()
     setClientIdInput('')
     setRedirectInput('')
@@ -52,6 +77,20 @@ export function LoginView({
     setSavedBanner('✓ Reverted to built-in default credentials')
     setTimeout(() => setSavedBanner(null), 2800)
   }
+
+  const renderRedirectCopyRow = () => (
+    <div className="redirectCopyRow">
+      <span className="redirectCopyLabel">Redirect URI:</span>
+      <code className="inlineCodePill">{effective.redirectUri}</code>
+      <button
+        type="button"
+        className="button secondary small copyUriBtn"
+        onClick={() => void handleCopyRedirectUri()}
+      >
+        {copiedRedirect ? '✓ Copied' : 'Copy Redirect URI'}
+      </button>
+    </div>
+  )
 
   return (
     <div className="loginContainer">
@@ -74,13 +113,79 @@ export function LoginView({
           <span className="pill">🎵 Full Tracklist Diff (Liked vs. Missed)</span>
         </div>
 
-        {error && <div className="errorBox">{error}</div>}
+        {error &&
+          (isAllowlist403Error ? (
+            <div className="errorBox allowlistErrorBox" role="alert">
+              <div className="allowlistErrorTitle">
+                Spotify Development Mode — Account Not on Allowlist (403)
+              </div>
+              <p className="allowlistErrorLead">
+                Spotify restricts apps in Development Mode to 25 manually
+                allowlisted accounts. Your Spotify login succeeded, but your
+                account hasn&apos;t been added to this app&apos;s invite list
+                yet.
+              </p>
+              <ol className="allowlistErrorList">
+                <li>
+                  <strong>Ask the app owner for an invite:</strong> Share your{' '}
+                  <strong>name</strong> and <strong>Spotify account email</strong>{' '}
+                  so they can add you in{' '}
+                  <strong>
+                    Spotify Developer Dashboard → Settings → User Management
+                  </strong>
+                  .
+                </li>
+                <li>
+                  <strong>Or use your own free Client ID (instant):</strong>{' '}
+                  Create an app at{' '}
+                  <a
+                    href="https://developer.spotify.com/dashboard"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="allowlistLink"
+                  >
+                    developer.spotify.com/dashboard
+                  </a>
+                  , add this site&apos;s Redirect URI, and paste your Client ID
+                  in <strong>Developer Settings</strong> below.
+                  {renderRedirectCopyRow()}
+                </li>
+              </ol>
+              <div className="allowlistErrorActions">
+                <button
+                  type="button"
+                  className="button small"
+                  onClick={() => setShowConfig(true)}
+                >
+                  Use My Own Client ID ↓
+                </button>
+                <button
+                  type="button"
+                  className="button secondary small"
+                  onClick={() => onLoginClick(true)}
+                >
+                  Switch Spotify Account
+                </button>
+                <button
+                  type="button"
+                  className="button demoBtn small"
+                  onClick={() => onStartDemo(true)}
+                >
+                  ▶ Try Interactive Demo
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="errorBox" role="alert">
+              {error}
+            </div>
+          ))}
 
         <div className="ctaRow">
           <button
             type="button"
             className="button spotifyBtn"
-            onClick={onLoginClick}
+            onClick={() => onLoginClick(isAllowlist403Error)}
           >
             <svg
               width="20"
@@ -119,13 +224,16 @@ export function LoginView({
 
           {showConfig && (
             <form className="configForm" onSubmit={handleSaveConfig}>
-              <p className="configHint">
-                <strong>TopAlbums is already pre-configured</strong> with
-                built-in Spotify OAuth PKCE credentials (hidden for security).
-                Only enter values below if you have registered your own Spotify
-                Developer App and want to override the default Client ID or
-                Redirect URI.
-              </p>
+              <div className="configHint">
+                <p>
+                  <strong>TopAlbums is already pre-configured</strong> with
+                  built-in Spotify OAuth PKCE credentials (hidden for security).
+                  Only enter values below if you have registered your own
+                  Spotify Developer App and want to override the default Client
+                  ID or Redirect URI.
+                </p>
+                {renderRedirectCopyRow()}
+              </div>
               <div className="formGrid">
                 <label className="label">
                   Custom Spotify Client ID (Optional Override)

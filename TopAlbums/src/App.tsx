@@ -31,6 +31,14 @@ import type { LoadingProgress, RawLibraryDataset } from './types/spotify'
 
 type AppScreen = 'login' | 'loading' | 'dashboard'
 
+function isSpotifyAuthOrAccessError(message: string): boolean {
+  return (
+    message.includes('(401)') ||
+    message.includes('(403)') ||
+    /not registered/i.test(message)
+  )
+}
+
 const INITIAL_PROGRESS: LoadingProgress = {
   stage: 'profile',
   stageLabel: 'Connecting to Spotify Profile',
@@ -142,7 +150,11 @@ export function App() {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : String(err))
+          const msg = err instanceof Error ? err.message : String(err)
+          if (isSpotifyAuthOrAccessError(msg)) {
+            clearSpotifySession()
+          }
+          setError(msg)
           setScreen('login')
         }
       }
@@ -155,10 +167,10 @@ export function App() {
     }
   }, [])
 
-  const handleLoginClick = async () => {
+  const handleLoginClick = async (forceDialog = false) => {
     try {
       setError(null)
-      await startSpotifyLogin()
+      await startSpotifyLogin({ forceDialog: forceDialog === true })
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     }
@@ -291,7 +303,11 @@ export function App() {
       setDataset(data)
       setScreen('dashboard')
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err))
+      const msg = err instanceof Error ? err.message : String(err)
+      if (isSpotifyAuthOrAccessError(msg)) {
+        clearSpotifySession()
+      }
+      setError(msg)
       setScreen('login')
     }
   }
@@ -369,7 +385,9 @@ export function App() {
           <DashboardView
             dataset={dataset}
             onLogout={handleLogout}
-            onConnectRealSpotify={handleLoginClick}
+            onConnectRealSpotify={() => {
+              void handleLoginClick(false)
+            }}
             onRefreshLibrary={handleRefreshLibrary}
             onHydrateAlbum={handleHydrateAlbumOnDemand}
           />

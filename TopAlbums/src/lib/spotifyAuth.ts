@@ -41,7 +41,9 @@ function base64UrlEncode(buffer: ArrayBuffer): string {
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
-export async function startSpotifyLogin(): Promise<void> {
+export async function startSpotifyLogin(options?: {
+  forceDialog?: boolean
+}): Promise<void> {
   const { clientId, redirectUri, isPlaceholder } = getEffectiveSpotifyConfig()
   if (isPlaceholder) {
     throw new Error(
@@ -66,6 +68,9 @@ export async function startSpotifyLogin(): Promise<void> {
     redirect_uri: redirectUri,
     state,
   })
+  if (options?.forceDialog) {
+    params.set('show_dialog', 'true')
+  }
 
   window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`
 }

@@ -346,6 +346,10 @@
   margin-bottom: 12px;
 }
 
+.configHint p {
+  margin-bottom: 10px;
+}
+
 .formGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -381,6 +385,86 @@
   border: 1px solid rgba(244, 63, 94, 0.35);
   color: #fecdd3;
   font-size: 13px;
+}
+
+.allowlistErrorBox {
+  padding: 16px 18px;
+  background: linear-gradient(
+    180deg,
+    rgba(244, 63, 94, 0.14),
+    rgba(245, 158, 11, 0.1)
+  );
+  border-color: rgba(251, 191, 36, 0.38);
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.5;
+}
+
+.allowlistErrorTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: #fde68a;
+  margin-bottom: 6px;
+}
+
+.allowlistErrorLead {
+  color: rgba(255, 255, 255, 0.82);
+  margin-bottom: 10px;
+}
+
+.allowlistErrorList {
+  margin: 0 0 14px;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.allowlistLink {
+  color: #4ade80;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.allowlistLink:hover {
+  color: #86efac;
+}
+
+.allowlistErrorActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.redirectCopyRow {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.redirectCopyLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.inlineCodePill {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  word-break: break-all;
+  user-select: all;
+}
+
+.copyUriBtn {
+  padding: 5px 10px;
+  font-size: 12px;
 }
 
 /* Loading View */
