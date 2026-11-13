@@ -134,12 +134,14 @@ export async function handleOAuthCallbackIfPresent(): Promise<string | null> {
     expiresAt: Date.now() + (data.expires_in - 60) * 1000,
   }
 
-  window.sessionStorage.setItem(TOKEN_KEY, JSON.stringify(stored))
+  window.localStorage.setItem(TOKEN_KEY, JSON.stringify(stored))
   return stored.accessToken
 }
 
 export async function getValidAccessToken(): Promise<string | null> {
-  const raw = window.sessionStorage.getItem(TOKEN_KEY)
+  const raw =
+    window.localStorage.getItem(TOKEN_KEY) ||
+    window.sessionStorage.getItem(TOKEN_KEY)
   if (!raw) return null
 
   try {
@@ -151,6 +153,7 @@ export async function getValidAccessToken(): Promise<string | null> {
       return await refreshAccessToken(parsed.refreshToken)
     }
   } catch {
+    window.localStorage.removeItem(TOKEN_KEY)
     window.sessionStorage.removeItem(TOKEN_KEY)
   }
   return null
@@ -188,11 +191,12 @@ async function refreshAccessToken(refreshToken: string): Promise<string | null> 
     refreshToken: data.refresh_token || refreshToken,
     expiresAt: Date.now() + (data.expires_in - 60) * 1000,
   }
-  window.sessionStorage.setItem(TOKEN_KEY, JSON.stringify(stored))
+  window.localStorage.setItem(TOKEN_KEY, JSON.stringify(stored))
   return stored.accessToken
 }
 
 export function clearSpotifySession(): void {
+  window.localStorage.removeItem(TOKEN_KEY)
   window.sessionStorage.removeItem(TOKEN_KEY)
   window.sessionStorage.removeItem(VERIFIER_KEY)
   window.sessionStorage.removeItem(STATE_KEY)

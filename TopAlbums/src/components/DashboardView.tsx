@@ -14,7 +14,19 @@ interface DashboardViewProps {
   dataset: RawLibraryDataset
   onLogout: () => void
   onConnectRealSpotify: () => void
+  onRefreshLibrary?: () => void
   onHydrateAlbum?: (albumId: string) => Promise<void>
+}
+
+function formatSyncAge(iso?: string): string {
+  if (!iso) return ''
+  const ts = Date.parse(iso)
+  if (Number.isNaN(ts)) return ''
+  const diffMin = Math.max(0, Math.round((Date.now() - ts) / 60000))
+  if (diffMin < 1) return 'Synced just now • 24h cache'
+  if (diffMin < 60) return `Synced ${diffMin}m ago • 24h cache`
+  const diffHr = Math.floor(diffMin / 60)
+  return `Synced ${diffHr}h ago • 24h cache`
 }
 
 function formatDuration(ms: number): string {
@@ -64,6 +76,7 @@ export function DashboardView({
   dataset,
   onLogout,
   onConnectRealSpotify,
+  onRefreshLibrary,
   onHydrateAlbum,
 }: DashboardViewProps) {
   const [rankingMode, setRankingMode] = useState<RankingMode>('weighted')
@@ -158,6 +171,11 @@ export function DashboardView({
               <span className="userName">
                 {dataset.user.display_name || dataset.user.id}
               </span>
+              {!dataset.isDemo && dataset.fetchedAt && (
+                <span className="muted" style={{ fontSize: 12 }}>
+                  • {formatSyncAge(dataset.fetchedAt)}
+                </span>
+              )}
             </div>
             <h2 className="dashTitle">Your Top Albums by Liked Songs</h2>
             <p className="muted">
@@ -167,7 +185,7 @@ export function DashboardView({
             </p>
           </div>
           <div className="dashActions">
-            {dataset.isDemo && (
+            {dataset.isDemo ? (
               <button
                 type="button"
                 className="button spotifyBtn small"
@@ -175,6 +193,17 @@ export function DashboardView({
               >
                 Connect Real Spotify
               </button>
+            ) : (
+              onRefreshLibrary && (
+                <button
+                  type="button"
+                  className="button small"
+                  onClick={onRefreshLibrary}
+                  title="Force a fresh sync of your Liked Songs and Top Tracks from Spotify"
+                >
+                  ↻ Refresh Library
+                </button>
+              )
             )}
             <button
               type="button"

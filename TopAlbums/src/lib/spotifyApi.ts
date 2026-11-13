@@ -10,6 +10,11 @@ import type {
   UserTopTrackEntry,
 } from '../types/spotify'
 import { normalizeTrackTitle } from './albumScorer'
+import {
+  getCachedHydratedAlbums,
+  setCachedHydratedAlbum,
+  setCachedLibraryDataset,
+} from './libraryCache'
 
 const API_BASE = 'https://api.spotify.com/v1'
 
@@ -56,6 +61,11 @@ export async function fetchSingleAlbumFull(
   albumId: string,
   accessToken: string,
 ): Promise<SpotifyAlbumFull> {
+  const cached = await getCachedHydratedAlbums([albumId])
+  if (cached[albumId]) {
+    return cached[albumId]
+  }
+
   const alb = await spotifyFetch<SpotifyAlbumFull>(
     `/albums/${albumId}`,
     accessToken,
@@ -87,6 +97,7 @@ export async function fetchSingleAlbumFull(
   if (alb.tracks) {
     alb.tracks.next = null
   }
+  await setCachedHydratedAlbum(alb)
   return alb
 }
 
@@ -234,11 +245,24 @@ export async function fetchUserLibraryAndMetadata(
     .slice(0, 120)
     .map(([id]) => id)
 
-  const hydratedAlbumsMap: Record<string, SpotifyAlbumFull> = {}
+  const cachedAlbumsMap = await getCachedHydratedAlbums(candidateAlbumIds)
+  const hydratedAlbumsMap: Record<string, SpotifyAlbumFull> = {
+    ...cachedAlbumsMap,
+  }
+  const uncachedAlbumIds = candidateAlbumIds.filter(
+    (id) => !hydratedAlbumsMap[id],
+  )
+  const cachedCount = candidateAlbumIds.length - uncachedAlbumIds.length
+  if (cachedCount > 0) {
+    pushRecent(
+      `Restored ${cachedCount} album tracklists from local cache`,
+    )
+  }
+
   const concurrency = 6
 
-  for (let i = 0; i < candidateAlbumIds.length; i += concurrency) {
-    const batch = candidateAlbumIds.slice(i, i + concurrency)
+  for (let i = 0; i < uncachedAlbumIds.length; i += concurrency) {
+    const batch = uncachedAlbumIds.slice(i, i + concurrency)
     const settled = await Promise.allSettled(
       batch.map((albId) => fetchSingleAlbumFull(albId, accessToken)),
     )
@@ -257,7 +281,8 @@ export async function fetchUserLibraryAndMetadata(
       )
     }
 
-    const hydratedCount = Math.min(candidateAlbumIds.length, i + batch.length)
+    const hydratedCount =
+      cachedCount + Math.min(uncachedAlbumIds.length, i + batch.length)
     const ratio =
       candidateAlbumIds.length > 0
         ? hydratedCount / candidateAlbumIds.length
@@ -288,7 +313,7 @@ export async function fetchUserLibraryAndMetadata(
     percent: 100,
   })
 
-  return {
+  const datasetResult: RawLibraryDataset = {
     user,
     savedTracks,
     topTracksMap,
@@ -296,4 +321,7 @@ export async function fetchUserLibraryAndMetadata(
     isDemo: false,
     fetchedAt: new Date().toISOString(),
   }
+
+  await setCachedLibraryDataset(datasetResult)
+  return datasetResult
 }

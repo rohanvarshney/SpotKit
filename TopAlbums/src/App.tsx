@@ -8,6 +8,11 @@ import {
   fetchUserLibraryAndMetadata,
 } from './lib/spotifyApi'
 import {
+  clearCachedLibraryDataset,
+  getCachedLibraryDataset,
+  setCachedLibraryDataset,
+} from './lib/libraryCache'
+import {
   clearSpotifySession,
   getValidAccessToken,
   handleOAuthCallbackIfPresent,
@@ -42,6 +47,20 @@ export function App() {
 
     async function initAuth() {
       try {
+        const url = new URL(window.location.href)
+        const hasOAuthParams =
+          url.searchParams.has('code') || url.searchParams.has('error')
+
+        // If not returning from an explicit OAuth redirect, check the 24-hour IndexedDB cache first
+        if (!hasOAuthParams) {
+          const cached = await getCachedLibraryDataset()
+          if (cached && !cancelled) {
+            setDataset(cached)
+            setScreen('dashboard')
+            return
+          }
+        }
+
         const token = await handleOAuthCallbackIfPresent()
         if (!token || cancelled) return
 
@@ -183,8 +202,31 @@ export function App() {
 
   const handleLogout = () => {
     clearSpotifySession()
+    void clearCachedLibraryDataset()
     setDataset(null)
     setScreen('login')
+  }
+
+  const handleRefreshLibrary = async () => {
+    try {
+      setError(null)
+      await clearCachedLibraryDataset()
+      const token = await getValidAccessToken()
+      if (!token) {
+        await startSpotifyLogin()
+        return
+      }
+      setProgress(INITIAL_PROGRESS)
+      setScreen('loading')
+      const data = await fetchUserLibraryAndMetadata(token, (p) => {
+        setProgress(p)
+      })
+      setDataset(data)
+      setScreen('dashboard')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+      setScreen('login')
+    }
   }
 
   const handleHydrateAlbumOnDemand = async (albumId: string) => {
@@ -194,13 +236,15 @@ export function App() {
     const fullAlbum = await fetchSingleAlbumFull(albumId, token)
     setDataset((prev) => {
       if (!prev) return prev
-      return {
+      const next: RawLibraryDataset = {
         ...prev,
         hydratedAlbumsMap: {
           ...prev.hydratedAlbumsMap,
           [albumId]: fullAlbum,
         },
       }
+      void setCachedLibraryDataset(next)
+      return next
     })
   }
 
@@ -244,6 +288,7 @@ export function App() {
             dataset={dataset}
             onLogout={handleLogout}
             onConnectRealSpotify={handleLoginClick}
+            onRefreshLibrary={handleRefreshLibrary}
             onHydrateAlbum={handleHydrateAlbumOnDemand}
           />
         )}

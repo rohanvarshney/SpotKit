@@ -10,6 +10,12 @@ import {
   normalizeAlbumTitle,
   scoreAndFilterAlbums,
 } from './albumScorer'
+import {
+  DATASET_CACHE_TTL_MS,
+  clearCachedLibraryDataset,
+  getCachedLibraryDataset,
+  setCachedLibraryDataset,
+} from './libraryCache'
 import { fetchUserLibraryAndMetadata } from './spotifyApi'
 
 describe('albumScorer', () => {
@@ -337,5 +343,24 @@ describe('albumScorer', () => {
       ['D', 1], // 61
       ['F', 2], // 58, 42
     ])
+  })
+
+  it('caches and expires real Spotify library datasets using a 24-hour TTL', async () => {
+    expect(DATASET_CACHE_TTL_MS).toBe(24 * 60 * 60 * 1000)
+    await clearCachedLibraryDataset()
+    expect(await getCachedLibraryDataset()).toBeNull()
+
+    const realDataset = {
+      ...buildDemoLibraryDataset(),
+      isDemo: false,
+    }
+    await setCachedLibraryDataset(realDataset)
+    const cached = await getCachedLibraryDataset()
+    expect(cached).not.toBeNull()
+    expect(cached?.savedTracks.length).toBe(realDataset.savedTracks.length)
+
+    // Expired TTL should return null
+    await setCachedLibraryDataset(realDataset, -1000)
+    expect(await getCachedLibraryDataset()).toBeNull()
   })
 })
