@@ -4,7 +4,7 @@
 
 1. **[TopAlbums](./TopAlbums/)**: Ranks your top albums using your Spotify **Liked Songs** and **Top 50 Tracks** via OAuth 2.0 PKCE.
 2. **[SESH](./SESH/)**: Visualizes your Spotify Extended Streaming History (`my_spotify_data.zip`) directly in the browser.
-3. **[DJMyPlaylist](./DJMyPlaylist/)** *(WIP)*: Reads key signature and BPM data from a playlist to compute the optimal track ordering for DJ transitions.
+3. **[DJMyPlaylist](./DJMyPlaylist/)**: Automatically scans your Spotify **Liked Songs** or any public playlist URL, maps every track onto the Camelot Wheel & BPM grid, recursively and iteratively orders the full crate (or an optimal `X`-track subset) with live narrated thought-process logs, and exports the sequenced tracklist back to Spotify.
 4. **[MakeASet](./MakeASet/)**: Interactive DJ set builder—confirm your Liked Songs crate or paste any public Spotify playlist URL, run track-by-track Camelot wheel & BPM analysis, pick an opening track, follow Cohesion-scored next-track rankings that re-sort with every selection, and export the final tracklist to a Spotify playlist.
 
 ## GitHub Pages URLs
