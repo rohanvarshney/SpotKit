@@ -26,6 +26,7 @@ import type {
 interface DashboardViewProps {
   dataset: RawLibraryDataset
   onLogout: () => void
+  onStartDemo?: () => void
   onConnectRealSpotify: () => void
   onRefreshLibrary?: () => void
   onHydrateAlbum?: (albumId: string) => Promise<void>
@@ -88,6 +89,7 @@ function InfoTooltip({ title, body }: InfoTooltipProps) {
 export function DashboardView({
   dataset,
   onLogout,
+  onStartDemo,
   onConnectRealSpotify,
   onRefreshLibrary,
   onHydrateAlbum,
@@ -288,6 +290,16 @@ export function DashboardView({
             </p>
           </div>
           <div className="dashActions">
+            {!dataset.isDemo && onStartDemo && (
+              <button
+                type="button"
+                className="button demoBtn small"
+                onClick={onStartDemo}
+                title="Preview TopAlbums with a mock library — your Spotify session and cache are not touched"
+              >
+                ▶ Try Interactive Demo
+              </button>
+            )}
             {dataset.isDemo && (
               <button
                 type="button"
@@ -316,7 +328,7 @@ export function DashboardView({
               className="button secondary small"
               onClick={onLogout}
             >
-              {dataset.isDemo ? 'Back to Login' : 'Disconnect'}
+              {dataset.isDemo ? '← Exit Demo' : 'Disconnect'}
             </button>
           </div>
         </div>

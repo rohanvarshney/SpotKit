@@ -221,6 +221,40 @@
       .toolCard.wip .ctaLink {
         color: #fbbf24;
       }
+      .toolCard.hasStretchedLink {
+        position: relative;
+      }
+      .stretchedLink {
+        text-decoration: none;
+      }
+      .stretchedLink::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+      }
+      .ctaRow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .demoLink {
+        position: relative;
+        z-index: 1;
+        font-size: 13px;
+        font-weight: 750;
+        text-decoration: none;
+        color: #c4b5fd;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(168, 85, 247, 0.14);
+        border: 1px solid rgba(168, 85, 247, 0.35);
+        transition: background 0.15s ease;
+      }
+      .demoLink:hover {
+        background: rgba(168, 85, 247, 0.26);
+      }
       .siteFooter {
         margin-top: 56px;
         padding-top: 24px;
@@ -253,7 +287,7 @@
 
       <main class="toolsGrid">
         <!-- Tool 1: TopAlbums -->
-        <a href="./TopAlbums/" class="toolCard">
+        <div class="toolCard hasStretchedLink">
           <div>
             <div class="cardTop">
               <div class="toolIcon">💿</div>
@@ -271,11 +305,14 @@
               <span class="tag">Tracklist Diff</span>
             </div>
           </div>
-          <span class="ctaLink">Launch TopAlbums →</span>
-        </a>
+          <div class="ctaRow">
+            <a href="./TopAlbums/" class="ctaLink stretchedLink">Launch TopAlbums →</a>
+            <a href="./TopAlbums/?demo" class="demoLink">▶ Try Demo</a>
+          </div>
+        </div>
 
         <!-- Tool 2: SESH -->
-        <a href="./SESH/" class="toolCard">
+        <div class="toolCard hasStretchedLink">
           <div>
             <div class="cardTop">
               <div class="toolIcon">📊</div>
@@ -293,11 +330,14 @@
               <span class="tag">All-Time Stats</span>
             </div>
           </div>
-          <span class="ctaLink">Launch SESH →</span>
-        </a>
+          <div class="ctaRow">
+            <a href="./SESH/" class="ctaLink stretchedLink">Launch SESH →</a>
+            <a href="./SESH/?demo" class="demoLink">▶ Try Demo</a>
+          </div>
+        </div>
 
         <!-- Tool 3: DJMyPlaylist -->
-        <a href="./DJMyPlaylist/" class="toolCard">
+        <div class="toolCard hasStretchedLink">
           <div>
             <div class="cardTop">
               <div class="toolIcon">🎧</div>
@@ -316,11 +356,14 @@
               <span class="tag">Subset X + Export</span>
             </div>
           </div>
-          <span class="ctaLink">Launch DJMyPlaylist →</span>
-        </a>
+          <div class="ctaRow">
+            <a href="./DJMyPlaylist/" class="ctaLink stretchedLink">Launch DJMyPlaylist →</a>
+            <a href="./DJMyPlaylist/?demo" class="demoLink">▶ Try Demo</a>
+          </div>
+        </div>
 
         <!-- Tool 4: MakeASet -->
-        <a href="./MakeASet/" class="toolCard">
+        <div class="toolCard hasStretchedLink">
           <div>
             <div class="cardTop">
               <div class="toolIcon">🔀</div>
@@ -338,8 +381,11 @@
               <span class="tag">Spotify Export</span>
             </div>
           </div>
-          <span class="ctaLink">Launch MakeASet →</span>
-        </a>
+          <div class="ctaRow">
+            <a href="./MakeASet/" class="ctaLink stretchedLink">Launch MakeASet →</a>
+            <a href="./MakeASet/?demo" class="demoLink">▶ Try Demo</a>
+          </div>
+        </div>
       </main>
 
       <footer class="siteFooter">

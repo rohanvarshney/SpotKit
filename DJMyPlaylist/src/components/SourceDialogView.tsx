@@ -152,7 +152,7 @@ export function SourceDialogView({
               className="button secondary small"
               onClick={onBackToHome}
             >
-              ← Back to Login
+              {isDemo ? '← Exit Demo' : '← Back to Login'}
             </button>
           </div>
         </div>

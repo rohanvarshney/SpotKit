@@ -278,7 +278,7 @@ export function SetBuilderView({
               className="button secondary small"
               onClick={onBackToLogin}
             >
-              {crate.isDemo ? 'Back to Login' : 'Disconnect'}
+              {crate.isDemo ? '← Exit Demo' : 'Disconnect'}
             </button>
           </div>
         </div>

@@ -67,6 +67,19 @@ function isSpotifyAuthOrAllowlistError(message: string): boolean {
   )
 }
 
+function hasDemoQueryParam(): boolean {
+  const params = new URLSearchParams(window.location.search)
+  return params.has('demo') || window.location.hash === '#demo'
+}
+
+function clearDemoQueryParam(): void {
+  if (!hasDemoQueryParam()) return
+  const url = new URL(window.location.href)
+  url.searchParams.delete('demo')
+  if (url.hash === '#demo') url.hash = ''
+  window.history.replaceState(null, '', url.toString())
+}
+
 export function App() {
   const [screen, setScreen] = useState<AppScreen>('login')
   const [isDemo, setIsDemo] = useState<boolean>(false)
@@ -85,6 +98,11 @@ export function App() {
     let cancelled = false
 
     async function initAuth() {
+      if (hasDemoQueryParam()) {
+        setIsDemo(true)
+        setScreen('source_dialog')
+        return
+      }
       try {
         const token = await handleOAuthCallbackIfPresent()
         if (cancelled) return
@@ -473,8 +491,22 @@ export function App() {
     }
   }
 
-  const handleExitToLogin = () => {
+  const handleExitToLogin = async () => {
     if (demoTimerRef.current) window.clearInterval(demoTimerRef.current)
+    if (isDemo || crate?.isDemo) {
+      // Leaving the demo should never sign a connected user out.
+      clearDemoQueryParam()
+      setCrate(null)
+      setSetTracks([])
+      setIsDemo(false)
+      setError(null)
+      setSourceMode('liked')
+      setPlaylistUrl('')
+      const token = await getValidAccessToken().catch(() => null)
+      setNeedsWriteReauth(token ? !hasPlaylistWriteScope() : false)
+      setScreen(token ? 'source_dialog' : 'login')
+      return
+    }
     clearSpotifySession()
     setCrate(null)
     setSetTracks([])
@@ -513,13 +545,25 @@ export function App() {
               />
             </div>
           </div>
-          <a
-            href="../"
-            className="button secondary small"
-            style={{ textDecoration: 'none' }}
-          >
-            ← SpotKit Hub
-          </a>
+          <div className="row">
+            {!isDemo && (
+              <button
+                type="button"
+                className="button demoBtn small"
+                onClick={handleStartDemo}
+                title="Explore MakeASet offline with a mock crate — your Spotify session is not touched"
+              >
+                ▶ Interactive Demo
+              </button>
+            )}
+            <a
+              href="../"
+              className="button secondary small"
+              style={{ textDecoration: 'none' }}
+            >
+              ← SpotKit Hub
+            </a>
+          </div>
         </div>
       </header>
 
@@ -542,7 +586,8 @@ export function App() {
               void handleContinueFromSourceDialog(mode, url, skipAnim)
             }
             onSwitchAccount={() => void handleLoginClick(true)}
-            onBackToHome={handleExitToLogin}
+            onBackToHome={() => void handleExitToLogin()}
+            onStartDemo={handleStartDemo}
           />
         )}
 
@@ -569,7 +614,7 @@ export function App() {
             onConnectRealSpotify={
               crate.isDemo ? () => void handleLoginClick(false) : undefined
             }
-            onBackToLogin={handleExitToLogin}
+            onBackToLogin={() => void handleExitToLogin()}
             onUpdateTrackMeta={handleUpdateTrackMeta}
           />
         )}

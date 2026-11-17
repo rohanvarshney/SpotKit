@@ -18,6 +18,7 @@ interface SourceDialogViewProps {
   ) => void
   onSwitchAccount: () => void
   onBackToHome: () => void
+  onStartDemo?: () => void
 }
 
 export function SourceDialogView({
@@ -28,6 +29,7 @@ export function SourceDialogView({
   onContinue,
   onSwitchAccount,
   onBackToHome,
+  onStartDemo,
 }: SourceDialogViewProps) {
   const [sourceMode, setSourceMode] = useState<SourceMode>(initialSourceMode)
   const [playlistUrl, setPlaylistUrl] = useState<string>(initialPlaylistUrl)
@@ -82,6 +84,16 @@ export function SourceDialogView({
               : 'SPOTIFY CONNECTED • SOURCE SETUP'}
           </div>
           <div className="row">
+            {!isDemo && onStartDemo && (
+              <button
+                type="button"
+                className="button demoBtn small"
+                onClick={onStartDemo}
+                title="Explore MakeASet with a mock crate — your Spotify library is not touched"
+              >
+                ▶ Try Interactive Demo
+              </button>
+            )}
             {!isDemo && (
               <button
                 type="button"
@@ -96,7 +108,7 @@ export function SourceDialogView({
               className="button secondary small"
               onClick={onBackToHome}
             >
-              ← Back to Login
+              {isDemo ? '← Exit Demo' : '← Back to Login'}
             </button>
           </div>
         </div>

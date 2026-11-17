@@ -54,12 +54,26 @@ const INITIAL_PROGRESS: LoadingProgress = {
   percent: 2,
 }
 
+function hasDemoQueryParam(): boolean {
+  const params = new URLSearchParams(window.location.search)
+  return params.has('demo') || window.location.hash === '#demo'
+}
+
+function clearDemoQueryParam(): void {
+  if (!hasDemoQueryParam()) return
+  const url = new URL(window.location.href)
+  url.searchParams.delete('demo')
+  if (url.hash === '#demo') url.hash = ''
+  window.history.replaceState(null, '', url.toString())
+}
+
 export function App() {
   const [screen, setScreen] = useState<AppScreen>('login')
   const [dataset, setDataset] = useState<RawLibraryDataset | null>(null)
   const [progress, setProgress] = useState<LoadingProgress>(INITIAL_PROGRESS)
   const [error, setError] = useState<string | null>(null)
   const demoTimerRef = useRef<number | null>(null)
+  const isDemoFlowRef = useRef<boolean>(false)
 
   useEffect(() => {
     let cancelled = false
@@ -69,6 +83,13 @@ export function App() {
         const url = new URL(window.location.href)
         const hasOAuthParams =
           url.searchParams.has('code') || url.searchParams.has('error')
+
+        if (!hasOAuthParams && hasDemoQueryParam()) {
+          isDemoFlowRef.current = true
+          setDataset(buildDemoLibraryDataset())
+          setScreen('dashboard')
+          return
+        }
 
         // If not returning from an explicit OAuth redirect, check the 24-hour IndexedDB cache first
         if (!hasOAuthParams) {
@@ -181,6 +202,7 @@ export function App() {
 
   const handleStartDemo = (withLoadingPreview: boolean) => {
     setError(null)
+    isDemoFlowRef.current = true
     if (demoTimerRef.current) window.clearInterval(demoTimerRef.current)
     const demoData = buildDemoLibraryDataset()
 
@@ -285,12 +307,59 @@ export function App() {
     }, 520)
   }
 
-  const handleCancelLoading = () => {
+  const handleCancelLoading = async () => {
     if (demoTimerRef.current) window.clearInterval(demoTimerRef.current)
+    if (isDemoFlowRef.current || dataset?.isDemo || hasDemoQueryParam()) {
+      isDemoFlowRef.current = false
+      clearDemoQueryParam()
+      const cached = await getCachedLibraryDataset().catch(() => null)
+      if (cached) {
+        setDataset(cached)
+        setScreen('dashboard')
+        return
+      }
+      setDataset(null)
+    }
     setScreen('login')
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (demoTimerRef.current) window.clearInterval(demoTimerRef.current)
+    if (dataset?.isDemo) {
+      // Leaving the demo should never sign a connected user out or wipe cached library data.
+      isDemoFlowRef.current = false
+      clearDemoQueryParam()
+      const cached = await getCachedLibraryDataset().catch(() => null)
+      if (cached) {
+        setDataset(cached)
+        setScreen('dashboard')
+        return
+      }
+      const token = await getValidAccessToken().catch(() => null)
+      if (token) {
+        try {
+          setError(null)
+          setProgress(INITIAL_PROGRESS)
+          setScreen('loading')
+          const data = await fetchUserLibraryAndMetadata(token, (p) => {
+            setProgress(p)
+          })
+          setDataset(data)
+          setScreen('dashboard')
+          return
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err)
+          if (isSpotifyAuthOrAccessError(msg)) {
+            clearSpotifySession()
+          }
+          setError(msg)
+        }
+      }
+      setDataset(null)
+      setScreen('login')
+      return
+    }
+    isDemoFlowRef.current = false
     clearSpotifySession()
     void clearCachedLibraryDataset()
     setDataset(null)
@@ -389,9 +458,25 @@ export function App() {
               />
             </div>
           </div>
-          <a href="../" className="button secondary small" style={{ textDecoration: 'none' }}>
-            ← SpotKit Hub
-          </a>
+          <div className="row">
+            {!dataset?.isDemo && (
+              <button
+                type="button"
+                className="button demoBtn small"
+                onClick={() => handleStartDemo(false)}
+                title="Explore TopAlbums offline with a mock library — your Spotify session and cache are not touched"
+              >
+                ▶ Interactive Demo
+              </button>
+            )}
+            <a
+              href="../"
+              className="button secondary small"
+              style={{ textDecoration: 'none' }}
+            >
+              ← SpotKit Hub
+            </a>
+          </div>
         </div>
       </header>
 
@@ -407,14 +492,15 @@ export function App() {
         {screen === 'loading' && (
           <LoadingView
             progress={progress}
-            onCancel={handleCancelLoading}
+            onCancel={() => void handleCancelLoading()}
           />
         )}
 
         {screen === 'dashboard' && dataset && (
           <DashboardView
             dataset={dataset}
-            onLogout={handleLogout}
+            onLogout={() => void handleLogout()}
+            onStartDemo={() => handleStartDemo(false)}
             onConnectRealSpotify={() => {
               void handleLoginClick(false)
             }}

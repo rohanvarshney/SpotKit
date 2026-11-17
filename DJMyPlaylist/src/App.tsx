@@ -65,6 +65,19 @@ function isSpotifyAuthOrAllowlistError(message: string): boolean {
   )
 }
 
+function hasDemoQueryParam(): boolean {
+  const params = new URLSearchParams(window.location.search)
+  return params.has('demo') || window.location.hash === '#demo'
+}
+
+function clearDemoQueryParam(): void {
+  if (!hasDemoQueryParam()) return
+  const url = new URL(window.location.href)
+  url.searchParams.delete('demo')
+  if (url.hash === '#demo') url.hash = ''
+  window.history.replaceState(null, '', url.toString())
+}
+
 export function App() {
   const [screen, setScreen] = useState<AppScreen>('login')
   const [isDemo, setIsDemo] = useState<boolean>(false)
@@ -96,6 +109,11 @@ export function App() {
     let cancelled = false
 
     async function initAuth() {
+      if (hasDemoQueryParam()) {
+        setIsDemo(true)
+        setScreen('source_dialog')
+        return
+      }
       try {
         const token = await handleOAuthCallbackIfPresent()
         if (cancelled) return
@@ -730,9 +748,23 @@ export function App() {
     }
   }
 
-  const handleExitToLogin = () => {
+  const handleExitToLogin = async () => {
     runIdRef.current += 1
     clearNarrationTimer()
+    if (isDemo || crate?.isDemo) {
+      // Leaving the demo should never sign a connected user out.
+      clearDemoQueryParam()
+      setCrate(null)
+      setSequencerResult(null)
+      setIsDemo(false)
+      setError(null)
+      setSourceMode('liked')
+      setPlaylistUrl('')
+      const token = await getValidAccessToken().catch(() => null)
+      setNeedsWriteReauth(token ? !hasPlaylistWriteScope() : false)
+      setScreen(token ? 'source_dialog' : 'login')
+      return
+    }
     clearSpotifySession()
     setCrate(null)
     setSequencerResult(null)
@@ -814,7 +846,7 @@ export function App() {
             }
             onStartDemo={handleStartDemo}
             onSwitchAccount={() => void handleLoginClick(true)}
-            onBackToHome={handleExitToLogin}
+            onBackToHome={() => void handleExitToLogin()}
           />
         )}
 
@@ -849,7 +881,7 @@ export function App() {
               crate.isDemo ? () => void handleLoginClick(false) : undefined
             }
             onChangeSources={() => setScreen('source_dialog')}
-            onBackToLogin={handleExitToLogin}
+            onBackToLogin={() => void handleExitToLogin()}
           />
         )}
       </main>

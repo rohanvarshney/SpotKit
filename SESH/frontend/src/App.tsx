@@ -15,16 +15,33 @@ import { UploadDropzone } from './features/upload/UploadDropzone'
 import { mockSummary } from './mocks/mockSummary'
 import './App.css'
 
+function hasDemoQueryParam(): boolean {
+  const params = new URLSearchParams(window.location.search)
+  return params.has('demo') || window.location.hash === '#demo'
+}
+
+function clearDemoQueryParam(): void {
+  if (!hasDemoQueryParam()) return
+  const url = new URL(window.location.href)
+  url.searchParams.delete('demo')
+  if (url.hash === '#demo') url.hash = ''
+  window.history.replaceState(null, '', url.toString())
+}
+
 function App() {
+  const [initialDemo] = useState(() => hasDemoQueryParam())
   const [mode, setMode] = useState<'idle' | 'processing' | 'results' | 'error'>(
-    'idle',
+    initialDemo ? 'results' : 'idle',
   )
   const [progress, setProgress] = useState<ProcessorProgress | null>(null)
-  const [summary, setSummary] = useState<SummaryResult | null>(null)
-  const [isDemo, setIsDemo] = useState(false)
+  const [summary, setSummary] = useState<SummaryResult | null>(
+    initialDemo ? mockSummary : null,
+  )
+  const [isDemo, setIsDemo] = useState(initialDemo)
   const [error, setError] = useState<string | null>(null)
 
   const workerRef = useRef<Worker | null>(null)
+  const savedUserSummaryRef = useRef<SummaryResult | null>(null)
   const topN = 25
 
   useEffect(() => {
@@ -54,6 +71,7 @@ function App() {
       const msg = e.data
       if (msg.type === 'progress') setProgress(msg.progress)
       if (msg.type === 'result') {
+        savedUserSummaryRef.current = msg.summary
         setSummary(msg.summary)
         setMode('results')
       }
@@ -69,6 +87,36 @@ function App() {
     }
 
     w.postMessage({ type: 'processZip', zipFile: file, topN })
+  }
+
+  const handleStartDemo = () => {
+    workerRef.current?.terminate()
+    workerRef.current = null
+    setError(null)
+    setProgress(null)
+    setIsDemo(true)
+    setSummary(mockSummary)
+    setMode('results')
+  }
+
+  const handleExitDemoOrReset = () => {
+    setError(null)
+    setProgress(null)
+    if (isDemo) {
+      clearDemoQueryParam()
+      setIsDemo(false)
+      if (savedUserSummaryRef.current) {
+        setSummary(savedUserSummaryRef.current)
+        setMode('results')
+        return
+      }
+      setSummary(null)
+      setMode('idle')
+      return
+    }
+    savedUserSummaryRef.current = null
+    setSummary(null)
+    setMode('idle')
   }
 
   return (
@@ -98,9 +146,21 @@ function App() {
               />
             </div>
           </div>
-          <a href="../" className="button secondary small">
-            ← SpotKit Hub
-          </a>
+          <div className="row">
+            {!isDemo && (
+              <button
+                type="button"
+                className="button demoBtn small"
+                onClick={handleStartDemo}
+                title="Preview SESH with a sample Spotify streaming archive"
+              >
+                ▶ Interactive Demo
+              </button>
+            )}
+            <a href="../" className="button secondary small">
+              ← SpotKit Hub
+            </a>
+          </div>
         </div>
       </header>
 
@@ -122,12 +182,7 @@ function App() {
               </>
             }
             onFile={(f) => onFile(f)}
-            onLoadDemo={() => {
-              setError(null)
-              setIsDemo(true)
-              setSummary(mockSummary)
-              setMode('results')
-            }}
+            onLoadDemo={handleStartDemo}
           />
         )}
 
@@ -171,11 +226,8 @@ function App() {
             summary={summary}
             topN={topN}
             isDemo={isDemo}
-            onReset={() => {
-              setSummary(null)
-              setIsDemo(false)
-              setMode('idle')
-            }}
+            onStartDemo={handleStartDemo}
+            onReset={handleExitDemoOrReset}
           />
         )}
       </main>

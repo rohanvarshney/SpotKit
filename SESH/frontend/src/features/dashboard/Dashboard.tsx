@@ -19,6 +19,7 @@ type Props = {
   summary: SummaryResult
   topN: number
   isDemo?: boolean
+  onStartDemo?: () => void
   onReset: () => void
 }
 
@@ -55,7 +56,7 @@ function getItems(
   return summary.yearly[scope.year]?.[kind] ?? []
 }
 
-export function Dashboard({ summary, topN, isDemo, onReset }: Props) {
+export function Dashboard({ summary, topN, isDemo, onStartDemo, onReset }: Props) {
   const [kind, setKind] = useState<EntityKind>('songs')
   const [scope, setScope] = useState<Scope>({ kind: 'window', key: 'all_time' })
   const [limit, setLimit] = useState<number>(topN)
@@ -98,8 +99,18 @@ export function Dashboard({ summary, topN, isDemo, onReset }: Props) {
             </p>
           </div>
           <div className="row">
+            {!isDemo && onStartDemo && (
+              <button
+                type="button"
+                className="button demoBtn small"
+                onClick={onStartDemo}
+                title="Preview SESH with a sample Spotify streaming archive"
+              >
+                ▶ Try Interactive Demo
+              </button>
+            )}
             <button className="button secondary small" onClick={onReset}>
-              {isDemo ? '← Upload Your Own ZIP' : 'Upload Another ZIP'}
+              {isDemo ? '← Exit Demo' : 'Upload Another ZIP'}
             </button>
           </div>
         </div>
