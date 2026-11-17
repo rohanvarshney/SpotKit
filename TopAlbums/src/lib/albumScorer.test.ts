@@ -5,8 +5,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   buildFibonacciTierGroups,
   buildGradeTierGroups,
+  isNoSkipAlbum,
 } from '../components/DashboardView'
-import { buildDemoLibraryDataset } from '../mocks/demoData'
+import {
+  buildDemoLibraryDataset,
+  hydrateDemoAlbumById,
+} from '../mocks/demoData'
 import type { ScoredAlbum } from '../types/spotify'
 import {
   DEFAULT_WEIGHTS,
@@ -24,10 +28,17 @@ import {
   fetchUserLibraryAndMetadata,
   selectCandidateAlbumIdsToHydrate,
 } from './spotifyApi'
+import {
+  buildShareImageFilename,
+  getShareImageLayoutSpec,
+  renderShareImageCanvas,
+  type ShareImageExportOptions,
+} from './shareImageExporter'
 
 describe('albumScorer', () => {
   afterEach(() => {
     vi.restoreAllMocks()
+    vi.unstubAllGlobals()
   })
 
   it('strips deluxe and remastered suffixes accurately', () => {
@@ -529,5 +540,345 @@ describe('albumScorer', () => {
       'Psycho',
       'In My Head',
     ])
+  })
+
+  it('produces unique 1:1 share image specs and filenames for each view layout', () => {
+    const dataset = buildDemoLibraryDataset()
+    const albums = scoreAndFilterAlbums(dataset, {
+      rankingMode: 'weighted',
+      customWeights: DEFAULT_WEIGHTS,
+      minTotalTracks: 5,
+      minLikedTracks: 2,
+      fullAlbumsOnly: true,
+      deduplicateEditions: true,
+      searchQuery: '',
+    })
+
+    const baseOpts: Omit<
+      ShareImageExportOptions,
+      'viewLayout' | 'gradeBasedTiering'
+    > = {
+      albums,
+      userDisplayName: 'Rohan',
+      totalLikedSongs: dataset.savedTracks.length,
+      noSkipCount: 1,
+      topBoostedCount: 6,
+      rankingMode: 'weighted',
+      brandLogoSrc: 'data:image/png;base64,logo',
+      signatureSrc: 'data:image/png;base64,sig',
+    }
+
+    const gridSpec = getShareImageLayoutSpec({
+      ...baseOpts,
+      viewLayout: 'grid',
+      gradeBasedTiering: false,
+    })
+    const listSpec = getShareImageLayoutSpec({
+      ...baseOpts,
+      viewLayout: 'list',
+      gradeBasedTiering: false,
+    })
+    const fibTierSpec = getShareImageLayoutSpec({
+      ...baseOpts,
+      viewLayout: 'tier',
+      gradeBasedTiering: false,
+    })
+    const gradeTierSpec = getShareImageLayoutSpec({
+      ...baseOpts,
+      viewLayout: 'tier',
+      gradeBasedTiering: true,
+    })
+
+    const specs = [gridSpec, listSpec, fibTierSpec, gradeTierSpec]
+    for (const s of specs) {
+      expect(s.width).toBe(2880)
+      expect(s.height).toBe(2880)
+      expect(s.aspectRatio).toBe('1:1')
+      expect(s.includesJointSignature).toBe(true)
+    }
+
+    const filenames = new Set(specs.map((s) => s.filename))
+    const badges = new Set(specs.map((s) => s.layoutBadge))
+    const subtitles = new Set(specs.map((s) => s.subtitle))
+
+    expect(filenames.size).toBe(4)
+    expect(badges.size).toBe(4)
+    expect(subtitles.size).toBe(4)
+    expect(buildShareImageFilename('grid')).toBe('spotkit-top-albums-grid.png')
+    expect(buildShareImageFilename('list')).toBe(
+      'spotkit-top-albums-table.png',
+    )
+    expect(buildShareImageFilename('tier', false)).toBe(
+      'spotkit-top-albums-tier-fibonacci.png',
+    )
+    expect(buildShareImageFilename('tier', true)).toBe(
+      'spotkit-top-albums-tier-grades.png',
+    )
+  })
+
+  it('renders distinct 1:1 canvas layouts with joint logo signature assets', async () => {
+    const dataset = buildDemoLibraryDataset()
+    const albums = scoreAndFilterAlbums(dataset, {
+      rankingMode: 'weighted',
+      customWeights: DEFAULT_WEIGHTS,
+      minTotalTracks: 5,
+      minLikedTracks: 2,
+      fullAlbumsOnly: true,
+      deduplicateEditions: true,
+      searchQuery: '',
+    })
+
+    interface CanvasRenderTrace {
+      width: number
+      height: number
+      texts: string[]
+      drawnAssets: unknown[]
+    }
+
+    const traces: CanvasRenderTrace[] = []
+
+    class MockImage {
+      srcValue = ''
+      naturalWidth = 200
+      naturalHeight = 200
+      width = 200
+      height = 200
+      crossOrigin: string | null = null
+      onload: (() => void) | null = null
+      onerror: (() => void) | null = null
+
+      set src(val: string) {
+        this.srcValue = val
+        if (val.includes('logo')) {
+          this.naturalWidth = 2402
+          this.naturalHeight = 972
+        } else if (val.includes('sig')) {
+          this.naturalWidth = 600
+          this.naturalHeight = 340
+        }
+        queueMicrotask(() => {
+          this.onload?.()
+        })
+      }
+
+      get src(): string {
+        return this.srcValue
+      }
+    }
+
+    const createMockCanvas = () => {
+      const texts: string[] = []
+      const drawnAssets: unknown[] = []
+      const canvasObj = {
+        width: 0,
+        height: 0,
+        getContext: () => {
+          const gradient = { addColorStop: () => {} }
+          return {
+            fillStyle: '',
+            strokeStyle: '',
+            lineWidth: 1,
+            font: '',
+            textAlign: 'left',
+            textBaseline: 'alphabetic',
+            globalAlpha: 1,
+            shadowColor: '',
+            shadowBlur: 0,
+            shadowOffsetY: 0,
+            save: () => {},
+            restore: () => {},
+            scale: () => {},
+            beginPath: () => {},
+            closePath: () => {},
+            moveTo: () => {},
+            lineTo: () => {},
+            quadraticCurveTo: () => {},
+            arc: () => {},
+            clip: () => {},
+            fill: () => {},
+            stroke: () => {},
+            fillRect: () => {},
+            createLinearGradient: () => gradient,
+            createRadialGradient: () => gradient,
+            measureText: (txt: string) => ({ width: txt.length * 8 }),
+            fillText: (txt: string) => {
+              texts.push(txt)
+            },
+            drawImage: (asset: unknown) => {
+              drawnAssets.push(asset)
+            },
+            getImageData: (_x: number, _y: number, w: number, h: number) => ({
+              data: new Uint8ClampedArray(w * h * 4),
+              width: w,
+              height: h,
+            }),
+            putImageData: () => {},
+          }
+        },
+      }
+      return { canvasObj, texts, drawnAssets }
+    }
+
+    let mainCanvasTrace: CanvasRenderTrace | null = null
+    vi.stubGlobal('Image', MockImage)
+    vi.stubGlobal('document', {
+      createElement: (tag: string) => {
+        expect(tag).toBe('canvas')
+        const { canvasObj, texts, drawnAssets } = createMockCanvas()
+        if (!mainCanvasTrace) {
+          mainCanvasTrace = {
+            get width() {
+              return canvasObj.width
+            },
+            get height() {
+              return canvasObj.height
+            },
+            texts,
+            drawnAssets,
+          }
+          traces.push(mainCanvasTrace)
+        }
+        return canvasObj
+      },
+    })
+
+    const runLayout = async (
+      viewLayout: 'grid' | 'list' | 'tier',
+      gradeBasedTiering = false,
+    ) => {
+      mainCanvasTrace = null
+      const canvas = await renderShareImageCanvas({
+        viewLayout,
+        albums,
+        userDisplayName: 'SpotKit Tester',
+        totalLikedSongs: dataset.savedTracks.length,
+        noSkipCount: 1,
+        topBoostedCount: 6,
+        rankingMode: 'weighted',
+        gradeBasedTiering,
+        brandLogoSrc: 'data:image/png;base64,mock-logo',
+        signatureSrc: 'data:image/png;base64,mock-sig',
+      })
+      expect(canvas.width).toBe(2880)
+      expect(canvas.height).toBe(2880)
+      return traces[traces.length - 1]
+    }
+
+    const gridTrace = await runLayout('grid')
+    const listTrace = await runLayout('list')
+    const tierTrace = await runLayout('tier', false)
+    const gradeTierTrace = await runLayout('tier', true)
+
+    // Each layout draws the joint logo signature assets multiple times (header, break, footer)
+    expect(gridTrace.drawnAssets.length).toBeGreaterThanOrEqual(6)
+    expect(listTrace.drawnAssets.length).toBeGreaterThanOrEqual(6)
+    expect(tierTrace.drawnAssets.length).toBeGreaterThanOrEqual(6)
+
+    // Each layout renders its own unique heading/structure
+    expect(gridTrace.texts).toContain('⊞ TOP ALBUMS GRID')
+    expect(gridTrace.texts.some((t) => t.includes('Top 9 Bento'))).toBe(true)
+
+    expect(listTrace.texts).toContain('☰ RANKING LEADERBOARD')
+    expect(listTrace.texts).toContain('TOP 50 HITS')
+    expect(listTrace.texts).toContain('RANK')
+
+    expect(tierTrace.texts).toContain('🏆 FIBONACCI TIER BOARD')
+    expect(tierTrace.texts).toContain('S')
+    expect(tierTrace.texts).toContain('A')
+
+    expect(gradeTierTrace.texts).toContain('🏆 GRADE TIER BOARD')
+    expect(gradeTierTrace.texts).toContain('≥ 90%')
+  })
+
+  it('provides full feature parity in the interactive demo dataset across filters, tiering, single cross-examination, and on-demand hydration', async () => {
+    const dataset = buildDemoLibraryDataset()
+    expect(dataset.isDemo).toBe(true)
+
+    const defaultOptions = {
+      rankingMode: 'weighted' as const,
+      customWeights: DEFAULT_WEIGHTS,
+      minTotalTracks: 5,
+      minLikedTracks: 2,
+      fullAlbumsOnly: true,
+      deduplicateEditions: true,
+      searchQuery: '',
+    }
+
+    const fullAlbumsScored = scoreAndFilterAlbums(dataset, defaultOptions)
+
+    // 1. Multiple No-Skip (100% liked) albums exist (>= 3) and populate both S-tier Fibonacci sub-levels
+    const noSkipAlbums = fullAlbumsScored.filter((a) => isNoSkipAlbum(a))
+    expect(noSkipAlbums.length).toBeGreaterThanOrEqual(3)
+    const fibGroups = buildFibonacciTierGroups(fullAlbumsScored)
+    const sTier = fibGroups.find((g) => g.tierLetter === 'S')
+    expect(sTier).toBeDefined()
+    expect(sTier?.levels.length).toBe(2)
+    expect(sTier?.levels[0].items.length).toBeGreaterThanOrEqual(1)
+    expect(sTier?.levels[1].items.length).toBeGreaterThanOrEqual(1)
+
+    // 2. Unchecking Full Albums Only at default sliders reveals multi-track EPs (albumType === 'single')
+    const withSinglesAndEps = scoreAndFilterAlbums(dataset, {
+      ...defaultOptions,
+      fullAlbumsOnly: false,
+    })
+    expect(withSinglesAndEps.length).toBeGreaterThan(fullAlbumsScored.length)
+    expect(withSinglesAndEps.some((a) => a.albumType === 'single')).toBe(true)
+
+    // 3. Deduplication merges multiple Deluxe editions (Currents and BRAT)
+    const currents = fullAlbumsScored.find((a) => a.canonicalName === 'Currents')
+    const brat = fullAlbumsScored.find((a) => a.canonicalName === 'BRAT')
+    expect(currents?.mergedEditionNames.length).toBe(2)
+    expect(brat?.mergedEditionNames.length).toBe(2)
+
+    // 4. Standalone Chris Lake singles cross-examine into hydrated Chemistry full album (4/6 liked)
+    const chemistry = fullAlbumsScored.find((a) => a.albumId === 'alb_chemistry')
+    expect(chemistry).toBeDefined()
+    expect(chemistry?.likedCount).toBe(4)
+    expect(chemistry?.totalTracks).toBe(6)
+
+    // 5. Unhydrated demo albums start incomplete and hydrate on demand via hydrateDemoAlbumById
+    const xxBefore = fullAlbumsScored.find((a) => a.albumId === 'alb_xx')
+    const oracularBefore = fullAlbumsScored.find(
+      (a) => a.albumId === 'alb_oracular',
+    )
+    expect(xxBefore?.isTracklistComplete).toBe(false)
+    expect(oracularBefore?.isTracklistComplete).toBe(false)
+
+    const hydratedXx = await hydrateDemoAlbumById('alb_xx')
+    const hydratedOracular = await hydrateDemoAlbumById('alb_oracular')
+    expect(hydratedXx).not.toBeNull()
+    expect(hydratedOracular).not.toBeNull()
+
+    const hydratedDataset = {
+      ...dataset,
+      hydratedAlbumsMap: {
+        ...dataset.hydratedAlbumsMap,
+        ...(hydratedXx ? { alb_xx: hydratedXx } : {}),
+        ...(hydratedOracular ? { alb_oracular: hydratedOracular } : {}),
+      },
+    }
+    const afterHydration = scoreAndFilterAlbums(hydratedDataset, defaultOptions)
+    const xxAfter = afterHydration.find((a) => a.albumId === 'alb_xx')
+    const oracularAfter = afterHydration.find(
+      (a) => a.albumId === 'alb_oracular',
+    )
+    expect(xxAfter?.isTracklistComplete).toBe(true)
+    expect(xxAfter?.tracks.length).toBe(11)
+    expect(oracularAfter?.isTracklistComplete).toBe(true)
+    expect(oracularAfter?.tracks.length).toBe(10)
+
+    // 6. All album and track spotifyUrl values use valid Spotify search URLs
+    for (const album of afterHydration) {
+      expect(album.spotifyUrl.startsWith('https://open.spotify.com/search/')).toBe(
+        true,
+      )
+      for (const track of album.tracks) {
+        if (track.spotifyUrl) {
+          expect(
+            track.spotifyUrl.startsWith('https://open.spotify.com/search/'),
+          ).toBe(true)
+        }
+      }
+    }
   })
 })

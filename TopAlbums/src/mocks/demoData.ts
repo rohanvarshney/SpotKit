@@ -265,6 +265,121 @@ const MOCK_ALBUMS: MockAlbumSpec[] = [
       { name: 'Breathe Deeper - Lil Yachty Remix', durationSec: 288, liked: true, addedAt: '2026-10-12T10:00:00Z', popularity: 72 },
     ],
   },
+  {
+    id: 'alb_brat_deluxe',
+    name: 'BRAT (Deluxe Edition)',
+    artistId: 'art_charli',
+    artistName: 'Charli xcx',
+    albumType: 'album',
+    releaseDate: '2024-06-10',
+    colorA: '#14532d',
+    colorB: '#3f6212',
+    accent: '#a3e635',
+    tracks: [
+      { name: '360', durationSec: 133, liked: true, addedAt: '2026-10-20T12:00:00Z', popularity: 89 },
+      { name: 'Hello goodbye', durationSec: 219, liked: true, addedAt: '2026-10-21T14:00:00Z', popularity: 78 },
+      { name: 'Guess', durationSec: 142, liked: true, addedAt: '2026-10-22T16:30:00Z', popularity: 87 },
+      { name: 'Spring breakers', durationSec: 142, liked: false, popularity: 76 },
+    ],
+  },
+  {
+    id: 'alb_vroom_ep',
+    name: 'Vroom Vroom EP',
+    artistId: 'art_charli',
+    artistName: 'Charli xcx',
+    albumType: 'single',
+    releaseDate: '2016-02-26',
+    colorA: '#312e81',
+    colorB: '#4c1d95',
+    accent: '#c084fc',
+    tracks: [
+      { name: 'Vroom Vroom', durationSec: 193, liked: true, addedAt: '2026-09-12T10:00:00Z', popularity: 79 },
+      { name: 'Paradise', durationSec: 181, liked: true, addedAt: '2026-09-12T10:05:00Z', popularity: 72 },
+      { name: 'Trophy', durationSec: 159, liked: true, addedAt: '2026-09-13T11:20:00Z', popularity: 71 },
+      { name: 'Secret (Shh)', durationSec: 205, liked: true, addedAt: '2026-09-14T15:40:00Z', popularity: 70 },
+      { name: 'Vroom Vroom (Instrumental)', durationSec: 193, liked: false, popularity: 58 },
+    ],
+  },
+  {
+    id: 'alb_get_up_ep',
+    name: "NewJeans 2nd EP 'Get Up'",
+    artistId: 'art_newjeans',
+    artistName: 'NewJeans',
+    albumType: 'single',
+    releaseDate: '2023-07-21',
+    colorA: '#1e3a8a',
+    colorB: '#0f766e',
+    accent: '#67e8f9',
+    tracks: [
+      { name: 'New Jeans', durationSec: 108, liked: true, addedAt: '2026-10-05T09:00:00Z', popularity: 84 },
+      { name: 'Super Shy', durationSec: 154, liked: true, addedAt: '2026-10-06T12:15:00Z', popularity: 88, topRank: 19, topRanges: ['short_term'] },
+      { name: 'ETA', durationSec: 151, liked: true, addedAt: '2026-10-07T14:30:00Z', popularity: 86 },
+      { name: 'Cool With You', durationSec: 147, liked: true, addedAt: '2026-10-08T16:45:00Z', popularity: 81 },
+      { name: 'Get Up', durationSec: 36, liked: false, popularity: 73 },
+      { name: 'ASAP', durationSec: 134, liked: true, addedAt: '2026-10-09T18:00:00Z', popularity: 80 },
+    ],
+  },
+  {
+    id: 'alb_chemistry',
+    name: 'Chemistry',
+    artistId: 'art_chrislake',
+    artistName: 'Chris Lake',
+    albumType: 'album',
+    releaseDate: '2025-07-11',
+    colorA: '#0f172a',
+    colorB: '#065f46',
+    accent: '#34d399',
+    tracks: [
+      { name: 'Savana', durationSec: 210, liked: false, popularity: 78, topRank: 15, topRanges: ['short_term'] },
+      { name: 'Ease My Mind (feat. Abel Balder)', durationSec: 225, liked: false, popularity: 81 },
+      { name: 'Psycho', durationSec: 198, liked: false, popularity: 76 },
+      { name: 'In My Head', durationSec: 204, liked: true, addedAt: '2026-10-18T12:00:00Z', popularity: 79 },
+      { name: 'Summertime Blues', durationSec: 218, liked: false, popularity: 72 },
+      { name: 'Chemistry Outro', durationSec: 175, liked: false, popularity: 66 },
+    ],
+  },
+  {
+    id: 'alb_single_savana',
+    name: 'Savana',
+    artistId: 'art_chrislake',
+    artistName: 'Chris Lake',
+    albumType: 'single',
+    releaseDate: '2025-04-10',
+    colorA: '#064e3b',
+    colorB: '#115e59',
+    accent: '#4ade80',
+    tracks: [
+      { name: 'Savana', durationSec: 210, liked: true, addedAt: '2026-08-01T10:00:00Z', popularity: 78, topRank: 15, topRanges: ['short_term'] },
+    ],
+  },
+  {
+    id: 'alb_single_ease',
+    name: 'Ease My Mind',
+    artistId: 'art_chrislake',
+    artistName: 'Chris Lake',
+    albumType: 'single',
+    releaseDate: '2025-05-12',
+    colorA: '#0f766e',
+    colorB: '#164e63',
+    accent: '#2dd4bf',
+    tracks: [
+      { name: 'Ease My Mind', durationSec: 225, liked: true, addedAt: '2026-08-14T11:00:00Z', popularity: 81 },
+    ],
+  },
+  {
+    id: 'alb_single_psycho',
+    name: 'Psycho',
+    artistId: 'art_chrislake',
+    artistName: 'Chris Lake',
+    albumType: 'single',
+    releaseDate: '2025-06-20',
+    colorA: '#134e4a',
+    colorB: '#1e293b',
+    accent: '#5eead4',
+    tracks: [
+      { name: 'Psycho', durationSec: 198, liked: true, addedAt: '2026-09-02T15:00:00Z', popularity: 76 },
+    ],
+  },
 ]
 
 interface CompactAlbumSeed {
@@ -315,7 +430,7 @@ const ADDITIONAL_ALBUM_SEEDS: CompactAlbumSeed[] = [
     artistName: 'Tyler, The Creator',
     releaseDate: '2019-05-17',
     totalTracks: 12,
-    likedCount: 11,
+    likedCount: 12,
     popularity: 88,
     topRank: 5,
     topRanges: ['short_term', 'medium_term'],
@@ -391,7 +506,7 @@ const ADDITIONAL_ALBUM_SEEDS: CompactAlbumSeed[] = [
     artistName: 'Daft Punk',
     releaseDate: '2001-03-12',
     totalTracks: 14,
-    likedCount: 12,
+    likedCount: 14,
     popularity: 86,
     topRank: 11,
     topRanges: ['medium_term', 'long_term'],
@@ -1035,6 +1150,23 @@ const ALL_MOCK_ALBUMS: MockAlbumSpec[] = [
   }),
 ]
 
+const UNHYDRATED_DEMO_ALBUM_IDS = new Set(['alb_xx', 'alb_oracular'])
+const DEMO_FULL_ALBUMS_MAP: Record<string, SpotifyAlbumFull> = {}
+
+function buildSpotifySearchUrl(query: string): string {
+  return `https://open.spotify.com/search/${encodeURIComponent(query)}`
+}
+
+export async function hydrateDemoAlbumById(
+  albumId: string,
+): Promise<SpotifyAlbumFull | null> {
+  if (Object.keys(DEMO_FULL_ALBUMS_MAP).length === 0) {
+    buildDemoLibraryDataset()
+  }
+  await new Promise((resolve) => setTimeout(resolve, 320))
+  return DEMO_FULL_ALBUMS_MAP[albumId] ?? null
+}
+
 export function buildDemoLibraryDataset(): RawLibraryDataset {
   const savedTracks: SpotifySavedTrackItem[] = []
   const topTracksMap: Record<string, UserTopTrackEntry> = {}
@@ -1051,7 +1183,7 @@ export function buildDemoLibraryDataset(): RawLibraryDataset {
     const artistObj = {
       id: spec.artistId,
       name: spec.artistName,
-      external_urls: { spotify: `https://open.spotify.com/artist/${spec.artistId}` },
+      external_urls: { spotify: buildSpotifySearchUrl(spec.artistName) },
     }
 
     const albumSimple = {
@@ -1062,11 +1194,16 @@ export function buildDemoLibraryDataset(): RawLibraryDataset {
       release_date: spec.releaseDate,
       images: [{ url: coverUrl, height: 400, width: 400 }],
       artists: [artistObj],
-      external_urls: { spotify: `https://open.spotify.com/album/${spec.id}` },
+      external_urls: {
+        spotify: buildSpotifySearchUrl(`${spec.name} ${spec.artistName}`),
+      },
     }
 
     const trackSimples = spec.tracks.map((t, index) => {
       const trackId = `${spec.id}_trk_${index + 1}`
+      const trackSpotifyUrl = buildSpotifySearchUrl(
+        `${t.name} ${spec.artistName}`,
+      )
       if (t.topRank && t.topRanges) {
         const rankByRange = Object.fromEntries(
           t.topRanges.map((r, idx) => [r, Math.min(50, t.topRank! + idx * 2)]),
@@ -1094,7 +1231,7 @@ export function buildDemoLibraryDataset(): RawLibraryDataset {
             artists: [artistObj],
             album: albumSimple,
             popularity: t.popularity ?? 75,
-            external_urls: { spotify: `https://open.spotify.com/track/${trackId}` },
+            external_urls: { spotify: trackSpotifyUrl },
           },
         })
       }
@@ -1106,16 +1243,20 @@ export function buildDemoLibraryDataset(): RawLibraryDataset {
         disc_number: 1,
         duration_ms: t.durationSec * 1000,
         artists: [artistObj],
-        external_urls: { spotify: `https://open.spotify.com/track/${trackId}` },
+        external_urls: { spotify: trackSpotifyUrl },
       }
     })
 
-    hydratedAlbumsMap[spec.id] = {
+    const fullAlbum: SpotifyAlbumFull = {
       ...albumSimple,
       tracks: {
         items: trackSimples,
         total: trackSimples.length,
       },
+    }
+    DEMO_FULL_ALBUMS_MAP[spec.id] = fullAlbum
+    if (!UNHYDRATED_DEMO_ALBUM_IDS.has(spec.id)) {
+      hydratedAlbumsMap[spec.id] = fullAlbum
     }
   }
 

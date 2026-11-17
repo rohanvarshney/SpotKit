@@ -26,7 +26,10 @@ import {
   handleOAuthCallbackIfPresent,
   startSpotifyLogin,
 } from './lib/spotifyAuth'
-import { buildDemoLibraryDataset } from './mocks/demoData'
+import {
+  buildDemoLibraryDataset,
+  hydrateDemoAlbumById,
+} from './mocks/demoData'
 import type { LoadingProgress, RawLibraryDataset } from './types/spotify'
 
 type AppScreen = 'login' | 'loading' | 'dashboard'
@@ -178,6 +181,7 @@ export function App() {
 
   const handleStartDemo = (withLoadingPreview: boolean) => {
     setError(null)
+    if (demoTimerRef.current) window.clearInterval(demoTimerRef.current)
     const demoData = buildDemoLibraryDataset()
 
     if (!withLoadingPreview) {
@@ -186,6 +190,11 @@ export function App() {
       return
     }
 
+    const likedTotal = demoData.savedTracks.length
+    const halfLiked = Math.round(likedTotal / 2)
+    const albumsTotal = Object.keys(demoData.hydratedAlbumsMap).length
+    const topTracksCount = Object.keys(demoData.topTracksMap).length
+
     setScreen('loading')
     const steps: LoadingProgress[] = [
       {
@@ -193,20 +202,20 @@ export function App() {
         stageLabel: 'Connecting to Spotify Profile',
         detail: 'Authenticated as SpotKit Demo Listener…',
         likedFetched: 0,
-        likedTotal: 64,
+        likedTotal,
         albumsHydrated: 0,
-        albumsTotal: 8,
+        albumsTotal,
         recentItems: ['Connected as SpotKit Demo Listener (Premium)'],
         percent: 12,
       },
       {
         stage: 'liked_songs',
         stageLabel: 'Scanning Your Liked Songs',
-        detail: 'Loaded 32 of 64 liked tracks…',
-        likedFetched: 32,
-        likedTotal: 64,
+        detail: `Loaded ${halfLiked} of ${likedTotal} liked tracks…`,
+        likedFetched: halfLiked,
+        likedTotal,
         albumsHydrated: 0,
-        albumsTotal: 8,
+        albumsTotal,
         recentItems: [
           'Liked: "The Less I Know The Better" — Tame Impala (Currents)',
           'Liked: "Supercut" — Lorde (Melodrama)',
@@ -218,12 +227,12 @@ export function App() {
         stage: 'top_tracks',
         stageLabel: 'Analyzing Heavy Rotation (Top Tracks)',
         detail: 'Matching short_term, medium_term, and long_term Top Tracks…',
-        likedFetched: 64,
-        likedTotal: 64,
+        likedFetched: likedTotal,
+        likedTotal,
         albumsHydrated: 0,
-        albumsTotal: 8,
+        albumsTotal,
         recentItems: [
-          'Indexed 14 Top Tracks across 4-week, 6-month, and all-time scopes',
+          `Indexed ${topTracksCount} Top Tracks across 4-week, 6-month, and all-time scopes`,
           'Liked: "Weird Fishes/ Arpeggi" — Radiohead (In Rainbows)',
           'Liked: "The Less I Know The Better" — Tame Impala (Currents)',
         ],
@@ -232,11 +241,11 @@ export function App() {
       {
         stage: 'album_hydration',
         stageLabel: 'Hydrating Complete Album Tracklists',
-        detail: 'Fetched full tracklists for 8 of 8 candidate albums…',
-        likedFetched: 64,
-        likedTotal: 64,
-        albumsHydrated: 8,
-        albumsTotal: 8,
+        detail: `Fetched full tracklists for ${albumsTotal} of ${albumsTotal} candidate albums…`,
+        likedFetched: likedTotal,
+        likedTotal,
+        albumsHydrated: albumsTotal,
+        albumsTotal,
         recentItems: [
           'Hydrated tracklist: Imaginal Disk (15 tracks)',
           'Hydrated tracklist: Blonde (17 tracks)',
@@ -247,13 +256,15 @@ export function App() {
       {
         stage: 'scoring',
         stageLabel: 'Computing Album Scores & Rankings',
-        detail: 'Merging Deluxe editions & calculating Bayesian scores…',
-        likedFetched: 64,
-        likedTotal: 64,
-        albumsHydrated: 8,
-        albumsTotal: 8,
+        detail:
+          'Merging Deluxe editions, cross-examining singles & calculating Bayesian scores…',
+        likedFetched: likedTotal,
+        likedTotal,
+        albumsHydrated: albumsTotal,
+        albumsTotal,
         recentItems: [
-          'Merged Currents + Currents (Deluxe B-Sides & Remixes)',
+          'Merged Currents + Currents (Deluxe B-Sides & Remixes) & BRAT editions',
+          'Cross-examined 3 standalone Chris Lake singles into Chemistry',
           'Hydrated tracklist: Imaginal Disk (15 tracks)',
         ],
         percent: 100,
@@ -287,6 +298,10 @@ export function App() {
   }
 
   const handleRefreshLibrary = async () => {
+    if (dataset?.isDemo) {
+      handleStartDemo(true)
+      return
+    }
     try {
       setError(null)
       await clearCachedLibraryDataset()
@@ -313,7 +328,22 @@ export function App() {
   }
 
   const handleHydrateAlbumOnDemand = async (albumId: string) => {
-    if (!dataset || dataset.isDemo || dataset.hydratedAlbumsMap[albumId]) return
+    if (!dataset || dataset.hydratedAlbumsMap[albumId]) return
+    if (dataset.isDemo) {
+      const demoAlbum = await hydrateDemoAlbumById(albumId)
+      if (!demoAlbum) return
+      setDataset((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          hydratedAlbumsMap: {
+            ...prev.hydratedAlbumsMap,
+            [albumId]: demoAlbum,
+          },
+        }
+      })
+      return
+    }
     const token = await getValidAccessToken()
     if (!token) return
     const fullAlbum = await fetchSingleAlbumFull(albumId, token)

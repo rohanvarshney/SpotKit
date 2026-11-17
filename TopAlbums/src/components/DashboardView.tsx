@@ -5,6 +5,7 @@ import { type CSSProperties, Fragment, useMemo, useState } from 'react'
 import freehandSignatureUrl from '../assets/freehand-signature-3.png'
 import brandLogoUrl from '../assets/logo.png'
 import { DEFAULT_WEIGHTS, scoreAndFilterAlbums } from '../lib/albumScorer'
+import { downloadShareImage } from '../lib/shareImageExporter'
 import type {
   FilterAndSortOptions,
   RankingMode,
@@ -98,6 +99,7 @@ export function DashboardView({
     'all',
   )
   const [hydratingAlbumId, setHydratingAlbumId] = useState<string | null>(null)
+  const [isExportingImage, setIsExportingImage] = useState<boolean>(false)
 
   const options: FilterAndSortOptions = useMemo(
     () => ({
@@ -161,6 +163,27 @@ export function DashboardView({
     }
   }
 
+  const handleDownloadShareImage = async () => {
+    if (scoredAlbums.length === 0 || isExportingImage) return
+    try {
+      setIsExportingImage(true)
+      await downloadShareImage({
+        viewLayout,
+        albums: scoredAlbums,
+        userDisplayName: dataset.user.display_name || dataset.user.id || 'Listener',
+        totalLikedSongs: dataset.savedTracks.length,
+        noSkipCount,
+        topBoostedCount,
+        rankingMode,
+        gradeBasedTiering,
+        brandLogoSrc: brandLogoUrl,
+        signatureSrc: freehandSignatureUrl,
+      })
+    } finally {
+      setIsExportingImage(false)
+    }
+  }
+
   return (
     <div className="dashboardWrap">
       {/* Top User & Summary Header */}
@@ -174,7 +197,7 @@ export function DashboardView({
               <span className="userName">
                 {dataset.user.display_name || dataset.user.id}
               </span>
-              {!dataset.isDemo && dataset.fetchedAt && (
+              {dataset.fetchedAt && (
                 <span className="muted" style={{ fontSize: 12 }}>
                   • {formatSyncAge(dataset.fetchedAt)}
                 </span>
@@ -188,7 +211,7 @@ export function DashboardView({
             </p>
           </div>
           <div className="dashActions">
-            {dataset.isDemo ? (
+            {dataset.isDemo && (
               <button
                 type="button"
                 className="button spotifyBtn small"
@@ -196,17 +219,20 @@ export function DashboardView({
               >
                 Connect Real Spotify
               </button>
-            ) : (
-              onRefreshLibrary && (
-                <button
-                  type="button"
-                  className="button small"
-                  onClick={onRefreshLibrary}
-                  title="Force a fresh sync of your Liked Songs and Top Tracks from Spotify"
-                >
-                  ↻ Refresh Library
-                </button>
-              )
+            )}
+            {onRefreshLibrary && (
+              <button
+                type="button"
+                className="button small"
+                onClick={onRefreshLibrary}
+                title={
+                  dataset.isDemo
+                    ? 'Replay the 5-stage library sync animation and reset demo state'
+                    : 'Force a fresh sync of your Liked Songs and Top Tracks from Spotify'
+                }
+              >
+                ↻ Refresh Library
+              </button>
             )}
             <button
               type="button"
@@ -310,27 +336,51 @@ export function DashboardView({
                 body="Switch between Grid Cards, a sortable Ranking Table, or Fibonacci Tiering (where each tier groups two Fibonacci levels: S = 1+2, A = 3+5, B = 8+13, C = 21+34, etc.)."
               />
             </span>
-            <div className="segmented">
+            <div className="viewLayoutActionRow">
+              <div className="segmented">
+                <button
+                  type="button"
+                  className={`segBtn ${viewLayout === 'grid' ? 'active' : ''}`}
+                  onClick={() => setViewLayout('grid')}
+                >
+                  ⊞ Grid Cards
+                </button>
+                <button
+                  type="button"
+                  className={`segBtn ${viewLayout === 'list' ? 'active' : ''}`}
+                  onClick={() => setViewLayout('list')}
+                >
+                  ☰ Ranking Table
+                </button>
+                <button
+                  type="button"
+                  className={`segBtn ${viewLayout === 'tier' ? 'active' : ''}`}
+                  onClick={() => setViewLayout('tier')}
+                >
+                  🏆 Tiering
+                </button>
+              </div>
               <button
                 type="button"
-                className={`segBtn ${viewLayout === 'grid' ? 'active' : ''}`}
-                onClick={() => setViewLayout('grid')}
+                className="button shareDownloadBtn"
+                onClick={handleDownloadShareImage}
+                disabled={scoredAlbums.length === 0 || isExportingImage}
+                title={`Download a 1:1 shareable ${
+                  viewLayout === 'grid'
+                    ? 'Grid Cards'
+                    : viewLayout === 'list'
+                      ? 'Ranking Table'
+                      : gradeBasedTiering
+                        ? 'Grade Tier Board'
+                        : 'Fibonacci Tier Board'
+                } image with joint logo signature`}
               >
-                ⊞ Grid Cards
-              </button>
-              <button
-                type="button"
-                className={`segBtn ${viewLayout === 'list' ? 'active' : ''}`}
-                onClick={() => setViewLayout('list')}
-              >
-                ☰ Ranking Table
-              </button>
-              <button
-                type="button"
-                className={`segBtn ${viewLayout === 'tier' ? 'active' : ''}`}
-                onClick={() => setViewLayout('tier')}
-              >
-                🏆 Tiering
+                <span className="shareDownloadIcon" aria-hidden="true">
+                  {isExportingImage ? '⏳' : '⬇'}
+                </span>
+                <span>
+                  {isExportingImage ? 'Rendering 1:1 PNG…' : 'Download 1:1 Image'}
+                </span>
               </button>
             </div>
           </div>
