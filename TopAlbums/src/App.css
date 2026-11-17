@@ -1945,3 +1945,483 @@
   font-size: 11px;
   color: rgba(30, 215, 96, 0.55);
 }
+
+/* =========================================
+   LAYOUT 4: ARTIST VIEW & CUSTOM TIER MODAL
+   ========================================= */
+.artistViewWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.artistSelectorCard {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.artistSelectorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.artistSearchBox {
+  max-width: 240px;
+}
+
+@media (max-width: 680px) {
+  .artistSearchBox {
+    max-width: 100%;
+  }
+}
+
+.artistPillsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 156px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.artistSelectPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all 0.14s ease;
+}
+
+.artistSelectPill:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+.artistSelectPill.active {
+  background: rgba(30, 215, 96, 0.18);
+  border-color: rgba(74, 222, 128, 0.55);
+  color: #4ade80;
+}
+
+.artistPillMeta {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.78;
+}
+
+.artistSpotlightCard {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 215, 96, 0.07),
+    rgba(168, 85, 247, 0.08)
+  );
+  border-color: rgba(74, 222, 128, 0.24);
+}
+
+.artistSpotlightHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.artistSpotlightActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.artistTopTracksStrip {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.artistTopTracksLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.72);
+  margin-right: 4px;
+}
+
+.artistExtraMetaRow {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.artistMetaChip {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.artistMetaChip.share {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.3);
+  color: #7dd3fc;
+}
+
+.artistMetaChip.delta.pos {
+  background: rgba(30, 215, 96, 0.12);
+  border-color: rgba(74, 222, 128, 0.32);
+  color: #4ade80;
+}
+
+.artistMetaChip.delta.neg {
+  background: rgba(244, 63, 94, 0.12);
+  border-color: rgba(244, 63, 94, 0.3);
+  color: #fda4af;
+}
+
+/* Modal & Custom Tier Ranking Dialog */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: rgba(4, 4, 8, 0.78);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  overflow-y: auto;
+}
+
+.artistDownloadModal {
+  width: 100%;
+  max-width: 960px;
+  max-height: 92vh;
+  overflow-y: auto;
+  background: #12121b;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.modalTitle {
+  font-size: 22px;
+  font-weight: 850;
+  margin: 8px 0 4px;
+}
+
+.modalCloseBtn {
+  flex-shrink: 0;
+}
+
+.modalModeTabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 680px) {
+  .modalModeTabs {
+    grid-template-columns: 1fr;
+  }
+}
+
+.modalModeTab {
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.modalModeTab strong {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.modalModeTab span {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.modalModeTab:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+.modalModeTab.active {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 215, 96, 0.16),
+    rgba(168, 85, 247, 0.16)
+  );
+  border-color: rgba(74, 222, 128, 0.55);
+  color: #fff;
+}
+
+.modalCardsPreview {
+  padding: 18px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modalPreviewSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modalPreviewRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.customTierEditorWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.customTierPresetsRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.customTierBuilder {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.customTierRow {
+  display: flex;
+  align-items: stretch;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.customTierRow.dragOver {
+  border-color: #1ed760;
+  background: rgba(30, 215, 96, 0.09);
+}
+
+@media (max-width: 640px) {
+  .customTierRow {
+    flex-direction: column;
+  }
+}
+
+.customTierBadgeCol {
+  width: 80px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 8px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 640px) {
+  .customTierBadgeCol {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+}
+
+.tierLetterBadge.smallBadge {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  font-size: 19px;
+}
+
+.customTierDropZone {
+  flex: 1;
+  min-width: 0;
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.customTierEmptyHint {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.42);
+  padding: 6px 4px;
+}
+
+.customTierAlbumCard {
+  width: 220px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  cursor: grab;
+}
+
+.customTierAlbumCard:active {
+  cursor: grabbing;
+}
+
+.customTierAlbumTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.customTierThumb,
+.customTierThumbFallback {
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #14141d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.customTierAlbumInfo {
+  min-width: 0;
+  flex: 1;
+}
+
+.customTierAlbumTitle {
+  font-size: 12px;
+  font-weight: 750;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.customTierAlbumMeta {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.customTierCardControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.tierAssignBtns {
+  display: flex;
+  gap: 3px;
+}
+
+.tierAssignBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0;
+}
+
+.tierAssignBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.tierAssignBtn.active {
+  background: #1ed760;
+  border-color: #1ed760;
+  color: #052e16;
+}
+
+.tierOrderBtns {
+  display: flex;
+  gap: 3px;
+}
+
+.tierOrderBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 10px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.tierOrderBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.tierOrderBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-wrap: wrap;
+}

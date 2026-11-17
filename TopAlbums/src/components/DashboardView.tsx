@@ -1,11 +1,20 @@
 // SPDX-FileCopyrightText: 2026 Rohan Varshney
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-import { type CSSProperties, Fragment, useMemo, useState } from 'react'
+import { type CSSProperties, Fragment, useEffect, useMemo, useState } from 'react'
 import freehandSignatureUrl from '../assets/freehand-signature-3.png'
 import brandLogoUrl from '../assets/logo.png'
 import { DEFAULT_WEIGHTS, scoreAndFilterAlbums } from '../lib/albumScorer'
-import { downloadShareImage } from '../lib/shareImageExporter'
+import {
+  buildArtistGroups,
+  buildDefaultArtistTierMap,
+  downloadShareImage,
+  TIER_LETTER_LIST,
+  type ArtistExportMode,
+  type ArtistGroupSummary,
+  type CustomArtistTierMap,
+  type TierLetter,
+} from '../lib/shareImageExporter'
 import type {
   FilterAndSortOptions,
   RankingMode,
@@ -91,9 +100,21 @@ export function DashboardView({
   const [fullAlbumsOnly, setFullAlbumsOnly] = useState<boolean>(true)
   const [deduplicateEditions, setDeduplicateEditions] = useState<boolean>(true)
   const [searchQuery, setSearchQuery] = useState<string>('')
-  const [viewLayout, setViewLayout] = useState<'grid' | 'list' | 'tier'>('grid')
+  const [viewLayout, setViewLayout] = useState<
+    'grid' | 'list' | 'tier' | 'artist'
+  >('grid')
   const [gridColumns, setGridColumns] = useState<number>(3)
   const [gradeBasedTiering, setGradeBasedTiering] = useState<boolean>(false)
+  const [selectedArtistKey, setSelectedArtistKey] = useState<string | null>(
+    null,
+  )
+  const [artistFilterQuery, setArtistFilterQuery] = useState<string>('')
+  const [isArtistDownloadModalOpen, setIsArtistDownloadModalOpen] =
+    useState<boolean>(false)
+  const [artistDownloadModalMode, setArtistDownloadModalMode] =
+    useState<ArtistExportMode>('cards')
+  const [customArtistTiers, setCustomArtistTiers] =
+    useState<CustomArtistTierMap | null>(null)
   const [expandedAlbumKey, setExpandedAlbumKey] = useState<string | null>(null)
   const [trackFilter, setTrackFilter] = useState<'all' | 'liked' | 'missing'>(
     'all',
@@ -137,6 +158,19 @@ export function DashboardView({
     [scoredAlbums],
   )
 
+  const artistGroups = useMemo(
+    () => buildArtistGroups(scoredAlbums),
+    [scoredAlbums],
+  )
+
+  const activeArtistGroup = useMemo(
+    () =>
+      artistGroups.find((g) => g.artistKey === selectedArtistKey) ??
+      artistGroups[0] ??
+      null,
+    [artistGroups, selectedArtistKey],
+  )
+
   const handleWeightChange = (key: keyof ScoringWeights, val: number) => {
     setCustomWeights((prev) => ({
       ...prev,
@@ -163,8 +197,51 @@ export function DashboardView({
     }
   }
 
+  const openArtistDownloadModal = (initialMode: ArtistExportMode = 'cards') => {
+    if (!activeArtistGroup) return
+    setArtistDownloadModalMode(initialMode)
+    setCustomArtistTiers(buildDefaultArtistTierMap(activeArtistGroup))
+    setIsArtistDownloadModalOpen(true)
+  }
+
+  const handleExportArtistImage = async (
+    mode: ArtistExportMode,
+    tiersToUse?: CustomArtistTierMap,
+  ) => {
+    if (!activeArtistGroup || isExportingImage) return
+    try {
+      setIsExportingImage(true)
+      await downloadShareImage({
+        viewLayout: 'artist',
+        albums: scoredAlbums,
+        userDisplayName:
+          dataset.user.display_name || dataset.user.id || 'Listener',
+        totalLikedSongs: dataset.savedTracks.length,
+        noSkipCount,
+        topBoostedCount,
+        rankingMode,
+        gradeBasedTiering,
+        brandLogoSrc: brandLogoUrl,
+        signatureSrc: freehandSignatureUrl,
+        artistSummary: activeArtistGroup,
+        artistExportMode: mode,
+        customArtistTiers:
+          mode === 'custom-tier'
+            ? (tiersToUse ?? buildDefaultArtistTierMap(activeArtistGroup))
+            : undefined,
+      })
+      setIsArtistDownloadModalOpen(false)
+    } finally {
+      setIsExportingImage(false)
+    }
+  }
+
   const handleDownloadShareImage = async () => {
     if (scoredAlbums.length === 0 || isExportingImage) return
+    if (viewLayout === 'artist') {
+      openArtistDownloadModal('cards')
+      return
+    }
     try {
       setIsExportingImage(true)
       await downloadShareImage({
@@ -333,7 +410,7 @@ export function DashboardView({
               View Layout
               <InfoTooltip
                 title="View Layouts"
-                body="Switch between Grid Cards, a sortable Ranking Table, or Fibonacci Tiering (where each tier groups two Fibonacci levels: S = 1+2, A = 3+5, B = 8+13, C = 21+34, etc.)."
+                body="Switch between Grid Cards, a sortable Ranking Table, Fibonacci Tiering (S = 1+2, A = 3+5, B = 8+13, etc.), or Artist View to inspect an artist's full catalog & build custom shareable artist tier lists."
               />
             </span>
             <div className="viewLayoutActionRow">
@@ -359,21 +436,32 @@ export function DashboardView({
                 >
                   🏆 Tiering
                 </button>
+                <button
+                  type="button"
+                  className={`segBtn ${viewLayout === 'artist' ? 'active' : ''}`}
+                  onClick={() => setViewLayout('artist')}
+                >
+                  🎤 Artist View
+                </button>
               </div>
               <button
                 type="button"
                 className="button shareDownloadBtn"
                 onClick={handleDownloadShareImage}
                 disabled={scoredAlbums.length === 0 || isExportingImage}
-                title={`Download a 1:1 shareable ${
-                  viewLayout === 'grid'
-                    ? 'Grid Cards'
-                    : viewLayout === 'list'
-                      ? 'Ranking Table'
-                      : gradeBasedTiering
-                        ? 'Grade Tier Board'
-                        : 'Fibonacci Tier Board'
-                } image with joint logo signature`}
+                title={
+                  viewLayout === 'artist'
+                    ? 'Choose Standard Artist Card Layout or Custom Artist Tier Ranking (2880×2880 1:1 PNG)'
+                    : `Download a 1:1 shareable ${
+                        viewLayout === 'grid'
+                          ? 'Grid Cards'
+                          : viewLayout === 'list'
+                            ? 'Ranking Table'
+                            : gradeBasedTiering
+                              ? 'Grade Tier Board'
+                              : 'Fibonacci Tier Board'
+                      } image with joint logo signature`
+                }
               >
                 <span className="shareDownloadIcon" aria-hidden="true">
                   {isExportingImage ? '⏳' : '⬇'}
@@ -500,7 +588,7 @@ export function DashboardView({
             />
           </label>
 
-          {viewLayout === 'grid' && (
+          {(viewLayout === 'grid' || viewLayout === 'artist') && (
             <label className="sliderFilter">
               <span>
                 Card Size: <strong>{gridColumns} per row</strong>
@@ -608,6 +696,25 @@ export function DashboardView({
             )
           })}
         </div>
+      ) : viewLayout === 'artist' && activeArtistGroup ? (
+        <ArtistCatalogView
+          artistGroups={artistGroups}
+          activeArtist={activeArtistGroup}
+          artistFilterQuery={artistFilterQuery}
+          onChangeArtistFilterQuery={setArtistFilterQuery}
+          onSelectArtist={(key) => {
+            setSelectedArtistKey(key)
+            setExpandedAlbumKey(null)
+          }}
+          gridColumns={gridColumns}
+          expandedAlbumKey={expandedAlbumKey}
+          onToggleExpand={toggleExpandAlbum}
+          trackFilter={trackFilter}
+          onChangeTrackFilter={setTrackFilter}
+          hydratingAlbumId={hydratingAlbumId}
+          onHydrateAlbum={onHydrateAlbum}
+          onOpenDownloadModal={openArtistDownloadModal}
+        />
       ) : viewLayout === 'tier' ? (
         <FibonacciTierView
           albums={scoredAlbums}
@@ -797,6 +904,21 @@ export function DashboardView({
           </div>
         </div>
       )}
+
+      {isArtistDownloadModalOpen && activeArtistGroup && customArtistTiers && (
+        <ArtistDownloadModal
+          artistSummary={activeArtistGroup}
+          mode={artistDownloadModalMode}
+          onChangeMode={setArtistDownloadModalMode}
+          tiers={customArtistTiers}
+          onChangeTiers={setCustomArtistTiers}
+          isExporting={isExportingImage}
+          onClose={() => setIsArtistDownloadModalOpen(false)}
+          onExport={(mode, tiersToUse) => {
+            void handleExportArtistImage(mode, tiersToUse)
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -834,6 +956,13 @@ function BrandSignatureRow({ variant, index }: BrandSignatureRowProps) {
   )
 }
 
+interface AlbumArtistCardContext {
+  artistRank: number
+  globalRank: number
+  sharePct: number
+  scoreDelta: number
+}
+
 interface AlbumGridCardProps {
   album: ScoredAlbum
   rank: number
@@ -843,6 +972,7 @@ interface AlbumGridCardProps {
   onChangeTrackFilter: (f: 'all' | 'liked' | 'missing') => void
   isHydrating?: boolean
   onHydrateAlbum?: () => void
+  artistContext?: AlbumArtistCardContext
 }
 
 function AlbumGridCard({
@@ -854,6 +984,7 @@ function AlbumGridCard({
   onChangeTrackFilter,
   isHydrating,
   onHydrateAlbum,
+  artistContext,
 }: AlbumGridCardProps) {
   const pct = Math.round(album.proportionLiked * 100)
   const unlikedCount = Math.max(0, album.totalTracks - album.likedCount)
@@ -873,7 +1004,7 @@ function AlbumGridCard({
             <div className="gridAlbumFallback">💿</div>
           )}
           <span className={`gridRankBadge ${rank <= 3 ? `top${rank}` : ''}`}>
-            #{rank}
+            {artistContext ? `Artist #${artistContext.artistRank}` : `#${rank}`}
           </span>
           <span
             className="gridScoreOverlay"
@@ -892,6 +1023,23 @@ function AlbumGridCard({
             <span className="dot">•</span>
             <span>{album.releaseYear}</span>
           </div>
+
+          {artistContext && (
+            <div className="artistExtraMetaRow">
+              <span className="artistMetaChip global">
+                Global #{artistContext.globalRank}
+              </span>
+              <span className="artistMetaChip share">
+                {artistContext.sharePct}% of artist likes
+              </span>
+              <span
+                className={`artistMetaChip delta ${artistContext.scoreDelta >= 0 ? 'pos' : 'neg'}`}
+              >
+                {artistContext.scoreDelta >= 0 ? '+' : ''}
+                {artistContext.scoreDelta.toFixed(1)} vs avg
+              </span>
+            </div>
+          )}
 
           <div className="completionBlock">
             <div className="completionLabels">
@@ -1552,6 +1700,660 @@ function TracklistDrawerContent({
           ))}
         </ul>
       )}
+    </div>
+  )
+}
+
+interface ArtistCatalogViewProps {
+  artistGroups: ArtistGroupSummary[]
+  activeArtist: ArtistGroupSummary
+  artistFilterQuery: string
+  onChangeArtistFilterQuery: (q: string) => void
+  onSelectArtist: (artistKey: string) => void
+  gridColumns: number
+  expandedAlbumKey: string | null
+  onToggleExpand: (album: ScoredAlbum) => void
+  trackFilter: 'all' | 'liked' | 'missing'
+  onChangeTrackFilter: (f: 'all' | 'liked' | 'missing') => void
+  hydratingAlbumId: string | null
+  onHydrateAlbum?: (albumId: string) => Promise<void>
+  onOpenDownloadModal: (initialMode: ArtistExportMode) => void
+}
+
+function ArtistCatalogView({
+  artistGroups,
+  activeArtist,
+  artistFilterQuery,
+  onChangeArtistFilterQuery,
+  onSelectArtist,
+  gridColumns,
+  expandedAlbumKey,
+  onToggleExpand,
+  trackFilter,
+  onChangeTrackFilter,
+  hydratingAlbumId,
+  onHydrateAlbum,
+  onOpenDownloadModal,
+}: ArtistCatalogViewProps) {
+  const filteredArtists = useMemo(() => {
+    const q = artistFilterQuery.trim().toLowerCase()
+    if (!q) return artistGroups
+    return artistGroups.filter((g) => g.artistName.toLowerCase().includes(q))
+  }, [artistGroups, artistFilterQuery])
+
+  const catalogPct = Math.round(activeArtist.catalogCompletionProportion * 100)
+  const gridInterval = gridColumns * 2
+
+  return (
+    <div className="artistViewWrap">
+      {/* Artist Selector Bar */}
+      <div className="card artistSelectorCard">
+        <div className="artistSelectorHeader">
+          <div>
+            <span className="controlHeading">
+              Browse Artists ({artistGroups.length})
+            </span>
+            <p className="muted" style={{ fontSize: 12, marginTop: 2 }}>
+              Select an artist to inspect their full catalog stats, per-album
+              artist deltas, or create a shareable artist tier list.
+            </p>
+          </div>
+          <input
+            type="search"
+            className="input artistSearchBox"
+            placeholder="Filter artists…"
+            value={artistFilterQuery}
+            onChange={(e) => onChangeArtistFilterQuery(e.target.value)}
+          />
+        </div>
+        <div className="artistPillsRow" role="listbox" aria-label="Artists">
+          {filteredArtists.length === 0 ? (
+            <span className="muted" style={{ fontSize: 13 }}>
+              No artists match &ldquo;{artistFilterQuery}&rdquo;.
+            </span>
+          ) : (
+            filteredArtists.map((g) => {
+              const isSelected = g.artistKey === activeArtist.artistKey
+              const pct = Math.round(g.catalogCompletionProportion * 100)
+              return (
+                <button
+                  type="button"
+                  key={g.artistKey}
+                  role="option"
+                  aria-selected={isSelected}
+                  className={`artistSelectPill ${isSelected ? 'active' : ''}`}
+                  onClick={() => onSelectArtist(g.artistKey)}
+                >
+                  <span className="artistPillName">{g.artistName}</span>
+                  <span className="artistPillMeta">
+                    {g.albums.length} {g.albums.length === 1 ? 'alb' : 'albs'} •{' '}
+                    {pct}%
+                  </span>
+                </button>
+              )
+            })
+          )}
+        </div>
+      </div>
+
+      {/* Artist Spotlight & Extra Metadata Card */}
+      <div className="card artistSpotlightCard">
+        <div className="artistSpotlightHeader">
+          <div>
+            <div className="userBadgeRow">
+              <span className="heroBadge">ARTIST SPOTLIGHT</span>
+              <span className="metaBadge merged">Era {activeArtist.eraSpan}</span>
+              <span className="metaBadge noSkip">
+                Best Global #{activeArtist.bestGlobalRank}
+              </span>
+            </div>
+            <h3 className="dashTitle">{activeArtist.artistName}</h3>
+            <p className="muted">
+              {activeArtist.albums.length} qualifying{' '}
+              {activeArtist.albums.length === 1 ? 'album' : 'albums'} • Peak
+              record: <strong>{activeArtist.peakAlbum.name}</strong> (
+              {activeArtist.peakScore.toFixed(1)} pts)
+            </p>
+          </div>
+          <div className="artistSpotlightActions">
+            <a
+              href={activeArtist.artistSpotifyUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="button secondary small"
+              style={{ textDecoration: 'none' }}
+            >
+              Open Artist in Spotify ↗
+            </a>
+            <button
+              type="button"
+              className="button small"
+              onClick={() => onOpenDownloadModal('cards')}
+            >
+              ⊞ Download Artist Card
+            </button>
+            <button
+              type="button"
+              className="button shareDownloadBtn"
+              onClick={() => onOpenDownloadModal('custom-tier')}
+            >
+              🏆 Rank &amp; Download Tiers
+            </button>
+          </div>
+        </div>
+
+        <div className="kpiGrid">
+          <div className="kpiCard">
+            <div className="kpiValue accentGreen">{catalogPct}%</div>
+            <div className="kpiLabel">
+              Catalog Completion ({activeArtist.totalLikedTracks}/
+              {activeArtist.totalCatalogTracks} tracks)
+            </div>
+          </div>
+          <div className="kpiCard">
+            <div className="kpiValue">{activeArtist.albums.length}</div>
+            <div className="kpiLabel">
+              Qualifying Albums ({activeArtist.noSkipCount} ★ No-Skip)
+            </div>
+          </div>
+          <div className="kpiCard">
+            <div className="kpiValue accentPurple">
+              {activeArtist.averageScore.toFixed(1)}
+            </div>
+            <div className="kpiLabel">
+              Avg Score (Peak {activeArtist.peakScore.toFixed(1)} pts)
+            </div>
+          </div>
+          <div className="kpiCard">
+            <div className="kpiValue">{activeArtist.topTracksCount}</div>
+            <div className="kpiLabel">Spotify Top 50 Rotation Hits</div>
+          </div>
+        </div>
+
+        {activeArtist.topTracksList.length > 0 && (
+          <div className="artistTopTracksStrip">
+            <span className="artistTopTracksLabel">
+              🔥 Heavy Rotation by {activeArtist.artistName}:
+            </span>
+            {activeArtist.topTracksList.slice(0, 6).map((t) => (
+              <span key={t.trackId} className="topTrackPill">
+                #{t.bestRank} {t.trackName} ({t.albumName})
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Artist Album Cards Grid */}
+      <div
+        className={`albumsGridCards cols-${gridColumns}`}
+        style={
+          {
+            '--grid-cols': gridColumns,
+          } as CSSProperties
+        }
+      >
+        {activeArtist.albums.map(({ album, globalRank, artistRank }, idx) => {
+          const pos = idx + 1
+          const showBrandBreak =
+            pos % gridInterval === 0 ||
+            (pos === activeArtist.albums.length &&
+              activeArtist.albums.length < gridInterval)
+          const sharePct =
+            activeArtist.totalLikedTracks > 0
+              ? Math.round(
+                  (album.likedCount / activeArtist.totalLikedTracks) * 100,
+                )
+              : 0
+          const scoreDelta = album.finalScore - activeArtist.averageScore
+          return (
+            <Fragment key={album.key}>
+              <AlbumGridCard
+                album={album}
+                rank={artistRank}
+                isExpanded={expandedAlbumKey === album.key}
+                onToggleExpand={() => onToggleExpand(album)}
+                trackFilter={trackFilter}
+                onChangeTrackFilter={onChangeTrackFilter}
+                isHydrating={hydratingAlbumId === album.albumId}
+                onHydrateAlbum={
+                  onHydrateAlbum
+                    ? () => onHydrateAlbum(album.albumId)
+                    : undefined
+                }
+                artistContext={{
+                  artistRank,
+                  globalRank,
+                  sharePct,
+                  scoreDelta,
+                }}
+              />
+              {showBrandBreak && (
+                <BrandSignatureRow
+                  variant="grid"
+                  index={Math.floor(pos / gridInterval)}
+                />
+              )}
+            </Fragment>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+interface ArtistDownloadModalProps {
+  artistSummary: ArtistGroupSummary
+  mode: ArtistExportMode
+  onChangeMode: (mode: ArtistExportMode) => void
+  tiers: CustomArtistTierMap
+  onChangeTiers: (next: CustomArtistTierMap) => void
+  isExporting: boolean
+  onClose: () => void
+  onExport: (mode: ArtistExportMode, tiersToUse?: CustomArtistTierMap) => void
+}
+
+function ArtistDownloadModal({
+  artistSummary,
+  mode,
+  onChangeMode,
+  tiers,
+  onChangeTiers,
+  isExporting,
+  onClose,
+  onExport,
+}: ArtistDownloadModalProps) {
+  const [draggedAlbum, setDraggedAlbum] = useState<{
+    albumKey: string
+    fromTier: TierLetter
+  } | null>(null)
+  const [dragOverTier, setDragOverTier] = useState<TierLetter | null>(null)
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onClose])
+
+  const moveAlbumToTier = (
+    albumKey: string,
+    fromTier: TierLetter,
+    toTier: TierLetter,
+  ) => {
+    if (fromTier === toTier) return
+    const next: CustomArtistTierMap = {
+      S: [...tiers.S],
+      A: [...tiers.A],
+      B: [...tiers.B],
+      C: [...tiers.C],
+      D: [...tiers.D],
+      F: [...tiers.F],
+    }
+    const idx = next[fromTier].findIndex((a) => a.key === albumKey)
+    if (idx === -1) return
+    const [item] = next[fromTier].splice(idx, 1)
+    next[toTier].push(item)
+    onChangeTiers(next)
+  }
+
+  const reorderWithinTier = (
+    tier: TierLetter,
+    albumKey: string,
+    direction: -1 | 1,
+  ) => {
+    const list = [...tiers[tier]]
+    const idx = list.findIndex((a) => a.key === albumKey)
+    const targetIdx = idx + direction
+    if (idx === -1 || targetIdx < 0 || targetIdx >= list.length) return
+    const [item] = list.splice(idx, 1)
+    list.splice(targetIdx, 0, item)
+    onChangeTiers({
+      ...tiers,
+      [tier]: list,
+    })
+  }
+
+  const applyPresetByPctLiked = () => {
+    const sorted = [...artistSummary.albums]
+      .map((e) => e.album)
+      .sort(
+        (a, b) =>
+          b.proportionLiked - a.proportionLiked || b.likedCount - a.likedCount,
+      )
+    const next: CustomArtistTierMap = { S: [], A: [], B: [], C: [], D: [], F: [] }
+    for (const album of sorted) {
+      const pct = Math.round(album.proportionLiked * 100)
+      if (pct >= 100) next.S.push(album)
+      else if (pct >= 85) next.A.push(album)
+      else if (pct >= 70) next.B.push(album)
+      else if (pct >= 55) next.C.push(album)
+      else if (pct >= 40) next.D.push(album)
+      else next.F.push(album)
+    }
+    onChangeTiers(next)
+  }
+
+  const applyPresetAllSTier = () => {
+    onChangeTiers({
+      S: artistSummary.albums.map((e) => e.album),
+      A: [],
+      B: [],
+      C: [],
+      D: [],
+      F: [],
+    })
+  }
+
+  const catalogPct = Math.round(artistSummary.catalogCompletionProportion * 100)
+
+  return (
+    <div
+      className="modalOverlay"
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
+      <div
+        className="card artistDownloadModal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="artistDownloadModalTitle"
+      >
+        <div className="modalHeader">
+          <div>
+            <span className="heroBadge">1:1 SHARE IMAGE • 2880×2880 PNG</span>
+            <h3 id="artistDownloadModalTitle" className="modalTitle">
+              Share {artistSummary.artistName}
+            </h3>
+            <p className="muted" style={{ fontSize: 13 }}>
+              Choose how you want to format {artistSummary.artistName}&apos;s
+              discography before downloading with your joint logo signature.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="button secondary small modalCloseBtn"
+            onClick={onClose}
+            aria-label="Close download dialog"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="modalModeTabs" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'cards'}
+            className={`modalModeTab ${mode === 'cards' ? 'active' : ''}`}
+            onClick={() => onChangeMode('cards')}
+          >
+            <strong>⊞ Standard Artist Card Layout</strong>
+            <span>
+              Discography bento grid + artist metadata spotlight &amp; joint
+              signature
+            </span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'custom-tier'}
+            className={`modalModeTab ${mode === 'custom-tier' ? 'active' : ''}`}
+            onClick={() => onChangeMode('custom-tier')}
+          >
+            <strong>🏆 Custom Artist Tier Ranking</strong>
+            <span>
+              Arrange albums in S–F tiers &amp; download a shareable tier list
+              to compare with friends
+            </span>
+          </button>
+        </div>
+
+        {mode === 'cards' ? (
+          <div className="modalCardsPreview">
+            <div className="modalPreviewSummary">
+              <div className="modalPreviewRow">
+                <span className="metaBadge merged">
+                  🎤 {artistSummary.artistName}
+                </span>
+                <span className="metaBadge noSkip">
+                  {catalogPct}% Catalog Liked ({artistSummary.totalLikedTracks}/
+                  {artistSummary.totalCatalogTracks})
+                </span>
+                <span className="metaBadge flame">
+                  Era {artistSummary.eraSpan}
+                </span>
+              </div>
+              <p className="muted" style={{ fontSize: 13, lineHeight: 1.55 }}>
+                Generates a high-resolution 1:1 card featuring{' '}
+                <strong>{artistSummary.artistName}</strong>&apos;s spotlight
+                metadata banner (Catalog %, Average vs. Peak Score, Top 50 Hits),{' '}
+                up to {Math.min(9, artistSummary.albums.length)} album cards with
+                Artist Rank, Global Rank &amp; Score Delta tags, and your joint
+                RovA signature.
+              </p>
+              <div>
+                <button
+                  type="button"
+                  className="textLinkBtn"
+                  onClick={() => onChangeMode('custom-tier')}
+                >
+                  Want to rank {artistSummary.artistName}&apos;s albums in S–F
+                  tiers instead? Switch to Custom Tier Ranking →
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="customTierEditorWrap">
+            <div className="customTierPresetsRow">
+              <span className="controlHeading">Quick Presets:</span>
+              <button
+                type="button"
+                className="button secondary small"
+                onClick={() =>
+                  onChangeTiers(buildDefaultArtistTierMap(artistSummary))
+                }
+              >
+                Auto-fill by My Scores
+              </button>
+              <button
+                type="button"
+                className="button secondary small"
+                onClick={applyPresetByPctLiked}
+              >
+                Auto-fill by % Liked
+              </button>
+              <button
+                type="button"
+                className="button secondary small"
+                onClick={applyPresetAllSTier}
+              >
+                Put All in S Tier
+              </button>
+              <span className="muted" style={{ fontSize: 12, marginLeft: 'auto' }}>
+                Drag cards between rows or tap S–F buttons
+              </span>
+            </div>
+
+            <div className="customTierBuilder">
+              {TIER_LETTER_LIST.map((tierLetter) => {
+                const list = tiers[tierLetter] ?? []
+                return (
+                  <div
+                    key={tierLetter}
+                    className={`customTierRow tier-${tierLetter.toLowerCase()} ${dragOverTier === tierLetter ? 'dragOver' : ''}`}
+                    onDragOver={(e) => {
+                      e.preventDefault()
+                      if (dragOverTier !== tierLetter) {
+                        setDragOverTier(tierLetter)
+                      }
+                    }}
+                    onDragLeave={() => {
+                      if (dragOverTier === tierLetter) setDragOverTier(null)
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault()
+                      setDragOverTier(null)
+                      if (draggedAlbum) {
+                        moveAlbumToTier(
+                          draggedAlbum.albumKey,
+                          draggedAlbum.fromTier,
+                          tierLetter,
+                        )
+                        setDraggedAlbum(null)
+                      }
+                    }}
+                  >
+                    <div className="customTierBadgeCol">
+                      <div className="tierLetterBadge smallBadge">
+                        {tierLetter}
+                      </div>
+                      <span className="tierMetaSub">
+                        {list.length} {list.length === 1 ? 'alb' : 'albs'}
+                      </span>
+                    </div>
+
+                    <div className="customTierDropZone">
+                      {list.length === 0 ? (
+                        <div className="customTierEmptyHint">
+                          Drop album here or tap &ldquo;{tierLetter}&rdquo; on any
+                          album
+                        </div>
+                      ) : (
+                        list.map((album, idx) => {
+                          const pct = Math.round(album.proportionLiked * 100)
+                          return (
+                            <div
+                              key={album.key}
+                              draggable
+                              onDragStart={() =>
+                                setDraggedAlbum({
+                                  albumKey: album.key,
+                                  fromTier: tierLetter,
+                                })
+                              }
+                              onDragEnd={() => {
+                                setDraggedAlbum(null)
+                                setDragOverTier(null)
+                              }}
+                              className="customTierAlbumCard"
+                            >
+                              <div className="customTierAlbumTop">
+                                {album.coverUrl ? (
+                                  <img
+                                    src={album.coverUrl}
+                                    alt={album.name}
+                                    className="customTierThumb"
+                                  />
+                                ) : (
+                                  <div className="customTierThumbFallback">
+                                    💿
+                                  </div>
+                                )}
+                                <div className="customTierAlbumInfo">
+                                  <div
+                                    className="customTierAlbumTitle"
+                                    title={album.name}
+                                  >
+                                    {album.name}
+                                  </div>
+                                  <div className="customTierAlbumMeta">
+                                    {album.releaseYear} • {pct}% liked
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="customTierCardControls">
+                                <div className="tierAssignBtns">
+                                  {TIER_LETTER_LIST.map((targetTier) => (
+                                    <button
+                                      type="button"
+                                      key={targetTier}
+                                      className={`tierAssignBtn ${targetTier === tierLetter ? 'active' : ''}`}
+                                      onClick={() =>
+                                        moveAlbumToTier(
+                                          album.key,
+                                          tierLetter,
+                                          targetTier,
+                                        )
+                                      }
+                                      title={`Move to ${targetTier} tier`}
+                                    >
+                                      {targetTier}
+                                    </button>
+                                  ))}
+                                </div>
+                                <div className="tierOrderBtns">
+                                  <button
+                                    type="button"
+                                    className="tierOrderBtn"
+                                    disabled={idx === 0}
+                                    onClick={() =>
+                                      reorderWithinTier(
+                                        tierLetter,
+                                        album.key,
+                                        -1,
+                                      )
+                                    }
+                                    title="Move left within tier"
+                                    aria-label={`Move ${album.name} left`}
+                                  >
+                                    ◀
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="tierOrderBtn"
+                                    disabled={idx === list.length - 1}
+                                    onClick={() =>
+                                      reorderWithinTier(tierLetter, album.key, 1)
+                                    }
+                                    title="Move right within tier"
+                                    aria-label={`Move ${album.name} right`}
+                                  >
+                                    ▶
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        })
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        <div className="modalFooter">
+          <button
+            type="button"
+            className="button secondary"
+            onClick={onClose}
+            disabled={isExporting}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="button shareDownloadBtn"
+            disabled={isExporting}
+            onClick={() => onExport(mode, tiers)}
+          >
+            <span>
+              {isExporting
+                ? 'Rendering 1:1 PNG…'
+                : mode === 'cards'
+                  ? '⬇ Download 1:1 Artist Card PNG'
+                  : '⬇ Download Custom 1:1 Artist Tier PNG'}
+            </span>
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

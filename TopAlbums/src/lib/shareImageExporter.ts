@@ -7,9 +7,45 @@ import {
   isNoSkipAlbum,
   type FibonacciTierGroup,
 } from '../components/DashboardView'
-import type { RankingMode, ScoredAlbum } from '../types/spotify'
+import type {
+  RankingMode,
+  ScoredAlbum,
+  TopTrackTimeRange,
+} from '../types/spotify'
 
-export type ViewLayoutMode = 'grid' | 'list' | 'tier'
+export type ViewLayoutMode = 'grid' | 'list' | 'tier' | 'artist'
+export type ArtistExportMode = 'cards' | 'custom-tier'
+
+export const TIER_LETTER_LIST = ['S', 'A', 'B', 'C', 'D', 'F'] as const
+export type TierLetter = (typeof TIER_LETTER_LIST)[number]
+export type CustomArtistTierMap = Record<TierLetter, ScoredAlbum[]>
+
+export interface ArtistTopTrackSummary {
+  trackId: string
+  trackName: string
+  albumName: string
+  bestRank: number
+  ranges: TopTrackTimeRange[]
+}
+
+export interface ArtistGroupSummary {
+  artistKey: string
+  artistId: string
+  artistName: string
+  artistSpotifyUrl: string
+  albums: { album: ScoredAlbum; globalRank: number; artistRank: number }[]
+  totalLikedTracks: number
+  totalCatalogTracks: number
+  catalogCompletionProportion: number
+  averageScore: number
+  peakScore: number
+  peakAlbum: ScoredAlbum
+  bestGlobalRank: number
+  noSkipCount: number
+  topTracksCount: number
+  eraSpan: string
+  topTracksList: ArtistTopTrackSummary[]
+}
 
 export interface ShareImageExportOptions {
   viewLayout: ViewLayoutMode
@@ -23,6 +59,9 @@ export interface ShareImageExportOptions {
   brandLogoSrc: string
   signatureSrc: string
   size?: number
+  artistSummary?: ArtistGroupSummary
+  artistExportMode?: ArtistExportMode
+  customArtistTiers?: CustomArtistTierMap
 }
 
 export interface ShareImageLayoutSpec {
@@ -80,12 +119,205 @@ const FIB_TIER_SUB_LABELS: Record<string, string> = {
   F: 'Levels 144+',
 }
 
+export function buildArtistGroups(albums: ScoredAlbum[]): ArtistGroupSummary[] {
+  if (albums.length === 0) return []
+
+  const grouped = new Map<
+    string,
+    {
+      artistKey: string
+      artistId: string
+      artistName: string
+      artistSpotifyUrl: string
+      albums: { album: ScoredAlbum; globalRank: number }[]
+    }
+  >()
+
+  albums.forEach((album, idx) => {
+    const globalRank = idx + 1
+    const primaryObj = album.artists[0]
+    const artistName =
+      album.primaryArtist || primaryObj?.name || 'Unknown Artist'
+    const artistKey = artistName.toLowerCase().trim() || 'unknown'
+    const artistId = primaryObj?.id || artistKey
+    const artistSpotifyUrl =
+      primaryObj?.external_urls?.spotify ||
+      `https://open.spotify.com/search/${encodeURIComponent(artistName)}`
+
+    let bucket = grouped.get(artistKey)
+    if (!bucket) {
+      bucket = {
+        artistKey,
+        artistId,
+        artistName,
+        artistSpotifyUrl,
+        albums: [],
+      }
+      grouped.set(artistKey, bucket)
+    }
+    bucket.albums.push({ album, globalRank })
+  })
+
+  const summaries: ArtistGroupSummary[] = []
+  for (const bucket of grouped.values()) {
+    const rankedAlbums = bucket.albums.map((entry, idx) => ({
+      album: entry.album,
+      globalRank: entry.globalRank,
+      artistRank: idx + 1,
+    }))
+
+    let totalLikedTracks = 0
+    let totalCatalogTracks = 0
+    let scoreSum = 0
+    let peakScore = -Infinity
+    let peakAlbum = rankedAlbums[0].album
+    let noSkipCount = 0
+    const years: number[] = []
+    const topTracksByKey = new Map<string, ArtistTopTrackSummary>()
+
+    for (const { album } of rankedAlbums) {
+      totalLikedTracks += album.likedCount
+      totalCatalogTracks += album.totalTracks
+      scoreSum += album.finalScore
+      if (album.finalScore > peakScore) {
+        peakScore = album.finalScore
+        peakAlbum = album
+      }
+      if (isNoSkipAlbum(album)) {
+        noSkipCount += 1
+      }
+      const parsedYear = Number.parseInt(album.releaseYear, 10)
+      if (!Number.isNaN(parsedYear) && parsedYear > 1900) {
+        years.push(parsedYear)
+      }
+      for (const track of album.tracks) {
+        if (!track.topTrackInfo) continue
+        const dedupKey =
+          track.topTrackInfo.normalizedTitle ||
+          track.topTrackInfo.trackId ||
+          track.id
+        const existing = topTracksByKey.get(dedupKey)
+        if (!existing || track.topTrackInfo.bestRank < existing.bestRank) {
+          topTracksByKey.set(dedupKey, {
+            trackId: track.topTrackInfo.trackId || track.id,
+            trackName: track.name,
+            albumName: album.name,
+            bestRank: track.topTrackInfo.bestRank,
+            ranges: track.topTrackInfo.ranges,
+          })
+        }
+      }
+    }
+
+    const topTracksList = Array.from(topTracksByKey.values()).sort(
+      (a, b) => a.bestRank - b.bestRank,
+    )
+    const minYear = years.length > 0 ? Math.min(...years) : null
+    const maxYear = years.length > 0 ? Math.max(...years) : null
+    const eraSpan =
+      minYear === null || maxYear === null
+        ? '—'
+        : minYear === maxYear
+          ? String(minYear)
+          : `${minYear}–${maxYear}`
+
+    summaries.push({
+      artistKey: bucket.artistKey,
+      artistId: bucket.artistId,
+      artistName: bucket.artistName,
+      artistSpotifyUrl: bucket.artistSpotifyUrl,
+      albums: rankedAlbums,
+      totalLikedTracks,
+      totalCatalogTracks,
+      catalogCompletionProportion:
+        totalCatalogTracks > 0 ? totalLikedTracks / totalCatalogTracks : 0,
+      averageScore: scoreSum / rankedAlbums.length,
+      peakScore: Number.isFinite(peakScore) ? peakScore : 0,
+      peakAlbum,
+      bestGlobalRank: rankedAlbums[0].globalRank,
+      noSkipCount,
+      topTracksCount: topTracksList.length,
+      eraSpan,
+      topTracksList,
+    })
+  }
+
+  return summaries.sort(
+    (a, b) =>
+      b.albums.length - a.albums.length ||
+      b.peakScore - a.peakScore ||
+      b.totalLikedTracks - a.totalLikedTracks ||
+      a.artistName.localeCompare(b.artistName),
+  )
+}
+
+export function buildDefaultArtistTierMap(
+  artistSummary: ArtistGroupSummary,
+): CustomArtistTierMap {
+  const tiers: CustomArtistTierMap = {
+    S: [],
+    A: [],
+    B: [],
+    C: [],
+    D: [],
+    F: [],
+  }
+
+  const remaining: ScoredAlbum[] = []
+  for (const { album } of artistSummary.albums) {
+    if (isNoSkipAlbum(album)) {
+      tiers.S.push(album)
+    } else {
+      remaining.push(album)
+    }
+  }
+
+  if (remaining.length === 0) return tiers
+
+  const bucketForScore = (score: number): TierLetter => {
+    if (score >= 85) return 'A'
+    if (score >= 75) return 'B'
+    if (score >= 65) return 'C'
+    if (score >= 55) return 'D'
+    return 'F'
+  }
+
+  const assignedBuckets = remaining.map((a) => bucketForScore(a.finalScore))
+  const distinctBuckets = new Set(assignedBuckets)
+
+  if (remaining.length >= 2 && distinctBuckets.size === 1) {
+    const spreadTiers: TierLetter[] = ['A', 'B', 'C', 'D', 'F']
+    remaining.forEach((album, idx) => {
+      const target = spreadTiers[Math.min(spreadTiers.length - 1, idx)]
+      tiers[target].push(album)
+    })
+  } else {
+    remaining.forEach((album, idx) => {
+      tiers[assignedBuckets[idx]].push(album)
+    })
+  }
+
+  return tiers
+}
+
 export function buildShareImageFilename(
   viewLayout: ViewLayoutMode,
   gradeBasedTiering = false,
+  artistName?: string,
+  artistExportMode: ArtistExportMode = 'cards',
 ): string {
   if (viewLayout === 'grid') return 'spotkit-top-albums-grid.png'
   if (viewLayout === 'list') return 'spotkit-top-albums-table.png'
+  if (viewLayout === 'artist') {
+    const slug =
+      (artistName || 'artist')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '') || 'artist'
+    return artistExportMode === 'custom-tier'
+      ? `spotkit-artist-${slug}-tier-list.png`
+      : `spotkit-artist-${slug}-cards.png`
+  }
   return gradeBasedTiering
     ? 'spotkit-top-albums-tier-grades.png'
     : 'spotkit-top-albums-tier-fibonacci.png'
@@ -96,6 +328,32 @@ export function getShareImageLayoutSpec(
 ): ShareImageLayoutSpec {
   const size = options.size ?? DEFAULT_EXPORT_SIZE
   const rankingLabel = RANKING_MODE_LABELS[options.rankingMode]
+
+  if (options.viewLayout === 'artist') {
+    const artistSummary =
+      options.artistSummary ?? buildArtistGroups(options.albums)[0]
+    const artistName = artistSummary?.artistName || 'Artist'
+    const mode: ArtistExportMode = options.artistExportMode ?? 'cards'
+    return {
+      viewLayout: 'artist',
+      width: size,
+      height: size,
+      aspectRatio: '1:1',
+      filename: buildShareImageFilename('artist', false, artistName, mode),
+      layoutBadge:
+        mode === 'custom-tier'
+          ? '🎤 ARTIST TIER LIST'
+          : '🎤 ARTIST DISCOGRAPHY',
+      rankingLabel,
+      subtitle:
+        mode === 'custom-tier'
+          ? `${artistName} • Custom Discography Tier Ranking`
+          : `${artistName} • Artist Catalog & Metadata View`,
+      includesJointSignature: true,
+      featuredAlbumsCount: artistSummary ? artistSummary.albums.length : 0,
+    }
+  }
+
   const filename = buildShareImageFilename(
     options.viewLayout,
     options.gradeBasedTiering,
@@ -1727,9 +1985,801 @@ function drawFooterSignatureBar(
   ctx.restore()
 }
 
+function drawArtistAlbumCard(
+  ctx: CanvasRenderingContext2D,
+  entry: { album: ScoredAlbum; globalRank: number; artistRank: number },
+  artistSummary: ArtistGroupSummary,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  coverAsset: DrawableAsset | null,
+): void {
+  const { album, globalRank, artistRank } = entry
+  const isTop1 = artistRank === 1
+
+  fillRoundedRect(
+    ctx,
+    x,
+    y,
+    w,
+    h,
+    22,
+    'rgba(255, 255, 255, 0.045)',
+    isTop1 ? 'rgba(250, 204, 21, 0.45)' : 'rgba(255, 255, 255, 0.11)',
+    isTop1 ? 1.8 : 1.2,
+  )
+
+  const coverBannerH = Math.round(h * 0.56)
+
+  ctx.save()
+  drawRoundedRectPath(ctx, x, y, w, coverBannerH, 22)
+  ctx.clip()
+  ctx.fillStyle = '#14141d'
+  ctx.fillRect(x, y, w, coverBannerH)
+  if (coverAsset) {
+    ctx.globalAlpha = 0.28
+    drawCoverImage(ctx, coverAsset, x - 20, y - 20, w + 40, coverBannerH + 40, 0)
+    ctx.globalAlpha = 1
+  }
+  const fade = ctx.createLinearGradient(x, y, x, y + coverBannerH)
+  fade.addColorStop(0, 'rgba(11, 11, 16, 0.24)')
+  fade.addColorStop(1, 'rgba(11, 11, 16, 0.88)')
+  ctx.fillStyle = fade
+  ctx.fillRect(x, y, w, coverBannerH)
+  ctx.restore()
+
+  const sqSize = Math.min(w - 48, coverBannerH - 18)
+  const sqX = x + (w - sqSize) / 2
+  const sqY = y + (coverBannerH - sqSize) / 2
+  ctx.save()
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.65)'
+  ctx.shadowBlur = 16
+  ctx.shadowOffsetY = 6
+  fillRoundedRect(ctx, sqX, sqY, sqSize, sqSize, 12, '#14141d')
+  ctx.restore()
+  drawCoverImage(ctx, coverAsset, sqX, sqY, sqSize, sqSize, 12)
+
+  // Top-left: Artist #rank badge + Global #rank pill
+  const rankBadgeW = drawPill(ctx, x + 12, y + 12, `Artist #${artistRank}`, {
+    font: `800 11.5px ${FONT_MONO}`,
+    textColor: isTop1 ? '#09090b' : '#ffffff',
+    bgColor: isTop1 ? '#facc15' : 'rgba(15, 15, 22, 0.88)',
+    borderColor: isTop1 ? '#fef08a' : 'rgba(255, 255, 255, 0.24)',
+    padX: 10,
+    height: 26,
+  })
+  drawPill(ctx, x + 12 + rankBadgeW + 6, y + 12, `Global #${globalRank}`, {
+    font: `700 11px ${FONT_MONO}`,
+    textColor: 'rgba(255, 255, 255, 0.85)',
+    bgColor: 'rgba(15, 15, 22, 0.82)',
+    borderColor: 'rgba(255, 255, 255, 0.16)',
+    padX: 9,
+    height: 26,
+  })
+
+  // Top-right: score pill
+  const scoreText = `${album.finalScore.toFixed(1)} pts`
+  ctx.save()
+  ctx.font = `800 11.5px ${FONT_MONO}`
+  const scoreW = ctx.measureText(scoreText).width + 20
+  ctx.restore()
+  drawPill(ctx, x + w - 12 - scoreW, y + 12, scoreText, {
+    font: `800 11.5px ${FONT_MONO}`,
+    textColor: '#d8b4fe',
+    bgColor: 'rgba(15, 15, 24, 0.88)',
+    borderColor: 'rgba(168, 85, 247, 0.48)',
+    padX: 10,
+    height: 26,
+  })
+
+  // Metadata footer with extra artist comparison metadata
+  const bodyY = y + coverBannerH
+  const padX = 16
+  const innerW = w - padX * 2
+
+  ctx.save()
+  ctx.textAlign = 'left'
+  ctx.textBaseline = 'alphabetic'
+
+  ctx.font = `700 12.5px ${FONT_MONO}`
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.56)'
+  const yearW = ctx.measureText(album.releaseYear).width
+
+  ctx.font = `800 17.5px ${FONT_SANS}`
+  ctx.fillStyle = '#ffffff'
+  ctx.fillText(
+    truncateText(ctx, album.name, innerW - yearW - 10),
+    x + padX,
+    bodyY + 25,
+  )
+
+  ctx.textAlign = 'right'
+  ctx.font = `700 12.5px ${FONT_MONO}`
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.58)'
+  ctx.fillText(album.releaseYear, x + w - padX, bodyY + 25)
+
+  // Extra artist metadata line
+  const sharePct =
+    artistSummary.totalLikedTracks > 0
+      ? Math.round((album.likedCount / artistSummary.totalLikedTracks) * 100)
+      : 0
+  const delta = album.finalScore - artistSummary.averageScore
+  const deltaStr = `${delta >= 0 ? '+' : ''}${delta.toFixed(1)} vs avg`
+  ctx.textAlign = 'left'
+  ctx.font = `600 12.5px ${FONT_SANS}`
+  ctx.fillStyle = '#7dd3fc'
+  ctx.fillText(
+    truncateText(ctx, `${sharePct}% of artist likes • ${deltaStr}`, innerW),
+    x + padX,
+    bodyY + 47,
+  )
+
+  const pct = Math.round(album.proportionLiked * 100)
+  const unlikedCount = Math.max(0, album.totalTracks - album.likedCount)
+
+  ctx.font = `800 12.5px ${FONT_MONO}`
+  ctx.fillStyle = '#4ade80'
+  const pctStr = `${pct}%`
+  ctx.fillText(pctStr, x + padX, bodyY + 74)
+  const pctW = ctx.measureText(pctStr).width
+
+  ctx.font = `600 12px ${FONT_SANS}`
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.72)'
+  ctx.fillText(
+    ` (${album.likedCount}/${album.totalTracks} liked)`,
+    x + padX + pctW,
+    bodyY + 74,
+  )
+
+  ctx.textAlign = 'right'
+  if (isNoSkipAlbum(album)) {
+    ctx.font = `700 11.5px ${FONT_SANS}`
+    ctx.fillStyle = '#facc15'
+    ctx.fillText('★ No-Skip', x + w - padX, bodyY + 74)
+  } else if (album.topTracksCount > 0) {
+    ctx.font = `700 11.5px ${FONT_SANS}`
+    ctx.fillStyle = '#fdba74'
+    ctx.fillText(
+      `🔥 ${album.topTracksCount} Top`,
+      x + w - padX,
+      bodyY + 74,
+    )
+  } else {
+    ctx.font = `500 11.5px ${FONT_SANS}`
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.48)'
+    ctx.fillText(`${unlikedCount} left`, x + w - padX, bodyY + 74)
+  }
+  ctx.restore()
+
+  drawProgressBar(ctx, x + padX, bodyY + 88, innerW, 7.5, pct)
+}
+
+function drawArtistCardsLayout(
+  ctx: CanvasRenderingContext2D,
+  artistSummary: ArtistGroupSummary | undefined,
+  covers: Map<string, DrawableAsset | null>,
+  logoAsset: DrawableAsset | null,
+  signatureAsset: DrawableAsset | null,
+): void {
+  if (!artistSummary) return
+
+  const areaX = 48
+  const areaW = 1344
+  const spotlightY = 212
+  const spotlightH = 142
+
+  // Artist Metadata Spotlight Card
+  const cardGrad = ctx.createLinearGradient(
+    areaX,
+    spotlightY,
+    areaX + areaW,
+    spotlightY + spotlightH,
+  )
+  cardGrad.addColorStop(0, 'rgba(30, 215, 96, 0.11)')
+  cardGrad.addColorStop(1, 'rgba(168, 85, 247, 0.12)')
+  fillRoundedRect(
+    ctx,
+    areaX,
+    spotlightY,
+    areaW,
+    spotlightH,
+    22,
+    cardGrad,
+    'rgba(74, 222, 128, 0.30)',
+    1.4,
+  )
+
+  let px = areaX + 22
+  const py = spotlightY + 18
+  px +=
+    drawPill(ctx, px, py, 'ARTIST SPOTLIGHT', {
+      font: `800 11px ${FONT_MONO}`,
+      textColor: '#052e16',
+      bgColor: '#4ade80',
+      padX: 11,
+      height: 24,
+    }) + 8
+  px +=
+    drawPill(ctx, px, py, `Era ${artistSummary.eraSpan}`, {
+      font: `700 11px ${FONT_MONO}`,
+      textColor: '#e9d5ff',
+      bgColor: 'rgba(168, 85, 247, 0.24)',
+      borderColor: 'rgba(168, 85, 247, 0.45)',
+      padX: 11,
+      height: 24,
+    }) + 8
+  drawPill(ctx, px, py, `Best Global #${artistSummary.bestGlobalRank}`, {
+    font: `700 11px ${FONT_MONO}`,
+    textColor: '#fde68a',
+    bgColor: 'rgba(250, 204, 21, 0.16)',
+    borderColor: 'rgba(250, 204, 21, 0.36)',
+    padX: 11,
+    height: 24,
+  })
+
+  ctx.save()
+  ctx.textAlign = 'left'
+  ctx.textBaseline = 'alphabetic'
+  ctx.font = `800 34px ${FONT_SANS}`
+  ctx.fillStyle = '#ffffff'
+  ctx.fillText(
+    truncateText(ctx, artistSummary.artistName, 580),
+    areaX + 22,
+    spotlightY + 90,
+  )
+
+  const topTracksTicker =
+    artistSummary.topTracksList.length > 0
+      ? `🔥 Top 50 Hits: ${artistSummary.topTracksList
+          .slice(0, 3)
+          .map((t) => `#${t.bestRank} ${t.trackName}`)
+          .join(' • ')}`
+      : `${artistSummary.albums.length} qualifying ${artistSummary.albums.length === 1 ? 'album' : 'albums'} • Peak: ${artistSummary.peakAlbum.name}`
+  ctx.font = `600 13px ${FONT_SANS}`
+  ctx.fillStyle =
+    artistSummary.topTracksList.length > 0
+      ? '#fdba74'
+      : 'rgba(255, 255, 255, 0.68)'
+  ctx.fillText(
+    truncateText(ctx, topTracksTicker, 580),
+    areaX + 22,
+    spotlightY + 120,
+  )
+  ctx.restore()
+
+  // Right 4 Artist Metadata KPI cards
+  const artistKpis = [
+    {
+      label: 'CATALOG LIKED',
+      val: `${Math.round(artistSummary.catalogCompletionProportion * 100)}%`,
+      sub: `${artistSummary.totalLikedTracks}/${artistSummary.totalCatalogTracks} tracks`,
+      color: '#4ade80',
+    },
+    {
+      label: 'ALBUMS RANKED',
+      val: String(artistSummary.albums.length),
+      sub: `${artistSummary.noSkipCount} ★ No-Skip`,
+      color: '#ffffff',
+    },
+    {
+      label: 'AVG / PEAK',
+      val: artistSummary.averageScore.toFixed(1),
+      sub: `Peak ${artistSummary.peakScore.toFixed(1)} pts`,
+      color: '#c084fc',
+    },
+    {
+      label: 'TOP 50 HITS',
+      val: String(artistSummary.topTracksCount),
+      sub: 'Heavy Rotation',
+      color: '#fdba74',
+    },
+  ]
+  const kpiW = 166
+  const kpiH = 104
+  const kpiGap = 10
+  const kpiStartX =
+    areaX + areaW - 22 - (artistKpis.length * kpiW + (artistKpis.length - 1) * kpiGap)
+  const kpiY = spotlightY + 19
+
+  artistKpis.forEach((k, idx) => {
+    const kx = kpiStartX + idx * (kpiW + kpiGap)
+    fillRoundedRect(
+      ctx,
+      kx,
+      kpiY,
+      kpiW,
+      kpiH,
+      14,
+      'rgba(11, 11, 16, 0.56)',
+      'rgba(255, 255, 255, 0.10)',
+      1,
+    )
+    ctx.save()
+    ctx.textAlign = 'left'
+    ctx.textBaseline = 'alphabetic'
+    ctx.font = `700 10px ${FONT_MONO}`
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.54)'
+    ctx.fillText(k.label, kx + 14, kpiY + 24)
+
+    ctx.font = `800 28px ${FONT_MONO}`
+    ctx.fillStyle = k.color
+    ctx.fillText(k.val, kx + 14, kpiY + 62)
+
+    ctx.font = `500 11.5px ${FONT_SANS}`
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.68)'
+    ctx.fillText(truncateText(ctx, k.sub, kpiW - 24), kx + 14, kpiY + 86)
+    ctx.restore()
+  })
+
+  // Album Grid below spotlight
+  const gridY = 370
+  const gridH = 946
+  const featured = artistSummary.albums.slice(0, 9)
+  if (featured.length === 0) return
+
+  if (featured.length <= 2) {
+    const cols = featured.length
+    const gapX = 28
+    const cardW = cols === 1 ? 520 : 496
+    const cardH = 520
+    const totalW = cols * cardW + (cols - 1) * gapX
+    const startX = areaX + (areaW - totalW) / 2
+    const breakH = 54
+    const startY = gridY + Math.max(12, (gridH - (cardH + breakH + 24)) / 2)
+
+    featured.forEach((entry, idx) => {
+      const cx = startX + idx * (cardW + gapX)
+      drawArtistAlbumCard(
+        ctx,
+        entry,
+        artistSummary,
+        cx,
+        startY,
+        cardW,
+        cardH,
+        covers.get(entry.album.key) ?? null,
+      )
+    })
+
+    drawBrandSignatureBreak(
+      ctx,
+      areaX,
+      startY + cardH + 38,
+      areaW,
+      logoAsset,
+      signatureAsset,
+      true,
+    )
+    return
+  }
+
+  if (featured.length <= 4) {
+    const cols = 2
+    const gapX = 28
+    const cardW = 500
+    const cardH = 416
+    const breakH = 48
+    const totalW = cols * cardW + gapX
+    const startX = areaX + (areaW - totalW) / 2
+    const totalH = cardH * 2 + breakH + 18
+    const startY = gridY + Math.max(0, (gridH - totalH) / 2)
+
+    featured.forEach((entry, idx) => {
+      const r = Math.floor(idx / cols)
+      const c = idx % cols
+      const cx = startX + c * (cardW + gapX)
+      const cy = startY + r * (cardH + breakH + 18)
+      drawArtistAlbumCard(
+        ctx,
+        entry,
+        artistSummary,
+        cx,
+        cy,
+        cardW,
+        cardH,
+        covers.get(entry.album.key) ?? null,
+      )
+    })
+
+    drawBrandSignatureBreak(
+      ctx,
+      areaX,
+      startY + cardH + (breakH + 18) / 2,
+      areaW,
+      logoAsset,
+      signatureAsset,
+      true,
+    )
+    return
+  }
+
+  const cols = 3
+  const rows = Math.ceil(featured.length / cols)
+  const gapX = 20
+  const cardW = (areaW - gapX * (cols - 1)) / cols
+  const cardH = rows === 2 ? 408 : 286
+  const rowGap = rows === 2 ? 18 : 14
+  const breakH = 46
+  const totalH =
+    rows * cardH +
+    (rows > 1 ? rowGap : 0) +
+    breakH +
+    (rows === 3 ? 12 : 0)
+  const startY = gridY + Math.max(0, (gridH - totalH) / 2)
+
+  featured.forEach((entry, idx) => {
+    const r = Math.floor(idx / cols)
+    const c = idx % cols
+    const cx = areaX + c * (cardW + gapX)
+    const extraBreak = r >= 2 ? breakH + 12 : 0
+    const cy = startY + r * (cardH + rowGap) + extraBreak
+    drawArtistAlbumCard(
+      ctx,
+      entry,
+      artistSummary,
+      cx,
+      cy,
+      cardW,
+      cardH,
+      covers.get(entry.album.key) ?? null,
+    )
+  })
+
+  const breakY =
+    rows === 2
+      ? startY + 2 * cardH + rowGap + breakH / 2 + 4
+      : startY + 2 * cardH + rowGap + breakH / 2 + 4
+  drawBrandSignatureBreak(
+    ctx,
+    areaX,
+    breakY,
+    areaW,
+    logoAsset,
+    signatureAsset,
+    true,
+  )
+}
+
+function drawArtistCustomTierLayout(
+  ctx: CanvasRenderingContext2D,
+  options: ShareImageExportOptions,
+  artistSummary: ArtistGroupSummary | undefined,
+  covers: Map<string, DrawableAsset | null>,
+  logoAsset: DrawableAsset | null,
+  signatureAsset: DrawableAsset | null,
+): void {
+  if (!artistSummary) return
+
+  const areaX = 48
+  const areaW = 1344
+  const bannerY = 212
+  const bannerH = 114
+
+  const bannerGrad = ctx.createLinearGradient(
+    areaX,
+    bannerY,
+    areaX + areaW,
+    bannerY + bannerH,
+  )
+  bannerGrad.addColorStop(0, 'rgba(168, 85, 247, 0.15)')
+  bannerGrad.addColorStop(1, 'rgba(30, 215, 96, 0.10)')
+  fillRoundedRect(
+    ctx,
+    areaX,
+    bannerY,
+    areaW,
+    bannerH,
+    20,
+    bannerGrad,
+    'rgba(168, 85, 247, 0.36)',
+    1.4,
+  )
+
+  const rawUser = options.userDisplayName.trim() || 'Listener'
+  ctx.save()
+  ctx.textAlign = 'left'
+  ctx.textBaseline = 'alphabetic'
+  ctx.font = `800 32px ${FONT_SANS}`
+  ctx.fillStyle = '#ffffff'
+  ctx.fillText(
+    truncateText(
+      ctx,
+      `${artistSummary.artistName} — Discography Tier Ranking`,
+      850,
+    ),
+    areaX + 24,
+    bannerY + 52,
+  )
+
+  const subLine = `Ranked by ${rawUser} • ${Math.round(artistSummary.catalogCompletionProportion * 100)}% Catalog Liked (${artistSummary.totalLikedTracks}/${artistSummary.totalCatalogTracks} songs) • Era ${artistSummary.eraSpan}`
+  ctx.font = `500 15px ${FONT_SANS}`
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.72)'
+  ctx.fillText(truncateText(ctx, subLine, 850), areaX + 24, bannerY + 86)
+  ctx.restore()
+
+  const compareText = 'COMPARE YOUR TIERS'
+  ctx.save()
+  ctx.font = `800 11.5px ${FONT_MONO}`
+  const compareW = ctx.measureText(compareText).width + 24
+  ctx.restore()
+  drawPill(ctx, areaX + areaW - 24 - compareW, bannerY + 24, compareText, {
+    font: `800 11.5px ${FONT_MONO}`,
+    textColor: '#052e16',
+    bgColor: '#4ade80',
+    padX: 12,
+    height: 26,
+  })
+
+  const rightBadgeText =
+    artistSummary.topTracksCount > 0
+      ? `🔥 ${artistSummary.topTracksCount} Top 50 Hits`
+      : `★ ${artistSummary.noSkipCount} No-Skip Albums`
+  ctx.save()
+  ctx.font = `700 12px ${FONT_SANS}`
+  const rbW = ctx.measureText(rightBadgeText).width + 22
+  ctx.restore()
+  drawPill(ctx, areaX + areaW - 24 - rbW, bannerY + 62, rightBadgeText, {
+    font: `700 12px ${FONT_SANS}`,
+    textColor: artistSummary.topTracksCount > 0 ? '#fdba74' : '#fde68a',
+    bgColor: 'rgba(11, 11, 16, 0.62)',
+    borderColor:
+      artistSummary.topTracksCount > 0
+        ? 'rgba(249, 115, 22, 0.42)'
+        : 'rgba(250, 204, 21, 0.38)',
+    padX: 11,
+    height: 26,
+  })
+
+  const tiers =
+    options.customArtistTiers ?? buildDefaultArtistTierMap(artistSummary)
+
+  const boardY = 342
+  const boardH = 974
+  const breakH = 44
+  const gapY = 10
+  const rowH = Math.floor((boardH - breakH - gapY * 6) / 6)
+
+  let cursorY = boardY
+  let runningRank = 1
+
+  TIER_LETTER_LIST.forEach((tierLetter, gIdx) => {
+    const tierAlbums = tiers[tierLetter] ?? []
+
+    fillRoundedRect(
+      ctx,
+      areaX,
+      cursorY,
+      areaW,
+      rowH,
+      18,
+      'rgba(255, 255, 255, 0.04)',
+      'rgba(255, 255, 255, 0.10)',
+      1.2,
+    )
+
+    const badgeColW = 128
+    ctx.save()
+    drawRoundedRectPath(ctx, areaX, cursorY, areaW, rowH, 18)
+    ctx.clip()
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.025)'
+    ctx.fillRect(areaX, cursorY, badgeColW, rowH)
+    ctx.restore()
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)'
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(areaX + badgeColW, cursorY)
+    ctx.lineTo(areaX + badgeColW, cursorY + rowH)
+    ctx.stroke()
+
+    const [gStart, gEnd, letterFg] =
+      TIER_GRADIENTS[tierLetter] ?? TIER_GRADIENTS.F
+    const badgeSize = 52
+    const badgeX = areaX + (badgeColW - badgeSize) / 2
+    const badgeY = cursorY + Math.max(12, (rowH - badgeSize - 26) / 2)
+
+    const grad = ctx.createLinearGradient(
+      badgeX,
+      badgeY,
+      badgeX + badgeSize,
+      badgeY + badgeSize,
+    )
+    grad.addColorStop(0, gStart)
+    grad.addColorStop(1, gEnd)
+    fillRoundedRect(ctx, badgeX, badgeY, badgeSize, badgeSize, 13, grad)
+
+    ctx.save()
+    ctx.font = `900 28px ${FONT_SANS}`
+    ctx.fillStyle = letterFg
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(tierLetter, badgeX + badgeSize / 2, badgeY + badgeSize / 2 + 1)
+
+    ctx.font = `600 11px ${FONT_SANS}`
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.54)'
+    ctx.textBaseline = 'alphabetic'
+    ctx.fillText(
+      `${tierAlbums.length} ${tierAlbums.length === 1 ? 'album' : 'albums'}`,
+      areaX + badgeColW / 2,
+      badgeY + badgeSize + 20,
+    )
+    ctx.restore()
+
+    const stripX = areaX + badgeColW + 18
+    const stripW = areaW - badgeColW - 36
+
+    if (tierAlbums.length === 0) {
+      ctx.save()
+      ctx.font = `500 13.5px ${FONT_SANS}`
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.40)'
+      ctx.textAlign = 'left'
+      ctx.textBaseline = 'middle'
+      ctx.fillText('Empty tier', stripX + 6, cursorY + rowH / 2)
+      ctx.restore()
+    } else {
+      const maxSlots = 7
+      const tileGap = 12
+      const tileW = Math.floor((stripW - (maxSlots - 1) * tileGap) / maxSlots)
+      const tileH = rowH - 20
+      const tileY = cursorY + 10
+      const hasOverflow = tierAlbums.length > maxSlots
+      const visible = hasOverflow
+        ? tierAlbums.slice(0, maxSlots - 1)
+        : tierAlbums
+
+      visible.forEach((album, tIdx) => {
+        const tierItemRank = runningRank + tIdx
+        const tx = stripX + tIdx * (tileW + tileGap)
+        fillRoundedRect(
+          ctx,
+          tx,
+          tileY,
+          tileW,
+          tileH,
+          12,
+          'rgba(255, 255, 255, 0.035)',
+          'rgba(255, 255, 255, 0.09)',
+          1,
+        )
+
+        const coverSize = Math.max(40, Math.min(tileW - 16, tileH - 46))
+        const coverX = tx + (tileW - coverSize) / 2
+        const coverY = tileY + 6
+
+        drawCoverImage(
+          ctx,
+          covers.get(album.key) ?? null,
+          coverX,
+          coverY,
+          coverSize,
+          coverSize,
+          8,
+        )
+
+        drawRankBadge(ctx, coverX + 4, coverY + 4, tierItemRank, {
+          height: 18,
+          fontSize: 9.5,
+          padX: 5,
+        })
+
+        const pct = Math.round(album.proportionLiked * 100)
+        const metricLabel = `${pct}%`
+        ctx.save()
+        ctx.font = `800 9.5px ${FONT_MONO}`
+        const mW = ctx.measureText(metricLabel).width + 10
+        ctx.restore()
+        drawPill(
+          ctx,
+          coverX + coverSize - mW - 4,
+          coverY + coverSize - 21,
+          metricLabel,
+          {
+            font: `800 9.5px ${FONT_MONO}`,
+            textColor: '#4ade80',
+            bgColor: 'rgba(12, 12, 18, 0.88)',
+            borderColor: 'rgba(74, 222, 128, 0.38)',
+            padX: 5,
+            height: 17,
+          },
+        )
+
+        ctx.save()
+        ctx.textAlign = 'left'
+        ctx.textBaseline = 'alphabetic'
+        ctx.font = `700 11.5px ${FONT_SANS}`
+        ctx.fillStyle = '#ffffff'
+        ctx.fillText(
+          truncateText(ctx, album.name, tileW - 14),
+          tx + 7,
+          coverY + coverSize + 15,
+        )
+
+        ctx.font = `500 10.5px ${FONT_SANS}`
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.56)'
+        ctx.fillText(
+          truncateText(
+            ctx,
+            `${album.likedCount}/${album.totalTracks} liked`,
+            tileW - 14,
+          ),
+          tx + 7,
+          coverY + coverSize + 29,
+        )
+        ctx.restore()
+      })
+
+      if (hasOverflow) {
+        const overflowCount = tierAlbums.length - (maxSlots - 1)
+        const ox = stripX + (maxSlots - 1) * (tileW + tileGap)
+        fillRoundedRect(
+          ctx,
+          ox,
+          tileY,
+          tileW,
+          tileH,
+          12,
+          'rgba(255, 255, 255, 0.025)',
+          'rgba(255, 255, 255, 0.14)',
+          1.2,
+        )
+        ctx.save()
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.font = `800 22px ${FONT_MONO}`
+        ctx.fillStyle = '#c084fc'
+        ctx.fillText(`+${overflowCount}`, ox + tileW / 2, tileY + tileH / 2 - 10)
+        ctx.font = `600 11px ${FONT_SANS}`
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.68)'
+        ctx.fillText(
+          `more in ${tierLetter} tier`,
+          ox + tileW / 2,
+          tileY + tileH / 2 + 12,
+        )
+        ctx.restore()
+      }
+      runningRank += tierAlbums.length
+    }
+
+    cursorY += rowH + gapY
+
+    if (gIdx === 2) {
+      drawBrandSignatureBreak(
+        ctx,
+        areaX,
+        cursorY + breakH / 2 - gapY / 2,
+        areaW,
+        logoAsset,
+        signatureAsset,
+        false,
+      )
+      cursorY += breakH
+    }
+  })
+}
+
 function collectAlbumsToLoad(
   options: ShareImageExportOptions,
 ): ScoredAlbum[] {
+  if (options.viewLayout === 'artist') {
+    const artistSummary =
+      options.artistSummary ?? buildArtistGroups(options.albums)[0]
+    if (!artistSummary) return []
+    if (options.artistExportMode === 'custom-tier') {
+      const tiers =
+        options.customArtistTiers ?? buildDefaultArtistTierMap(artistSummary)
+      const selected = new Map<string, ScoredAlbum>()
+      for (const tierLetter of TIER_LETTER_LIST) {
+        const list = tiers[tierLetter] ?? []
+        const slice = list.length > 7 ? list.slice(0, 6) : list
+        for (const album of slice) {
+          selected.set(album.key, album)
+        }
+      }
+      return Array.from(selected.values())
+    }
+    return artistSummary.albums.slice(0, 9).map((e) => e.album)
+  }
   if (options.viewLayout === 'grid') {
     return options.albums.slice(0, 9)
   }
@@ -1766,7 +2816,15 @@ export async function renderShareImageCanvas(
     throw new Error('Could not acquire 2D canvas context for image export.')
   }
 
-  const albumsToLoad = collectAlbumsToLoad(options)
+  const resolvedArtistSummary =
+    options.viewLayout === 'artist'
+      ? (options.artistSummary ?? buildArtistGroups(options.albums)[0])
+      : undefined
+
+  const albumsToLoad = collectAlbumsToLoad({
+    ...options,
+    artistSummary: resolvedArtistSummary,
+  })
   const revokers: (() => void)[] = []
 
   const [rawLogoRes, rawSigRes, ...coverResults] = await Promise.all([
@@ -1806,7 +2864,26 @@ export async function renderShareImageCanvas(
 
     drawBackgroundAndHeader(ctx, options, spec, logoAsset, signatureAsset)
 
-    if (options.viewLayout === 'grid') {
+    if (options.viewLayout === 'artist') {
+      if (options.artistExportMode === 'custom-tier') {
+        drawArtistCustomTierLayout(
+          ctx,
+          options,
+          resolvedArtistSummary,
+          coverMap,
+          logoAsset,
+          signatureAsset,
+        )
+      } else {
+        drawArtistCardsLayout(
+          ctx,
+          resolvedArtistSummary,
+          coverMap,
+          logoAsset,
+          signatureAsset,
+        )
+      }
+    } else if (options.viewLayout === 'grid') {
       drawGridLayout(ctx, options.albums, coverMap, logoAsset, signatureAsset)
     } else if (options.viewLayout === 'list') {
       drawListLayout(ctx, options.albums, coverMap, logoAsset, signatureAsset)

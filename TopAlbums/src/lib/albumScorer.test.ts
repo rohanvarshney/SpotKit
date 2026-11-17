@@ -29,9 +29,12 @@ import {
   selectCandidateAlbumIdsToHydrate,
 } from './spotifyApi'
 import {
+  buildArtistGroups,
+  buildDefaultArtistTierMap,
   buildShareImageFilename,
   getShareImageLayoutSpec,
   renderShareImageCanvas,
+  type CustomArtistTierMap,
   type ShareImageExportOptions,
 } from './shareImageExporter'
 
@@ -880,5 +883,241 @@ describe('albumScorer', () => {
         }
       }
     }
+  })
+
+  it('aggregates artist catalogs with metadata and builds default artist tier assignments', () => {
+    const dataset = buildDemoLibraryDataset()
+    const albums = scoreAndFilterAlbums(dataset, {
+      rankingMode: 'weighted',
+      customWeights: DEFAULT_WEIGHTS,
+      minTotalTracks: 5,
+      minLikedTracks: 2,
+      fullAlbumsOnly: true,
+      deduplicateEditions: true,
+      searchQuery: '',
+    })
+
+    const artistGroups = buildArtistGroups(albums)
+    expect(artistGroups.length).toBeGreaterThan(10)
+
+    const findArtist = (name: string) =>
+      artistGroups.find((g) => g.artistName === name)
+
+    const tameImpala = findArtist('Tame Impala')
+    const kendrick = findArtist('Kendrick Lamar')
+    const radiohead = findArtist('Radiohead')
+    const charli = findArtist('Charli xcx')
+
+    expect(tameImpala?.albums.length).toBe(4)
+    expect(tameImpala?.eraSpan).toBe('2010–2020')
+    expect(tameImpala?.catalogCompletionProportion).toBeCloseTo(
+      (tameImpala?.totalLikedTracks ?? 0) /
+        (tameImpala?.totalCatalogTracks ?? 1),
+      5,
+    )
+    expect(tameImpala?.averageScore).toBeGreaterThan(0)
+    expect(tameImpala?.topTracksCount).toBeGreaterThan(0)
+
+    expect(kendrick?.albums.length).toBe(4)
+    expect(radiohead?.albums.length).toBe(4)
+    expect(charli?.albums.length).toBe(3)
+
+    const defaultTiers = buildDefaultArtistTierMap(tameImpala!)
+    const totalAssigned = Object.values(defaultTiers).reduce(
+      (sum, list) => sum + list.length,
+      0,
+    )
+    expect(totalAssigned).toBe(4)
+  })
+
+  it('renders both standard artist card and custom artist tier list 2880x2880 1:1 PNGs with joint signature', async () => {
+    const dataset = buildDemoLibraryDataset()
+    const albums = scoreAndFilterAlbums(dataset, {
+      rankingMode: 'weighted',
+      customWeights: DEFAULT_WEIGHTS,
+      minTotalTracks: 5,
+      minLikedTracks: 2,
+      fullAlbumsOnly: true,
+      deduplicateEditions: true,
+      searchQuery: '',
+    })
+
+    const artistGroups = buildArtistGroups(albums)
+    const tameImpala = artistGroups.find((g) => g.artistName === 'Tame Impala')!
+    expect(tameImpala).toBeDefined()
+
+    const customTiers: CustomArtistTierMap = {
+      S: [tameImpala.albums[0].album],
+      A: [tameImpala.albums[1].album],
+      B: [tameImpala.albums[2].album],
+      C: [tameImpala.albums[3].album],
+      D: [],
+      F: [],
+    }
+
+    const baseArtistOpts: ShareImageExportOptions = {
+      viewLayout: 'artist',
+      albums,
+      userDisplayName: 'SpotKit Tester',
+      totalLikedSongs: dataset.savedTracks.length,
+      noSkipCount: 3,
+      topBoostedCount: 10,
+      rankingMode: 'weighted',
+      gradeBasedTiering: false,
+      brandLogoSrc: 'data:image/png;base64,mock-logo',
+      signatureSrc: 'data:image/png;base64,mock-sig',
+      artistSummary: tameImpala,
+    }
+
+    const cardsSpec = getShareImageLayoutSpec({
+      ...baseArtistOpts,
+      artistExportMode: 'cards',
+    })
+    const tierSpec = getShareImageLayoutSpec({
+      ...baseArtistOpts,
+      artistExportMode: 'custom-tier',
+      customArtistTiers: customTiers,
+    })
+
+    expect(cardsSpec.width).toBe(2880)
+    expect(cardsSpec.height).toBe(2880)
+    expect(cardsSpec.aspectRatio).toBe('1:1')
+    expect(cardsSpec.includesJointSignature).toBe(true)
+    expect(cardsSpec.filename).toBe('spotkit-artist-tame-impala-cards.png')
+    expect(cardsSpec.layoutBadge).toBe('🎤 ARTIST DISCOGRAPHY')
+
+    expect(tierSpec.width).toBe(2880)
+    expect(tierSpec.height).toBe(2880)
+    expect(tierSpec.aspectRatio).toBe('1:1')
+    expect(tierSpec.includesJointSignature).toBe(true)
+    expect(tierSpec.filename).toBe('spotkit-artist-tame-impala-tier-list.png')
+    expect(tierSpec.layoutBadge).toBe('🎤 ARTIST TIER LIST')
+    expect(
+      buildShareImageFilename('artist', false, 'Tame Impala', 'cards'),
+    ).toBe('spotkit-artist-tame-impala-cards.png')
+    expect(
+      buildShareImageFilename('artist', false, 'Tame Impala', 'custom-tier'),
+    ).toBe('spotkit-artist-tame-impala-tier-list.png')
+
+    class MockImage {
+      srcValue = ''
+      naturalWidth = 200
+      naturalHeight = 200
+      width = 200
+      height = 200
+      crossOrigin: string | null = null
+      onload: (() => void) | null = null
+      onerror: (() => void) | null = null
+
+      set src(val: string) {
+        this.srcValue = val
+        if (val.includes('logo')) {
+          this.naturalWidth = 2402
+          this.naturalHeight = 972
+        } else if (val.includes('sig')) {
+          this.naturalWidth = 600
+          this.naturalHeight = 340
+        }
+        queueMicrotask(() => {
+          this.onload?.()
+        })
+      }
+
+      get src(): string {
+        return this.srcValue
+      }
+    }
+
+    const traces: { texts: string[]; drawnAssets: unknown[] }[] = []
+    let currentTrace: { texts: string[]; drawnAssets: unknown[] } | null = null
+
+    vi.stubGlobal('Image', MockImage)
+    vi.stubGlobal('document', {
+      createElement: () => {
+        const texts: string[] = []
+        const drawnAssets: unknown[] = []
+        const gradient = { addColorStop: () => {} }
+        const canvasObj = {
+          width: 0,
+          height: 0,
+          getContext: () => ({
+            fillStyle: '',
+            strokeStyle: '',
+            lineWidth: 1,
+            font: '',
+            textAlign: 'left',
+            textBaseline: 'alphabetic',
+            globalAlpha: 1,
+            shadowColor: '',
+            shadowBlur: 0,
+            shadowOffsetY: 0,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+            save: () => {},
+            restore: () => {},
+            scale: () => {},
+            beginPath: () => {},
+            closePath: () => {},
+            moveTo: () => {},
+            lineTo: () => {},
+            quadraticCurveTo: () => {},
+            arc: () => {},
+            clip: () => {},
+            fill: () => {},
+            stroke: () => {},
+            fillRect: () => {},
+            createLinearGradient: () => gradient,
+            createRadialGradient: () => gradient,
+            measureText: (txt: string) => ({ width: txt.length * 8 }),
+            fillText: (txt: string) => {
+              texts.push(txt)
+            },
+            drawImage: (asset: unknown) => {
+              drawnAssets.push(asset)
+            },
+            getImageData: (_x: number, _y: number, w: number, h: number) => ({
+              data: new Uint8ClampedArray(w * h * 4),
+              width: w,
+              height: h,
+            }),
+            putImageData: () => {},
+          }),
+        }
+        if (!currentTrace) {
+          currentTrace = { texts, drawnAssets }
+          traces.push(currentTrace)
+        }
+        return canvasObj
+      },
+    })
+
+    currentTrace = null
+    const cardsCanvas = await renderShareImageCanvas({
+      ...baseArtistOpts,
+      artistExportMode: 'cards',
+    })
+    expect(cardsCanvas.width).toBe(2880)
+    expect(cardsCanvas.height).toBe(2880)
+    const cardsTrace = traces[traces.length - 1]
+    expect(cardsTrace.drawnAssets.length).toBeGreaterThanOrEqual(6)
+    expect(cardsTrace.texts).toContain('🎤 ARTIST DISCOGRAPHY')
+    expect(cardsTrace.texts).toContain('ARTIST SPOTLIGHT')
+    expect(cardsTrace.texts).toContain('Tame Impala')
+
+    currentTrace = null
+    const tierCanvas = await renderShareImageCanvas({
+      ...baseArtistOpts,
+      artistExportMode: 'custom-tier',
+      customArtistTiers: customTiers,
+    })
+    expect(tierCanvas.width).toBe(2880)
+    expect(tierCanvas.height).toBe(2880)
+    const tierTrace = traces[traces.length - 1]
+    expect(tierTrace.drawnAssets.length).toBeGreaterThanOrEqual(6)
+    expect(tierTrace.texts).toContain('🎤 ARTIST TIER LIST')
+    expect(tierTrace.texts).toContain('COMPARE YOUR TIERS')
+    expect(
+      tierTrace.texts.some((t) => t.includes('Tame Impala — Discography')),
+    ).toBe(true)
   })
 })

@@ -111,6 +111,7 @@ export function LoginView({
           <span className="pill">🔥 Top 50 Tracks Boost</span>
           <span className="pill">✨ Deluxe / Remaster Deduplication</span>
           <span className="pill">🎵 Full Tracklist Diff (Liked vs. Missed)</span>
+          <span className="pill">🎤 Artist View &amp; 1:1 Share Cards</span>
         </div>
 
         {error &&
