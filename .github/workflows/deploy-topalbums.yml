@@ -41,6 +41,12 @@ jobs:
           cd TopAlbums
           npm run build
 
+      - name: Build MakeASet
+        run: |
+          ln -sfn ../SESH/frontend/node_modules MakeASet/node_modules
+          cd MakeASet
+          npm run build
+
       - name: Stage SpotKit Hub and all 4 tools
         run: |
           mkdir -p _site/TopAlbums _site/SESH _site/DJMyPlaylist _site/MakeASet
@@ -49,7 +55,7 @@ jobs:
           cp -R TopAlbums/dist/* _site/TopAlbums/
           cp -R SESH/frontend/dist/* _site/SESH/
           cp -R DJMyPlaylist/* _site/DJMyPlaylist/
-          cp -R MakeASet/* _site/MakeASet/
+          cp -R MakeASet/dist/* _site/MakeASet/
           touch _site/.nojekyll
 
       - name: Upload Pages artifact
