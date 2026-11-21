@@ -9,7 +9,10 @@ import {
   parsePlaylistId,
 } from '../lib/camelotEngine'
 import { findBestInsertionPosition } from '../lib/djSequencer'
-import { DEMO_PLAYLIST_PRESETS } from '../mocks/demoData'
+import {
+  DEMO_LIKED_TRACK_COUNT,
+  DEMO_PLAYLIST_PRESETS,
+} from '../mocks/demoData'
 import type {
   AnalyzedCrate,
   AnalyzedTrack,
@@ -547,7 +550,7 @@ export function PlaylistResultView({
                 className={`chipToggle ${crate.sourceMode === 'liked' ? 'active' : ''}`}
                 onClick={() => onSwitchDemoSource('liked', '', false)}
               >
-                💚 Demo Liked Songs (24 tracks)
+                💚 Demo Liked Songs ({DEMO_LIKED_TRACK_COUNT} tracks)
               </button>
               {DEMO_PLAYLIST_PRESETS.map((preset) => {
                 const activePlaylistId =

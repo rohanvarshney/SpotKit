@@ -8,9 +8,15 @@ import {
   isNoSkipAlbum,
 } from '../components/DashboardView'
 import {
+  SPOTKIT_DEMO_ALBUMS,
+  SPOTKIT_DEMO_CATALOG_VERSION,
   buildDemoLibraryDataset,
   hydrateDemoAlbumById,
 } from '../mocks/demoData'
+import {
+  SPOTKIT_DEMO_CRATE_TRACKS,
+  SPOTKIT_DEMO_PLAYLIST_PRESETS,
+} from '../../../shared/spotkitDemoCatalog'
 import type { ScoredAlbum } from '../types/spotify'
 import {
   DEFAULT_WEIGHTS,
@@ -1119,5 +1125,52 @@ describe('albumScorer', () => {
     expect(
       tierTrace.texts.some((t) => t.includes('Tame Impala — Discography')),
     ).toBe(true)
+  })
+
+  it('uses the unified shared SpotKit demo catalog across genres and resolves every crate track', () => {
+    expect(SPOTKIT_DEMO_CATALOG_VERSION).toBe('2026.2-unified')
+    expect(SPOTKIT_DEMO_ALBUMS.length).toBeGreaterThanOrEqual(110)
+    expect(SPOTKIT_DEMO_PLAYLIST_PRESETS.length).toBe(8)
+    expect(SPOTKIT_DEMO_CRATE_TRACKS.length).toBeGreaterThanOrEqual(100)
+
+    const dataset = buildDemoLibraryDataset()
+    const albumById = new Map(SPOTKIT_DEMO_ALBUMS.map((a) => [a.id, a]))
+    const likedTrackIds = new Set(dataset.savedTracks.map((item) => item.track.id))
+
+    for (const crateTrack of SPOTKIT_DEMO_CRATE_TRACKS) {
+      const album = albumById.get(crateTrack.albumId)
+      expect(album).toBeDefined()
+      expect(crateTrack.albumName).toBe(album?.name)
+
+      const matched = album?.tracks.find((t) => t.name === crateTrack.name)
+      expect(matched).toBeDefined()
+      expect(crateTrack.inLiked).toBe(matched?.liked)
+      expect(likedTrackIds.has(crateTrack.canonicalTrackId)).toBe(
+        crateTrack.inLiked,
+      )
+    }
+
+    // Verify expanded genre breadth in TopAlbums scoring
+    const scored = scoreAndFilterAlbums(dataset, {
+      rankingMode: 'weighted',
+      customWeights: DEFAULT_WEIGHTS,
+      minTotalTracks: 5,
+      minLikedTracks: 2,
+      fullAlbumsOnly: true,
+      deduplicateEditions: true,
+      searchQuery: '',
+    })
+    const artists = new Set(scored.map((a) => a.primaryArtist))
+    for (const expectedArtist of [
+      'Chappell Roan',
+      'Bad Bunny',
+      'Fred again..',
+      'Sade',
+      'OutKast',
+      'Burna Boy',
+      'Steely Dan',
+    ]) {
+      expect(artists.has(expectedArtist)).toBe(true)
+    }
   })
 })

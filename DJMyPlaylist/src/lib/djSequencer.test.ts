@@ -3,6 +3,7 @@
 
 import { describe, expect, it } from 'vitest'
 import {
+  ALL_CAMELOT_CODES,
   camelotToPitchAndMode,
   computeCohesionScore,
   parsePlaylistId,
@@ -12,7 +13,14 @@ import {
   findBestInsertionPosition,
   sequencePlaylist,
 } from './djSequencer'
-import { DEMO_PLAYLIST_PRESETS, buildDemoCrate } from '../mocks/demoData'
+import {
+  DEMO_LIKED_TRACK_COUNT,
+  DEMO_PLAYLIST_PRESETS,
+  SPOTKIT_DEMO_ALBUMS,
+  SPOTKIT_DEMO_CATALOG_VERSION,
+  SPOTKIT_DEMO_CRATE_TRACKS,
+  buildDemoCrate,
+} from '../mocks/demoData'
 import type { AnalyzedTrack, CamelotCode } from '../types/spotify'
 
 function makeTrack(
@@ -183,5 +191,41 @@ describe('djSequencer', () => {
     expect(
       parsePlaylistId(DEMO_PLAYLIST_PRESETS[0].url),
     ).toBe(DEMO_PLAYLIST_PRESETS[0].id)
+  })
+
+  it('reuses the unified shared catalog across all 8 genre presets and all 24 Camelot keys', () => {
+    expect(SPOTKIT_DEMO_CATALOG_VERSION).toBe('2026.2-unified')
+    expect(SPOTKIT_DEMO_ALBUMS.length).toBeGreaterThanOrEqual(110)
+    expect(SPOTKIT_DEMO_CRATE_TRACKS.length).toBeGreaterThanOrEqual(100)
+    expect(DEMO_PLAYLIST_PRESETS.length).toBe(8)
+
+    const albumById = new Map(SPOTKIT_DEMO_ALBUMS.map((a) => [a.id, a]))
+    for (const seed of SPOTKIT_DEMO_CRATE_TRACKS) {
+      const album = albumById.get(seed.albumId)
+      expect(album).toBeDefined()
+      expect(seed.albumName).toBe(album?.name)
+      const matched = album?.tracks.find((t) => t.name === seed.name)
+      expect(matched).toBeDefined()
+      expect(seed.inLiked).toBe(matched?.liked)
+    }
+
+    const likedCrate = buildDemoCrate('liked')
+    expect(likedCrate.tracks.length).toBe(DEMO_LIKED_TRACK_COUNT)
+
+    const combinedCrate = buildDemoCrate('both', DEMO_PLAYLIST_PRESETS[0].url)
+    const coveredKeys = new Set(combinedCrate.tracks.map((t) => t.camelot))
+    for (const seed of SPOTKIT_DEMO_CRATE_TRACKS) {
+      coveredKeys.add(seed.camelot)
+    }
+    for (const code of ALL_CAMELOT_CODES) {
+      expect(coveredKeys.has(code)).toBe(true)
+    }
+
+    for (const preset of DEMO_PLAYLIST_PRESETS) {
+      const crate = buildDemoCrate('playlist', preset.url)
+      expect(crate.tracks.length).toBeGreaterThanOrEqual(10)
+      const result = sequencePlaylist(crate.tracks, { maxTracks: null })
+      expect(result.avgCohesion).toBeGreaterThanOrEqual(result.baselineCohesion)
+    }
   })
 })

@@ -1,0 +1,1881 @@
+// SPDX-FileCopyrightText: 2026 Rohan Varshney
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
+import { BASE_DEMO_ALBUMS } from './baseCatalogData'
+import { EXPANDED_DANCE_ALBUMS } from './expandedDanceAlbums'
+import { EXPANDED_MAINSTREAM_ALBUMS } from './expandedMainstreamAlbums'
+import type {
+  SharedCamelotCode,
+  SharedDemoPlaylistPreset,
+  SharedDemoTrackSeed,
+  SharedMockAlbumSpec,
+} from './types'
+
+export type {
+  SharedAlbumType,
+  SharedCamelotCode,
+  SharedCompactAlbumSeed,
+  SharedDemoPlaylistPreset,
+  SharedDemoTrackSeed,
+  SharedMockAlbumSpec,
+  SharedMockTrackSpec,
+  SharedTopTimeRange,
+} from './types'
+
+export const SPOTKIT_DEMO_CATALOG_VERSION = '2026.2-unified'
+
+export const UNHYDRATED_DEMO_ALBUM_IDS = new Set([
+  'alb_xx',
+  'alb_oracular',
+])
+
+export const SPOTKIT_DEMO_ALBUMS: SharedMockAlbumSpec[] = [
+  ...BASE_DEMO_ALBUMS,
+  ...EXPANDED_MAINSTREAM_ALBUMS,
+  ...EXPANDED_DANCE_ALBUMS,
+]
+
+const ALBUM_BY_ID = new Map<string, SharedMockAlbumSpec>(
+  SPOTKIT_DEMO_ALBUMS.map((album) => [album.id, album]),
+)
+
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
+}
+
+/**
+ * Generates a 400x400 vinyl-record SVG cover shared across TopAlbums, DJMyPlaylist, and MakeASet.
+ */
+export function createCoverSvg(
+  title: string,
+  artist: string,
+  colorA: string,
+  colorB: string,
+  accent: string,
+): string {
+  const safeTitle = escapeXml(
+    title.length > 22 ? `${title.slice(0, 20)}…` : title,
+  )
+  const safeArtist = escapeXml(artist.toUpperCase())
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+    <defs>
+      <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="${colorA}" />
+        <stop offset="100%" stop-color="${colorB}" />
+      </linearGradient>
+      <radialGradient id="glow" cx="75%" cy="25%" r="60%">
+        <stop offset="0%" stop-color="${accent}" stop-opacity="0.55" />
+        <stop offset="100%" stop-color="${colorB}" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+    <rect width="400" height="400" fill="url(#bg)" />
+    <rect width="400" height="400" fill="url(#glow)" />
+    <circle cx="200" cy="175" r="112" fill="rgba(10,10,16,0.55)" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
+    <circle cx="200" cy="175" r="82" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" stroke-dasharray="6 4" />
+    <circle cx="200" cy="175" r="54" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" />
+    <circle cx="200" cy="175" r="28" fill="${accent}" opacity="0.9" />
+    <circle cx="200" cy="175" r="8" fill="#0b0b10" />
+    <rect x="24" y="308" width="352" height="68" rx="12" fill="rgba(10,10,16,0.62)" />
+    <text x="40" y="335" fill="rgba(255,255,255,0.72)" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="12" letter-spacing="1.5">${safeArtist}</text>
+    <text x="40" y="361" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="20">${safeTitle}</text>
+  </svg>`
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+}
+
+const P_AFTER = '4rnleEAOdmFAbRcNCgZMpY'
+const P_SUNSET = '37i9dQZF1DX2aneNMeG90Y'
+const P_WAREHOUSE = '5Rrf7mqN8uus2AaQQQNdc1'
+const P_POP = '37i9dQZF1DXcBWIGoYBM5M'
+const P_HIPHOP = '37i9dQZF1DX0XUsuxWHRQd'
+const P_RNB = '37i9dQZF1DX4SBhb3fqCJd'
+const P_INDIE = '37i9dQZF1DWXRqgorJj26U'
+const P_LATIN = '37i9dQZF1DX10zKzsJ2jva'
+
+export const SPOTKIT_DEMO_PLAYLIST_PRESETS: SharedDemoPlaylistPreset[] = [
+  {
+    id: P_AFTER,
+    name: 'Afterhours & Rooftop Club',
+    shortLabel: '🎛️ Afterhours & Rooftop',
+    description:
+      'Deep melodic house, club tech, and warm late-night transitions.',
+    ownerName: 'SpotKit Crate Curator',
+    url: `https://open.spotify.com/playlist/${P_AFTER}?si=spotkit-demo`,
+    accent: '#38bdf8',
+  },
+  {
+    id: P_SUNSET,
+    name: 'Sunset Nu-Disco & Indie Groove',
+    shortLabel: '🌅 Sunset Nu-Disco',
+    description:
+      'Funky basslines, indie dance, and golden-hour rooftop grooves.',
+    ownerName: 'SpotKit Rooftop Sessions',
+    url: `https://open.spotify.com/playlist/${P_SUNSET}?si=spotkit-demo`,
+    accent: '#f59e0b',
+  },
+  {
+    id: P_WAREHOUSE,
+    name: 'Warehouse Peak & UK Bass',
+    shortLabel: '⚡ Warehouse & UK Bass',
+    description:
+      'High-energy UK garage, melodic techno, halftime, and 174 BPM DnB.',
+    ownerName: 'SpotKit Warehouse',
+    url: `https://open.spotify.com/playlist/${P_WAREHOUSE}?si=spotkit-demo`,
+    accent: '#a855f7',
+  },
+  {
+    id: P_POP,
+    name: 'Global Pop, Synth & Hyperpop',
+    shortLabel: '✨ Global Pop & Synth',
+    description:
+      'Chart-topping synth-pop, dance-pop anthems, and hyperpop club cuts.',
+    ownerName: 'SpotKit Pop Desk',
+    url: `https://open.spotify.com/playlist/${P_POP}?si=spotkit-demo`,
+    accent: '#f472b6',
+  },
+  {
+    id: P_HIPHOP,
+    name: 'Hip-Hop, Trap & 808 Bounce',
+    shortLabel: '🎤 Hip-Hop & 808s',
+    description:
+      'Iconic rap classics, halftime trap anthems, and heavy 808 pockets.',
+    ownerName: 'SpotKit Crate Curator',
+    url: `https://open.spotify.com/playlist/${P_HIPHOP}?si=spotkit-demo`,
+    accent: '#fb923c',
+  },
+  {
+    id: P_RNB,
+    name: 'Late Night R&B & Neo-Soul',
+    shortLabel: '🌙 Late Night R&B',
+    description:
+      'Velvet neo-soul, alt-R&B slow burns, and warm bounce transitions.',
+    ownerName: 'SpotKit Velvet Sessions',
+    url: `https://open.spotify.com/playlist/${P_RNB}?si=spotkit-demo`,
+    accent: '#34d399',
+  },
+  {
+    id: P_INDIE,
+    name: 'Indie, Alt-Rock & Classics',
+    shortLabel: '🎸 Indie & Classics',
+    description:
+      'Timeless rock, indie psych, and 70s–2020s crossover floorfillers.',
+    ownerName: 'SpotKit Vinyl Archive',
+    url: `https://open.spotify.com/playlist/${P_INDIE}?si=spotkit-demo`,
+    accent: '#facc15',
+  },
+  {
+    id: P_LATIN,
+    name: 'Latin Urbano & Afro-Fusion',
+    shortLabel: '🌴 Latin & Afrobeats',
+    description:
+      'Perreo, Latin house, alt-reggaeton, and warm Afrobeats grooves.',
+    ownerName: 'SpotKit Global',
+    url: `https://open.spotify.com/playlist/${P_LATIN}?si=spotkit-demo`,
+    accent: '#2dd4bf',
+  },
+]
+
+interface CrateTrackRefSpec {
+  id: string
+  albumId: string
+  trackName: string
+  featuredArtists?: string[]
+  bpm: number
+  camelot: SharedCamelotCode
+  energy: number
+  danceability: number
+  valence: number
+  playlistIds: string[]
+  genreHint: string
+  vibeTags: string
+}
+
+function defineCrateTrack(spec: CrateTrackRefSpec): SharedDemoTrackSeed {
+  const album = ALBUM_BY_ID.get(spec.albumId)
+  if (!album) {
+    throw new Error(
+      `SpotKit demo catalog error: album "${spec.albumId}" not found for crate track "${spec.id}"`,
+    )
+  }
+  const trackIndex = album.tracks.findIndex((t) => t.name === spec.trackName)
+  if (trackIndex === -1) {
+    throw new Error(
+      `SpotKit demo catalog error: track "${spec.trackName}" not found on album "${spec.albumId}"`,
+    )
+  }
+  const albumTrack = album.tracks[trackIndex]
+  return {
+    id: spec.id,
+    canonicalTrackId: `${album.id}_trk_${trackIndex + 1}`,
+    albumId: album.id,
+    name: albumTrack.name,
+    artists: spec.featuredArtists
+      ? [album.artistName, ...spec.featuredArtists]
+      : [album.artistName],
+    albumName: album.name,
+    durationMs: albumTrack.durationSec * 1000,
+    popularity: albumTrack.popularity ?? 78,
+    bpm: spec.bpm,
+    camelot: spec.camelot,
+    energy: spec.energy,
+    danceability: spec.danceability,
+    valence: spec.valence,
+    inLiked: albumTrack.liked,
+    playlistIds: spec.playlistIds,
+    genreHint: spec.genreHint,
+    vibeTags: spec.vibeTags,
+    colorA: album.colorA,
+    colorB: album.colorB,
+    accent: album.accent,
+  }
+}
+
+export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
+  // =========================================================================
+  // AFTERHOURS & ROOFTOP CLUB (Deep House, Melodic Techno, Club House)
+  // =========================================================================
+  defineCrateTrack({
+    id: 'demo_t01',
+    albumId: 'alb_rufus_bloom',
+    trackName: 'Innerbloom',
+    bpm: 122,
+    camelot: '8A',
+    energy: 0.72,
+    danceability: 0.74,
+    valence: 0.44,
+    playlistIds: [P_AFTER],
+    genreHint: 'Indie Dance',
+    vibeTags: 'anthemic emotional euphoric synth opener',
+  }),
+  defineCrateTrack({
+    id: 'demo_t02',
+    albumId: 'alb_begin_again',
+    trackName: 'Beyond Beliefs',
+    bpm: 122,
+    camelot: '8A',
+    energy: 0.68,
+    danceability: 0.75,
+    valence: 0.41,
+    playlistIds: [P_AFTER],
+    genreHint: 'Deep House',
+    vibeTags: 'melodic lush progressive warm synth',
+  }),
+  defineCrateTrack({
+    id: 'demo_t03',
+    albumId: 'alb_begin_again',
+    trackName: 'Begin Again',
+    bpm: 120,
+    camelot: '7A',
+    energy: 0.61,
+    danceability: 0.72,
+    valence: 0.39,
+    playlistIds: [P_AFTER],
+    genreHint: 'Deep House',
+    vibeTags: 'warm atmospheric hypnotic opener',
+  }),
+  defineCrateTrack({
+    id: 'demo_t04',
+    albumId: 'alb_settle',
+    trackName: 'Latch',
+    featuredArtists: ['Sam Smith'],
+    bpm: 122,
+    camelot: '9A',
+    energy: 0.76,
+    danceability: 0.82,
+    valence: 0.56,
+    playlistIds: [P_AFTER, P_POP],
+    genreHint: 'UK Garage / House',
+    vibeTags: 'iconic falsetto vocal punchy garage bass',
+  }),
+  defineCrateTrack({
+    id: 'demo_t05',
+    albumId: 'alb_settle',
+    trackName: 'When a Fire Starts to Burn',
+    bpm: 124,
+    camelot: '9A',
+    energy: 0.84,
+    danceability: 0.86,
+    valence: 0.53,
+    playlistIds: [P_AFTER, P_WAREHOUSE],
+    genreHint: 'UK House',
+    vibeTags: 'driving club bassline crisp percussion',
+  }),
+  defineCrateTrack({
+    id: 'demo_t06',
+    albumId: 'alb_in_waves',
+    trackName: 'Baddy On The Floor',
+    featuredArtists: ['Honey Dijon'],
+    bpm: 126,
+    camelot: '10A',
+    energy: 0.85,
+    danceability: 0.87,
+    valence: 0.64,
+    playlistIds: [P_AFTER, P_WAREHOUSE],
+    genreHint: 'Club House',
+    vibeTags: 'piano stabs chicago house diva energy',
+  }),
+  defineCrateTrack({
+    id: 'demo_t07',
+    albumId: 'alb_in_waves',
+    trackName: 'Treat Each Other Right',
+    bpm: 127,
+    camelot: '10A',
+    energy: 0.82,
+    danceability: 0.81,
+    valence: 0.55,
+    playlistIds: [P_AFTER],
+    genreHint: 'UK House',
+    vibeTags: 'pitched soul sample crisp breakbeat house',
+  }),
+  defineCrateTrack({
+    id: 'demo_t08',
+    albumId: 'alb_single_savana',
+    trackName: 'Savana',
+    bpm: 126,
+    camelot: '10A',
+    energy: 0.89,
+    danceability: 0.88,
+    valence: 0.62,
+    playlistIds: [P_AFTER, P_WAREHOUSE],
+    genreHint: 'Tech House',
+    vibeTags: 'peak hour rolling bassline tech house club',
+  }),
+  defineCrateTrack({
+    id: 'demo_t09',
+    albumId: 'alb_single_ease',
+    trackName: 'Ease My Mind',
+    featuredArtists: ['Abel Balder'],
+    bpm: 126,
+    camelot: '11A',
+    energy: 0.85,
+    danceability: 0.83,
+    valence: 0.49,
+    playlistIds: [P_AFTER, P_WAREHOUSE],
+    genreHint: 'Tech House',
+    vibeTags: 'hypnotic vocal chop peak energy warehouse',
+  }),
+  defineCrateTrack({
+    id: 'demo_t10',
+    albumId: 'alb_chemistry',
+    trackName: 'In My Head',
+    bpm: 125,
+    camelot: '11A',
+    energy: 0.82,
+    danceability: 0.85,
+    valence: 0.58,
+    playlistIds: [P_AFTER],
+    genreHint: 'Tech House',
+    vibeTags: 'clean vocal groove bouncy club bassline',
+  }),
+  defineCrateTrack({
+    id: 'demo_t11',
+    albumId: 'alb_i_hear_you',
+    trackName: '(It Goes Like) Nanana',
+    bpm: 130,
+    camelot: '12A',
+    energy: 0.84,
+    danceability: 0.87,
+    valence: 0.69,
+    playlistIds: [P_AFTER, P_WAREHOUSE, P_POP],
+    genreHint: 'Euro House',
+    vibeTags: '90s piano riff vocal hook club anthem',
+  }),
+  defineCrateTrack({
+    id: 'demo_t12',
+    albumId: 'alb_actual_life_3',
+    trackName: 'Danielle (smile on my face)',
+    bpm: 132,
+    camelot: '12A',
+    energy: 0.86,
+    danceability: 0.78,
+    valence: 0.61,
+    playlistIds: [P_AFTER, P_WAREHOUSE],
+    genreHint: 'UK Stutter House',
+    vibeTags: 'euphoric vocal chop driving club beat',
+  }),
+  defineCrateTrack({
+    id: 'demo_t13',
+    albumId: 'alb_actual_life_3',
+    trackName: 'Delilah (pull me out of this)',
+    bpm: 134,
+    camelot: '12A',
+    energy: 0.88,
+    danceability: 0.76,
+    valence: 0.59,
+    playlistIds: [P_AFTER, P_WAREHOUSE],
+    genreHint: 'UK Stutter House',
+    vibeTags: 'euphoric vocal chop fast festival closer',
+  }),
+  defineCrateTrack({
+    id: 'demo_t14',
+    albumId: 'alb_when_will_we_land',
+    trackName: 'Sunsleeper',
+    bpm: 124,
+    camelot: '8B',
+    energy: 0.77,
+    danceability: 0.83,
+    valence: 0.68,
+    playlistIds: [P_AFTER, P_SUNSET],
+    genreHint: 'Piano House',
+    vibeTags: 'jazz piano chords uplifting sunrise groove',
+  }),
+  defineCrateTrack({
+    id: 'demo_t15',
+    albumId: 'alb_isles',
+    trackName: 'Apricots',
+    bpm: 126,
+    camelot: '9B',
+    energy: 0.79,
+    danceability: 0.76,
+    valence: 0.48,
+    playlistIds: [P_AFTER, P_WAREHOUSE],
+    genreHint: 'Breakbeat / Electronica',
+    vibeTags: 'chopped choral loop rave synths',
+  }),
+  defineCrateTrack({
+    id: 'demo_t16',
+    albumId: 'alb_hyperdrama',
+    trackName: 'One Night/All Night',
+    featuredArtists: ['Tame Impala'],
+    bpm: 122,
+    camelot: '8A',
+    energy: 0.8,
+    danceability: 0.81,
+    valence: 0.54,
+    playlistIds: [P_AFTER, P_SUNSET],
+    genreHint: 'French Electro / Disco',
+    vibeTags: 'analog synth bassline falsetto crossover',
+  }),
+  defineCrateTrack({
+    id: 'demo_t17',
+    albumId: 'alb_i_hear_you',
+    trackName: 'I Go',
+    bpm: 128,
+    camelot: '11B',
+    energy: 0.81,
+    danceability: 0.84,
+    valence: 0.63,
+    playlistIds: [P_AFTER],
+    genreHint: 'House',
+    vibeTags: 'acid bass synth stabs afterhours uplift',
+  }),
+
+  // =========================================================================
+  // SUNSET NU-DISCO & INDIE GROOVE
+  // =========================================================================
+  defineCrateTrack({
+    id: 'demo_t18',
+    albumId: 'alb_volcano',
+    trackName: 'Back On 74',
+    bpm: 108,
+    camelot: '6A',
+    energy: 0.72,
+    danceability: 0.88,
+    valence: 0.79,
+    playlistIds: [P_SUNSET, P_RNB],
+    genreHint: 'Funk / Neo-Soul',
+    vibeTags: 'silky falsetto funk pocket groovy bassline',
+  }),
+  defineCrateTrack({
+    id: 'demo_t19',
+    albumId: 'alb_bubba',
+    trackName: '10%',
+    featuredArtists: ['Kali Uchis'],
+    bpm: 110,
+    camelot: '7A',
+    energy: 0.68,
+    danceability: 0.9,
+    valence: 0.76,
+    playlistIds: [P_SUNSET, P_RNB, P_AFTER],
+    genreHint: 'Soulful House',
+    vibeTags: 'bouncy pocket groove warm Rhodes bassline',
+  }),
+  defineCrateTrack({
+    id: 'demo_t20',
+    albumId: 'alb_timeless',
+    trackName: 'Witchy',
+    featuredArtists: ['Childish Gambino'],
+    bpm: 112,
+    camelot: '6B',
+    energy: 0.71,
+    danceability: 0.87,
+    valence: 0.74,
+    playlistIds: [P_SUNSET, P_RNB],
+    genreHint: 'Bounce / R&B House',
+    vibeTags: 'sunny synth chords bouncy kaytranada groove',
+  }),
+  defineCrateTrack({
+    id: 'demo_t21',
+    albumId: 'alb_tako_tsubo',
+    trackName: 'Peur des filles',
+    bpm: 116,
+    camelot: '8A',
+    energy: 0.7,
+    danceability: 0.86,
+    valence: 0.81,
+    playlistIds: [P_SUNSET],
+    genreHint: 'Nu-Disco',
+    vibeTags: 'french touch bassline groovy rooftop disco',
+  }),
+  defineCrateTrack({
+    id: 'demo_t22',
+    albumId: 'alb_day_night',
+    trackName: 'Free',
+    bpm: 118,
+    camelot: '9A',
+    energy: 0.73,
+    danceability: 0.84,
+    valence: 0.75,
+    playlistIds: [P_SUNSET],
+    genreHint: 'Indie Dance',
+    vibeTags: 'crisp funk guitar warm vocal harmonies',
+  }),
+  defineCrateTrack({
+    id: 'demo_t23',
+    albumId: 'alb_day_night',
+    trackName: 'Famous',
+    bpm: 119,
+    camelot: '9B',
+    energy: 0.74,
+    danceability: 0.82,
+    valence: 0.71,
+    playlistIds: [P_SUNSET],
+    genreHint: 'Indie Disco',
+    vibeTags: 'golden hour synth groove disco percussion',
+  }),
+  defineCrateTrack({
+    id: 'demo_t24',
+    albumId: 'alb_slow_rush',
+    trackName: 'Breathe Deeper',
+    bpm: 115,
+    camelot: '10B',
+    energy: 0.74,
+    danceability: 0.79,
+    valence: 0.74,
+    playlistIds: [P_SUNSET],
+    genreHint: 'Psychedelic Disco',
+    vibeTags: 'psychedelic synth bass bouncy disco transition',
+  }),
+  defineCrateTrack({
+    id: 'demo_t25',
+    albumId: 'alb_currents',
+    trackName: 'The Less I Know The Better',
+    bpm: 117,
+    camelot: '11B',
+    energy: 0.76,
+    danceability: 0.81,
+    valence: 0.78,
+    playlistIds: [P_SUNSET, P_INDIE],
+    genreHint: 'Indie Psych',
+    vibeTags: 'iconic bassline crowd singalong indie groove',
+  }),
+  defineCrateTrack({
+    id: 'demo_t26',
+    albumId: 'alb_discovery',
+    trackName: 'One More Time',
+    bpm: 123,
+    camelot: '10B',
+    energy: 0.84,
+    danceability: 0.86,
+    valence: 0.85,
+    playlistIds: [P_SUNSET, P_AFTER, P_POP],
+    genreHint: 'French House',
+    vibeTags: 'classic french filter house euphoric horn sample',
+  }),
+  defineCrateTrack({
+    id: 'demo_t27',
+    albumId: 'alb_discovery',
+    trackName: 'Digital Love',
+    bpm: 125,
+    camelot: '11B',
+    energy: 0.79,
+    danceability: 0.78,
+    valence: 0.77,
+    playlistIds: [P_SUNSET],
+    genreHint: 'French House',
+    vibeTags: 'dreamy vocoder synth solo sunset classic',
+  }),
+  defineCrateTrack({
+    id: 'demo_t28',
+    albumId: 'alb_ram',
+    trackName: 'Get Lucky',
+    bpm: 116,
+    camelot: '11A',
+    energy: 0.81,
+    danceability: 0.89,
+    valence: 0.86,
+    playlistIds: [P_SUNSET, P_POP],
+    genreHint: 'Nu-Disco / Funk',
+    vibeTags: 'nile rodgers funk guitar pharrell vocal',
+  }),
+  defineCrateTrack({
+    id: 'demo_t29',
+    albumId: 'alb_imaginal',
+    trackName: 'Image',
+    bpm: 123,
+    camelot: '8A',
+    energy: 0.77,
+    danceability: 0.79,
+    valence: 0.61,
+    playlistIds: [P_SUNSET, P_POP],
+    genreHint: 'Synth-Pop / Nu-Disco',
+    vibeTags: 'sparkling arpeggios crisp snare danceable pop',
+  }),
+  defineCrateTrack({
+    id: 'demo_t30',
+    albumId: 'alb_hyperdrama',
+    trackName: 'Neverender',
+    featuredArtists: ['Tame Impala'],
+    bpm: 120,
+    camelot: '9A',
+    energy: 0.76,
+    danceability: 0.81,
+    valence: 0.65,
+    playlistIds: [P_SUNSET, P_AFTER],
+    genreHint: 'Indie Electro',
+    vibeTags: 'gliding synth chords soaring chorus rooftop',
+  }),
+  defineCrateTrack({
+    id: 'demo_t31',
+    albumId: 'alb_when_will_we_land',
+    trackName: 'Sonder',
+    bpm: 122,
+    camelot: '12B',
+    energy: 0.75,
+    danceability: 0.84,
+    valence: 0.69,
+    playlistIds: [P_SUNSET],
+    genreHint: 'Piano House',
+    vibeTags: 'warm piano chords uplifting sunset closer',
+  }),
+
+  // =========================================================================
+  // WAREHOUSE PEAK & UK BASS (UKG, Breakbeat, Halftime, 174 BPM DnB)
+  // =========================================================================
+  defineCrateTrack({
+    id: 'demo_t32',
+    albumId: 'alb_usb',
+    trackName: 'ten',
+    featuredArtists: ['Jozzy'],
+    bpm: 135,
+    camelot: '1A',
+    energy: 0.91,
+    danceability: 0.78,
+    valence: 0.54,
+    playlistIds: [P_WAREHOUSE],
+    genreHint: 'UK Garage / Club',
+    vibeTags: 'high energy driving garage skippy drums',
+  }),
+  defineCrateTrack({
+    id: 'demo_t33',
+    albumId: 'alb_usb',
+    trackName: 'leavemealone',
+    featuredArtists: ['Baby Keem'],
+    bpm: 172,
+    camelot: '2A',
+    energy: 0.92,
+    danceability: 0.75,
+    valence: 0.42,
+    playlistIds: [P_WAREHOUSE, P_HIPHOP],
+    genreHint: 'Drum & Bass / Rap',
+    vibeTags: 'crossover dnb rap sample high octane',
+  }),
+  defineCrateTrack({
+    id: 'demo_t34',
+    albumId: 'alb_usb',
+    trackName: 'Rumble',
+    featuredArtists: ['Skrillex', 'Flowdan'],
+    bpm: 140,
+    camelot: '4A',
+    energy: 0.93,
+    danceability: 0.81,
+    valence: 0.31,
+    playlistIds: [P_WAREHOUSE],
+    genreHint: 'Dubstep / UK Bass',
+    vibeTags: 'heavy sub bass dark grime drop peak intensity',
+  }),
+  defineCrateTrack({
+    id: 'demo_t35',
+    albumId: 'alb_quest_for_fire',
+    trackName: 'Hydrate',
+    featuredArtists: ['Flowdan', 'BEAM', 'PEEKABOO'],
+    bpm: 140,
+    camelot: '4A',
+    energy: 0.9,
+    danceability: 0.8,
+    valence: 0.33,
+    playlistIds: [P_WAREHOUSE],
+    genreHint: 'Bass / Dubstep',
+    vibeTags: 'minimal dark 140 dub sub wobble',
+  }),
+  defineCrateTrack({
+    id: 'demo_t36',
+    albumId: 'alb_2_ruff',
+    trackName: 'Baddadan',
+    featuredArtists: ['Bou'],
+    bpm: 174,
+    camelot: '4A',
+    energy: 0.96,
+    danceability: 0.72,
+    valence: 0.36,
+    playlistIds: [P_WAREHOUSE],
+    genreHint: 'Drum & Bass',
+    vibeTags: 'fast dnb neuro bass festival finale',
+  }),
+  defineCrateTrack({
+    id: 'demo_t37',
+    albumId: 'alb_2_ruff',
+    trackName: 'Disconnect',
+    featuredArtists: ['Becky Hill'],
+    bpm: 174,
+    camelot: '5A',
+    energy: 0.94,
+    danceability: 0.71,
+    valence: 0.51,
+    playlistIds: [P_WAREHOUSE],
+    genreHint: 'Dancefloor DnB',
+    vibeTags: 'soaring vocal anthem 174 bpm peak',
+  }),
+  defineCrateTrack({
+    id: 'demo_t38',
+    albumId: 'alb_good_lies',
+    trackName: 'So U Kno',
+    bpm: 134,
+    camelot: '5B',
+    energy: 0.85,
+    danceability: 0.77,
+    valence: 0.49,
+    playlistIds: [P_WAREHOUSE],
+    genreHint: 'UK Breakbeat',
+    vibeTags: 'pitched vocal chop heavy breakbeat sub',
+  }),
+  defineCrateTrack({
+    id: 'demo_t39',
+    albumId: 'alb_good_lies',
+    trackName: 'Good Lies',
+    bpm: 132,
+    camelot: '5A',
+    energy: 0.83,
+    danceability: 0.76,
+    valence: 0.46,
+    playlistIds: [P_WAREHOUSE],
+    genreHint: 'UK Breakbeat',
+    vibeTags: 'atmospheric rave breaks deep bassline',
+  }),
+  defineCrateTrack({
+    id: 'demo_t40',
+    albumId: 'alb_isles',
+    trackName: 'Atlas',
+    bpm: 130,
+    camelot: '3A',
+    energy: 0.84,
+    danceability: 0.75,
+    valence: 0.38,
+    playlistIds: [P_WAREHOUSE, P_AFTER],
+    genreHint: 'Breakbeat / Electronica',
+    vibeTags: 'euphoric rave pads emotional warehouse',
+  }),
+  defineCrateTrack({
+    id: 'demo_t41',
+    albumId: 'alb_in_waves',
+    trackName: 'All You Children',
+    featuredArtists: ['The Avalanches'],
+    bpm: 128,
+    camelot: '12A',
+    energy: 0.86,
+    danceability: 0.81,
+    valence: 0.58,
+    playlistIds: [P_WAREHOUSE],
+    genreHint: 'Club / Plunderphonics',
+    vibeTags: 'driving tribal drums hypnotic vocal chant',
+  }),
+  defineCrateTrack({
+    id: 'demo_t42',
+    albumId: 'alb_in_waves',
+    trackName: 'Dafodil',
+    featuredArtists: ['Kelsey Lu', 'John Glacier', 'Panda Bear'],
+    bpm: 64,
+    camelot: '12A',
+    energy: 0.72,
+    danceability: 0.69,
+    valence: 0.47,
+    playlistIds: [P_WAREHOUSE],
+    genreHint: 'Halftime / UK Bass',
+    vibeTags: 'halftime 64bpm lock matches 128bpm club tracks',
+  }),
+
+  // =========================================================================
+  // GLOBAL POP, SYNTH & HYPERPOP
+  // =========================================================================
+  defineCrateTrack({
+    id: 'demo_t43',
+    albumId: 'alb_brat',
+    trackName: '360',
+    bpm: 120,
+    camelot: '8B',
+    energy: 0.79,
+    danceability: 0.84,
+    valence: 0.72,
+    playlistIds: [P_POP],
+    genreHint: 'Electro-Pop / Club',
+    vibeTags: 'minimal rubbery synth brat summer pop',
+  }),
+  defineCrateTrack({
+    id: 'demo_t44',
+    albumId: 'alb_brat',
+    trackName: 'Von dutch',
+    bpm: 130,
+    camelot: '1B',
+    energy: 0.89,
+    danceability: 0.81,
+    valence: 0.58,
+    playlistIds: [P_POP, P_WAREHOUSE],
+    genreHint: 'Hyperpop / Electroclash',
+    vibeTags: 'frenetic club electroclash bass drop',
+  }),
+  defineCrateTrack({
+    id: 'demo_t45',
+    albumId: 'alb_brat',
+    trackName: 'Apple',
+    bpm: 126,
+    camelot: '9B',
+    energy: 0.8,
+    danceability: 0.85,
+    valence: 0.75,
+    playlistIds: [P_POP],
+    genreHint: 'Synth-Pop',
+    vibeTags: 'bright synth arpeggio viral dance hook',
+  }),
+  defineCrateTrack({
+    id: 'demo_t46',
+    albumId: 'alb_vroom_ep',
+    trackName: 'Vroom Vroom',
+    bpm: 128,
+    camelot: '1A',
+    energy: 0.86,
+    danceability: 0.8,
+    valence: 0.61,
+    playlistIds: [P_POP, P_WAREHOUSE],
+    genreHint: 'Hyperpop',
+    vibeTags: 'sophie metallic percussion hyperpop classic',
+  }),
+  defineCrateTrack({
+    id: 'demo_t47',
+    albumId: 'alb_melodrama',
+    trackName: 'Supercut',
+    bpm: 125,
+    camelot: '8B',
+    energy: 0.75,
+    danceability: 0.69,
+    valence: 0.56,
+    playlistIds: [P_POP, P_SUNSET],
+    genreHint: 'Synth-Pop',
+    vibeTags: 'lush synth piano emotional pop closer',
+  }),
+  defineCrateTrack({
+    id: 'demo_t48',
+    albumId: 'alb_melodrama',
+    trackName: 'Green Light',
+    bpm: 129,
+    camelot: '7B',
+    energy: 0.82,
+    danceability: 0.74,
+    valence: 0.62,
+    playlistIds: [P_POP],
+    genreHint: 'Dance-Pop',
+    vibeTags: 'euphoric piano chords festival singalong',
+  }),
+  defineCrateTrack({
+    id: 'demo_t49',
+    albumId: 'alb_midwest_princess',
+    trackName: 'HOT TO GO!',
+    bpm: 140,
+    camelot: '2B',
+    energy: 0.85,
+    danceability: 0.83,
+    valence: 0.88,
+    playlistIds: [P_POP],
+    genreHint: 'Synth-Pop',
+    vibeTags: 'arena synth pop stadium chant upbeat',
+  }),
+  defineCrateTrack({
+    id: 'demo_t50',
+    albumId: 'alb_midwest_princess',
+    trackName: 'Red Wine Supernova',
+    bpm: 124,
+    camelot: '10B',
+    energy: 0.81,
+    danceability: 0.77,
+    valence: 0.79,
+    playlistIds: [P_POP],
+    genreHint: 'Pop / Indie',
+    vibeTags: 'driving snare glittery synth pop',
+  }),
+  defineCrateTrack({
+    id: 'demo_t51',
+    albumId: 'alb_short_n_sweet',
+    trackName: 'Espresso',
+    bpm: 104,
+    camelot: '7B',
+    energy: 0.76,
+    danceability: 0.85,
+    valence: 0.84,
+    playlistIds: [P_POP, P_SUNSET],
+    genreHint: 'Nu-Disco Pop',
+    vibeTags: 'funky bass guitar breezy summer pop',
+  }),
+  defineCrateTrack({
+    id: 'demo_t52',
+    albumId: 'alb_future_nostalgia',
+    trackName: 'Levitating',
+    bpm: 103,
+    camelot: '10A',
+    energy: 0.83,
+    danceability: 0.86,
+    valence: 0.91,
+    playlistIds: [P_POP, P_SUNSET],
+    genreHint: 'Disco-Pop',
+    vibeTags: 'handclap disco groove bright pop chorus',
+  }),
+  defineCrateTrack({
+    id: 'demo_t53',
+    albumId: 'alb_future_nostalgia',
+    trackName: "Don't Start Now",
+    bpm: 124,
+    camelot: '10A',
+    energy: 0.8,
+    danceability: 0.85,
+    valence: 0.68,
+    playlistIds: [P_POP, P_AFTER],
+    genreHint: 'Nu-Disco Pop',
+    vibeTags: 'cowbell slap bass disco floorfiller',
+  }),
+  defineCrateTrack({
+    id: 'demo_t54',
+    albumId: 'alb_after_hours',
+    trackName: 'Blinding Lights',
+    bpm: 171,
+    camelot: '2B',
+    energy: 0.86,
+    danceability: 0.72,
+    valence: 0.45,
+    playlistIds: [P_POP],
+    genreHint: 'Synthwave Pop',
+    vibeTags: '80s synthwave pulse arena anthem',
+  }),
+  defineCrateTrack({
+    id: 'demo_t55',
+    albumId: 'alb_fame_monster',
+    trackName: 'Bad Romance',
+    bpm: 119,
+    camelot: '8A',
+    energy: 0.88,
+    danceability: 0.8,
+    valence: 0.71,
+    playlistIds: [P_POP],
+    genreHint: 'Electro-Pop',
+    vibeTags: 'iconic synth hook theatrical club pop',
+  }),
+  defineCrateTrack({
+    id: 'demo_t56',
+    albumId: 'alb_get_up_ep',
+    trackName: 'Super Shy',
+    bpm: 150,
+    camelot: '4B',
+    energy: 0.82,
+    danceability: 0.78,
+    valence: 0.74,
+    playlistIds: [P_POP],
+    genreHint: 'K-Pop / Jersey Club',
+    vibeTags: 'jersey club kick liquid break kpop',
+  }),
+  defineCrateTrack({
+    id: 'demo_t57',
+    albumId: 'alb_1989_tv',
+    trackName: 'Style',
+    bpm: 95,
+    camelot: '10B',
+    energy: 0.77,
+    danceability: 0.72,
+    valence: 0.61,
+    playlistIds: [P_POP],
+    genreHint: 'Synth-Pop',
+    vibeTags: 'shimmering guitar riff 80s synth pop',
+  }),
+  defineCrateTrack({
+    id: 'demo_t58',
+    albumId: 'alb_1989_tv',
+    trackName: 'New Romantics',
+    bpm: 122,
+    camelot: '12B',
+    energy: 0.83,
+    danceability: 0.74,
+    valence: 0.67,
+    playlistIds: [P_POP],
+    genreHint: 'Synth-Pop',
+    vibeTags: 'glittering synth chorus festival pop',
+  }),
+  defineCrateTrack({
+    id: 'demo_t59',
+    albumId: 'alb_hit_me_hard_and_soft',
+    trackName: 'LUNCH',
+    bpm: 125,
+    camelot: '7A',
+    energy: 0.77,
+    danceability: 0.89,
+    valence: 0.63,
+    playlistIds: [P_POP, P_AFTER],
+    genreHint: 'Alt-Pop / Electro',
+    vibeTags: 'punchy bass riff minimal club pop',
+  }),
+  defineCrateTrack({
+    id: 'demo_t60',
+    albumId: 'alb_hit_me_hard_and_soft',
+    trackName: 'BIRDS OF A FEATHER',
+    bpm: 105,
+    camelot: '10B',
+    energy: 0.67,
+    danceability: 0.76,
+    valence: 0.59,
+    playlistIds: [P_POP, P_INDIE],
+    genreHint: 'Alt-Pop',
+    vibeTags: 'dreamy new wave synth upbeat romance',
+  }),
+
+  // =========================================================================
+  // HIP-HOP, TRAP & 808 BOUNCE
+  // =========================================================================
+  defineCrateTrack({
+    id: 'demo_t61',
+    albumId: 'alb_gkmc',
+    trackName: 'Money Trees',
+    featuredArtists: ['Jay Rock'],
+    bpm: 72,
+    camelot: '9A',
+    energy: 0.61,
+    danceability: 0.73,
+    valence: 0.36,
+    playlistIds: [P_HIPHOP],
+    genreHint: 'West Coast Hip-Hop',
+    vibeTags: 'reversed beach house sample laid back classic',
+  }),
+  defineCrateTrack({
+    id: 'demo_t62',
+    albumId: 'alb_tpab',
+    trackName: 'King Kunta',
+    bpm: 107,
+    camelot: '9A',
+    energy: 0.68,
+    danceability: 0.88,
+    valence: 0.71,
+    playlistIds: [P_HIPHOP],
+    genreHint: 'G-Funk / Hip-Hop',
+    vibeTags: 'funk bassline west coast bounce',
+  }),
+  defineCrateTrack({
+    id: 'demo_t63',
+    albumId: 'alb_damn',
+    trackName: 'HUMBLE.',
+    bpm: 150,
+    camelot: '3A',
+    energy: 0.64,
+    danceability: 0.9,
+    valence: 0.42,
+    playlistIds: [P_HIPHOP],
+    genreHint: 'Hip-Hop / Trap',
+    vibeTags: 'staccato piano heavy 808 crowd anthem',
+  }),
+  defineCrateTrack({
+    id: 'demo_t64',
+    albumId: 'alb_utopia',
+    trackName: 'FE!N',
+    featuredArtists: ['Playboi Carti'],
+    bpm: 148,
+    camelot: '4A',
+    energy: 0.88,
+    danceability: 0.74,
+    valence: 0.31,
+    playlistIds: [P_HIPHOP],
+    genreHint: 'Rage Trap',
+    vibeTags: 'distorted synth stadium rage mosh pit',
+  }),
+  defineCrateTrack({
+    id: 'demo_t65',
+    albumId: 'alb_astroworld',
+    trackName: 'SICKO MODE',
+    featuredArtists: ['Drake'],
+    bpm: 155,
+    camelot: '5A',
+    energy: 0.74,
+    danceability: 0.83,
+    valence: 0.44,
+    playlistIds: [P_HIPHOP],
+    genreHint: 'Trap / Hip-Hop',
+    vibeTags: 'beat switch heavy sub iconic festival trap',
+  }),
+  defineCrateTrack({
+    id: 'demo_t66',
+    albumId: 'alb_graduation',
+    trackName: 'Flashing Lights',
+    featuredArtists: ['Dwele'],
+    bpm: 90,
+    camelot: '11A',
+    energy: 0.63,
+    danceability: 0.65,
+    valence: 0.41,
+    playlistIds: [P_HIPHOP, P_RNB],
+    genreHint: 'Synth Hip-Hop',
+    vibeTags: 'cinematic strings glowing synth nocturnal',
+  }),
+  defineCrateTrack({
+    id: 'demo_t67',
+    albumId: 'alb_graduation',
+    trackName: 'Stronger',
+    bpm: 104,
+    camelot: '3A',
+    energy: 0.79,
+    danceability: 0.74,
+    valence: 0.52,
+    playlistIds: [P_HIPHOP],
+    genreHint: 'Electro Hip-Hop',
+    vibeTags: 'daft punk vocoder sample stadium bounce',
+  }),
+  defineCrateTrack({
+    id: 'demo_t68',
+    albumId: 'alb_stankonia',
+    trackName: 'B.O.B. - Bombs Over Baghdad',
+    bpm: 154,
+    camelot: '1B',
+    energy: 0.91,
+    danceability: 0.71,
+    valence: 0.62,
+    playlistIds: [P_HIPHOP],
+    genreHint: 'Southern Hip-Hop / Break',
+    vibeTags: 'hyper-speed breakbeat electric guitar solo',
+  }),
+  defineCrateTrack({
+    id: 'demo_t69',
+    albumId: 'alb_heroes_villains',
+    trackName: 'Superhero (Heroes & Villains)',
+    featuredArtists: ['Future', 'Chris Brown'],
+    bpm: 117,
+    camelot: '6A',
+    energy: 0.69,
+    danceability: 0.76,
+    valence: 0.4,
+    playlistIds: [P_HIPHOP],
+    genreHint: 'Trap',
+    vibeTags: 'brass stabs cinematic dark trap',
+  }),
+  defineCrateTrack({
+    id: 'demo_t70',
+    albumId: 'alb_alligator_bites',
+    trackName: 'DENIAL IS A RIVER',
+    bpm: 102,
+    camelot: '6A',
+    energy: 0.72,
+    danceability: 0.84,
+    valence: 0.61,
+    playlistIds: [P_HIPHOP],
+    genreHint: 'Hip-Hop',
+    vibeTags: 'jazzy storytelling crisp boom bap snare',
+  }),
+  defineCrateTrack({
+    id: 'demo_t71',
+    albumId: 'alb_forest_hills',
+    trackName: 'No Role Modelz',
+    bpm: 100,
+    camelot: '6A',
+    energy: 0.67,
+    danceability: 0.72,
+    valence: 0.49,
+    playlistIds: [P_HIPHOP],
+    genreHint: 'Hip-Hop',
+    vibeTags: 'singalong rap classic warm keys',
+  }),
+  defineCrateTrack({
+    id: 'demo_t72',
+    albumId: 'alb_igor',
+    trackName: 'EARFQUAKE',
+    bpm: 80,
+    camelot: '5B',
+    energy: 0.56,
+    danceability: 0.63,
+    valence: 0.48,
+    playlistIds: [P_HIPHOP, P_RNB],
+    genreHint: 'Alt-R&B / Hip-Hop',
+    vibeTags: 'warm electric piano pitch-shifted vocal hook',
+  }),
+  defineCrateTrack({
+    id: 'demo_t73',
+    albumId: 'alb_heroes_villains',
+    trackName: "Creepin'",
+    featuredArtists: ['The Weeknd', '21 Savage'],
+    bpm: 98,
+    camelot: '1B',
+    energy: 0.62,
+    danceability: 0.73,
+    valence: 0.25,
+    playlistIds: [P_HIPHOP, P_RNB],
+    genreHint: 'Dark R&B / Trap',
+    vibeTags: 'moody nocturnal vocal flip 808',
+  }),
+
+  // =========================================================================
+  // LATE NIGHT R&B & NEO-SOUL
+  // =========================================================================
+  defineCrateTrack({
+    id: 'demo_t74',
+    albumId: 'alb_blonde',
+    trackName: 'Pink + White',
+    bpm: 80,
+    camelot: '11B',
+    energy: 0.54,
+    danceability: 0.59,
+    valence: 0.52,
+    playlistIds: [P_RNB],
+    genreHint: 'Alt-R&B / Neo-Soul',
+    vibeTags: 'lush strings waltz groove warm summer nostalgia',
+  }),
+  defineCrateTrack({
+    id: 'demo_t75',
+    albumId: 'alb_blonde',
+    trackName: 'Nights',
+    bpm: 90,
+    camelot: '12A',
+    energy: 0.61,
+    danceability: 0.58,
+    valence: 0.39,
+    playlistIds: [P_RNB, P_HIPHOP],
+    genreHint: 'Alt-R&B',
+    vibeTags: 'iconic beat switch dreamy guitar arpeggio',
+  }),
+  defineCrateTrack({
+    id: 'demo_t76',
+    albumId: 'alb_channel_orange',
+    trackName: 'Lost',
+    bpm: 105,
+    camelot: '7A',
+    energy: 0.65,
+    danceability: 0.78,
+    valence: 0.55,
+    playlistIds: [P_RNB],
+    genreHint: 'R&B / Pop-Soul',
+    vibeTags: 'bright synth bass bouncy midtempo groove',
+  }),
+  defineCrateTrack({
+    id: 'demo_t77',
+    albumId: 'alb_ctrl',
+    trackName: 'Love Galore',
+    featuredArtists: ['Travis Scott'],
+    bpm: 135,
+    camelot: '12B',
+    energy: 0.6,
+    danceability: 0.79,
+    valence: 0.44,
+    playlistIds: [P_RNB],
+    genreHint: 'R&B / Trap-Soul',
+    vibeTags: 'silky vocal melodic trap bounce',
+  }),
+  defineCrateTrack({
+    id: 'demo_t78',
+    albumId: 'alb_sos',
+    trackName: 'Kill Bill',
+    bpm: 89,
+    camelot: '1B',
+    energy: 0.44,
+    danceability: 0.67,
+    valence: 0.43,
+    playlistIds: [P_RNB, P_POP],
+    genreHint: 'R&B',
+    vibeTags: 'chill moody bassline smooth chorus',
+  }),
+  defineCrateTrack({
+    id: 'demo_t79',
+    albumId: 'alb_sos',
+    trackName: 'Snooze',
+    bpm: 143,
+    camelot: '3B',
+    energy: 0.56,
+    danceability: 0.61,
+    valence: 0.39,
+    playlistIds: [P_RNB],
+    genreHint: 'R&B',
+    vibeTags: 'late night slow jam lush vocal runs',
+  }),
+  defineCrateTrack({
+    id: 'demo_t80',
+    albumId: 'alb_love_deluxe',
+    trackName: 'Kiss of Life',
+    bpm: 98,
+    camelot: '6B',
+    energy: 0.51,
+    danceability: 0.71,
+    valence: 0.54,
+    playlistIds: [P_RNB],
+    genreHint: 'Sophisti-Pop / Soul',
+    vibeTags: 'timeless sax warm rhodes velvety groove',
+  }),
+  defineCrateTrack({
+    id: 'demo_t81',
+    albumId: 'alb_freudian',
+    trackName: 'Get You',
+    featuredArtists: ['Kali Uchis'],
+    bpm: 74,
+    camelot: '5B',
+    energy: 0.34,
+    danceability: 0.66,
+    valence: 0.4,
+    playlistIds: [P_RNB],
+    genreHint: 'Neo-Soul',
+    vibeTags: 'intimate bass pocket soulful duet',
+  }),
+  defineCrateTrack({
+    id: 'demo_t82',
+    albumId: 'alb_silk_sonic',
+    trackName: 'Leave The Door Open',
+    bpm: 148,
+    camelot: '7B',
+    energy: 0.61,
+    danceability: 0.62,
+    valence: 0.68,
+    playlistIds: [P_RNB],
+    genreHint: '70s Soul / R&B',
+    vibeTags: 'velvet harmony retro soul ballad',
+  }),
+  defineCrateTrack({
+    id: 'demo_t83',
+    albumId: 'alb_orquideas',
+    trackName: 'Igual Que Un Ángel',
+    featuredArtists: ['Peso Pluma'],
+    bpm: 108,
+    camelot: '4B',
+    energy: 0.66,
+    danceability: 0.77,
+    valence: 0.67,
+    playlistIds: [P_RNB, P_LATIN],
+    genreHint: 'Synth R&B / Latin Pop',
+    vibeTags: 'dreamy 80s synth bass bilingual crossover',
+  }),
+  defineCrateTrack({
+    id: 'demo_t84',
+    albumId: 'alb_orquideas',
+    trackName: 'Labios Mordidos',
+    featuredArtists: ['KAROL G'],
+    bpm: 102,
+    camelot: '4A',
+    energy: 0.72,
+    danceability: 0.82,
+    valence: 0.69,
+    playlistIds: [P_RNB, P_LATIN],
+    genreHint: 'R&B / Reggaeton',
+    vibeTags: 'sultry dembow bounce velvet vocal',
+  }),
+  defineCrateTrack({
+    id: 'demo_t85',
+    albumId: 'alb_anti',
+    trackName: 'Work',
+    featuredArtists: ['Drake'],
+    bpm: 92,
+    camelot: '2A',
+    energy: 0.64,
+    danceability: 0.85,
+    valence: 0.56,
+    playlistIds: [P_RNB, P_LATIN],
+    genreHint: 'Dancehall / R&B',
+    vibeTags: 'hypnotic dancehall riddim club classic',
+  }),
+
+  // =========================================================================
+  // INDIE, ALT-ROCK & CLASSICS
+  // =========================================================================
+  defineCrateTrack({
+    id: 'demo_t86',
+    albumId: 'alb_in_rainbows',
+    trackName: 'Weird Fishes/ Arpeggi',
+    bpm: 153,
+    camelot: '10A',
+    energy: 0.64,
+    danceability: 0.49,
+    valence: 0.35,
+    playlistIds: [P_INDIE],
+    genreHint: 'Art Rock',
+    vibeTags: 'interlocking guitar arpeggios soaring crescendo',
+  }),
+  defineCrateTrack({
+    id: 'demo_t87',
+    albumId: 'alb_in_rainbows',
+    trackName: '15 Step',
+    bpm: 95,
+    camelot: '8A',
+    energy: 0.73,
+    danceability: 0.61,
+    valence: 0.51,
+    playlistIds: [P_INDIE],
+    genreHint: 'Art Rock / Electronic',
+    vibeTags: '5/4 electronic percussion crisp guitar',
+  }),
+  defineCrateTrack({
+    id: 'demo_t88',
+    albumId: 'alb_am',
+    trackName: 'Do I Wanna Know?',
+    bpm: 85,
+    camelot: '6A',
+    energy: 0.54,
+    danceability: 0.58,
+    valence: 0.41,
+    playlistIds: [P_INDIE],
+    genreHint: 'Indie Rock',
+    vibeTags: 'stomping fuzz guitar riff nocturnal rock',
+  }),
+  defineCrateTrack({
+    id: 'demo_t89',
+    albumId: 'alb_new_abnormal',
+    trackName: 'The Adults Are Talking',
+    bpm: 165,
+    camelot: '7A',
+    energy: 0.76,
+    danceability: 0.62,
+    valence: 0.64,
+    playlistIds: [P_INDIE],
+    genreHint: 'Indie Rock',
+    vibeTags: 'motorik drums falsetto chorus interlocking guitars',
+  }),
+  defineCrateTrack({
+    id: 'demo_t90',
+    albumId: 'alb_oracular',
+    trackName: 'Electric Feel',
+    bpm: 103,
+    camelot: '9B',
+    energy: 0.79,
+    danceability: 0.77,
+    valence: 0.68,
+    playlistIds: [P_INDIE, P_SUNSET],
+    genreHint: 'Indie Electronic',
+    vibeTags: 'psychedelic funk bass synth anthem',
+  }),
+  defineCrateTrack({
+    id: 'demo_t91',
+    albumId: 'alb_rumours',
+    trackName: 'Dreams',
+    bpm: 120,
+    camelot: '7B',
+    energy: 0.52,
+    danceability: 0.81,
+    valence: 0.78,
+    playlistIds: [P_INDIE],
+    genreHint: 'Classic Rock',
+    vibeTags: 'hypnotic two-chord groove timeless chorus',
+  }),
+  defineCrateTrack({
+    id: 'demo_t92',
+    albumId: 'alb_thriller',
+    trackName: 'Billie Jean',
+    bpm: 117,
+    camelot: '11A',
+    energy: 0.71,
+    danceability: 0.92,
+    valence: 0.84,
+    playlistIds: [P_INDIE, P_POP, P_SUNSET],
+    genreHint: 'Classic Pop / Funk',
+    vibeTags: 'iconic synth bass drum pocket dancefloor lock',
+  }),
+  defineCrateTrack({
+    id: 'demo_t93',
+    albumId: 'alb_aja',
+    trackName: 'Peg',
+    bpm: 117,
+    camelot: '9B',
+    energy: 0.68,
+    danceability: 0.79,
+    valence: 0.82,
+    playlistIds: [P_INDIE, P_SUNSET],
+    genreHint: 'Yacht Rock / Jazz-Pop',
+    vibeTags: 'silky slap bass crisp pocket horns',
+  }),
+  defineCrateTrack({
+    id: 'demo_t94',
+    albumId: 'alb_nevermind',
+    trackName: 'Smells Like Teen Spirit',
+    bpm: 117,
+    camelot: '4A',
+    energy: 0.91,
+    danceability: 0.52,
+    valence: 0.49,
+    playlistIds: [P_INDIE],
+    genreHint: 'Grunge / Alt-Rock',
+    vibeTags: 'explosive quiet-loud riff 90s rock anthem',
+  }),
+  defineCrateTrack({
+    id: 'demo_t95',
+    albumId: 'alb_ogwau',
+    trackName: 'Classical',
+    bpm: 138,
+    camelot: '3B',
+    energy: 0.78,
+    danceability: 0.61,
+    valence: 0.67,
+    playlistIds: [P_INDIE],
+    genreHint: 'Indie Rock',
+    vibeTags: 'driving piano sax break upbeat indie',
+  }),
+  defineCrateTrack({
+    id: 'demo_t96',
+    albumId: 'alb_currents',
+    trackName: 'Let It Happen',
+    bpm: 125,
+    camelot: '10A',
+    energy: 0.78,
+    danceability: 0.67,
+    valence: 0.58,
+    playlistIds: [P_INDIE, P_AFTER],
+    genreHint: 'Psychedelic Synth-Rock',
+    vibeTags: 'looping synth build phaser breakdown classic',
+  }),
+
+  // =========================================================================
+  // LATIN URBANO & AFRO-FUSION
+  // =========================================================================
+  defineCrateTrack({
+    id: 'demo_t97',
+    albumId: 'alb_un_verano_sin_ti',
+    trackName: 'Tití Me Preguntó',
+    bpm: 107,
+    camelot: '4A',
+    energy: 0.73,
+    danceability: 0.67,
+    valence: 0.46,
+    playlistIds: [P_LATIN],
+    genreHint: 'Reggaeton / Dembow',
+    vibeTags: 'high energy dembow drop perreo crowd favorite',
+  }),
+  defineCrateTrack({
+    id: 'demo_t98',
+    albumId: 'alb_un_verano_sin_ti',
+    trackName: 'Me Porto Bonito',
+    featuredArtists: ['Chencho Corleone'],
+    bpm: 92,
+    camelot: '2A',
+    energy: 0.71,
+    danceability: 0.91,
+    valence: 0.44,
+    playlistIds: [P_LATIN],
+    genreHint: 'Reggaeton',
+    vibeTags: 'infectious reggaeton bounce summer anthem',
+  }),
+  defineCrateTrack({
+    id: 'demo_t99',
+    albumId: 'alb_un_verano_sin_ti',
+    trackName: 'Efecto',
+    bpm: 98,
+    camelot: '6B',
+    energy: 0.72,
+    danceability: 0.81,
+    valence: 0.54,
+    playlistIds: [P_LATIN],
+    genreHint: 'Reggaeton / Synth',
+    vibeTags: 'warm synth arpeggio smooth dembow',
+  }),
+  defineCrateTrack({
+    id: 'demo_t100',
+    albumId: 'alb_un_verano_sin_ti',
+    trackName: 'El Apagón',
+    bpm: 118,
+    camelot: '1A',
+    energy: 0.84,
+    danceability: 0.78,
+    valence: 0.59,
+    playlistIds: [P_LATIN, P_AFTER],
+    genreHint: 'Latin House / Techno',
+    vibeTags: 'bumping bassline puerto rican house outro',
+  }),
+  defineCrateTrack({
+    id: 'demo_t101',
+    albumId: 'alb_motomami',
+    trackName: 'SAOKO',
+    bpm: 100,
+    camelot: '3A',
+    energy: 0.78,
+    danceability: 0.82,
+    valence: 0.58,
+    playlistIds: [P_LATIN],
+    genreHint: 'Alt-Reggaeton / Jazz',
+    vibeTags: 'distorted reggaeton jazz piano break',
+  }),
+  defineCrateTrack({
+    id: 'demo_t102',
+    albumId: 'alb_motomami',
+    trackName: 'BIZCOCHITO',
+    bpm: 116,
+    camelot: '2B',
+    energy: 0.75,
+    danceability: 0.86,
+    valence: 0.77,
+    playlistIds: [P_LATIN, P_POP],
+    genreHint: 'Latin Urbano / Electro',
+    vibeTags: 'playful synth stabs crisp 808',
+  }),
+  defineCrateTrack({
+    id: 'demo_t103',
+    albumId: 'alb_love_damini',
+    trackName: 'Last Last',
+    bpm: 112,
+    camelot: '5B',
+    energy: 0.69,
+    danceability: 0.81,
+    valence: 0.57,
+    playlistIds: [P_LATIN],
+    genreHint: 'Afrobeats',
+    vibeTags: 'toni braxton flip hypnotic afro groove',
+  }),
+  defineCrateTrack({
+    id: 'demo_t104',
+    albumId: 'alb_love_damini',
+    trackName: 'For My Hand',
+    featuredArtists: ['Ed Sheeran'],
+    bpm: 104,
+    camelot: '11B',
+    energy: 0.63,
+    danceability: 0.79,
+    valence: 0.69,
+    playlistIds: [P_LATIN, P_RNB],
+    genreHint: 'Afro-Pop',
+    vibeTags: 'warm guitar pluck romantic afro groove',
+  }),
+  defineCrateTrack({
+    id: 'demo_t105',
+    albumId: 'alb_born_in_the_wild',
+    trackName: 'Love Me JeJe',
+    bpm: 104,
+    camelot: '7B',
+    energy: 0.67,
+    danceability: 0.84,
+    valence: 0.76,
+    playlistIds: [P_LATIN, P_RNB],
+    genreHint: 'Afrobeats / R&B',
+    vibeTags: 'sunny afro percussion warm bass pocket',
+  }),
+  defineCrateTrack({
+    id: 'demo_t106',
+    albumId: 'alb_born_in_the_wild',
+    trackName: 'Me & U',
+    bpm: 106,
+    camelot: '8B',
+    energy: 0.62,
+    danceability: 0.81,
+    valence: 0.71,
+    playlistIds: [P_LATIN, P_RNB],
+    genreHint: 'Alté / Afrobeats',
+    vibeTags: 'breezy guitar log drum bounce',
+  }),
+]
+
+export const SPOTKIT_DEMO_LIKED_TRACK_COUNT = SPOTKIT_DEMO_CRATE_TRACKS.filter(
+  (t) => t.inLiked,
+).length
+
+export interface CrateBuilderDeps {
+  parsePlaylistId: (rawInput: string) => string | null
+  camelotToPitchAndMode: (camelot: SharedCamelotCode) => {
+    musicalKey: string
+    pitchClass: number
+    mode: 0 | 1
+  }
+}
+
+function hashString(input: string): number {
+  let hash = 2166136261
+  for (let i = 0; i < input.length; i += 1) {
+    hash ^= input.charCodeAt(i)
+    hash = Math.imul(hash, 16777619)
+  }
+  return hash >>> 0
+}
+
+export function resolveSharedDemoPlaylist(
+  parsePlaylistId: (rawInput: string) => string | null,
+  playlistUrl?: string,
+) {
+  const parsedId = parsePlaylistId(playlistUrl || '')
+  const matchedPreset = SPOTKIT_DEMO_PLAYLIST_PRESETS.find(
+    (p) => p.id === parsedId,
+  )
+
+  if (matchedPreset) {
+    const count = SPOTKIT_DEMO_CRATE_TRACKS.filter((s) =>
+      s.playlistIds.includes(matchedPreset.id),
+    ).length
+    return {
+      meta: {
+        id: matchedPreset.id,
+        name: matchedPreset.name,
+        description: matchedPreset.description,
+        ownerName: matchedPreset.ownerName,
+        totalTracks: count,
+        imageUrl: null,
+        externalUrl: matchedPreset.url,
+      },
+      trackFilter: (seed: SharedDemoTrackSeed) =>
+        seed.playlistIds.includes(matchedPreset.id),
+    }
+  }
+
+  if (parsedId) {
+    const seedHash = hashString(parsedId)
+    const selectedIds = new Set(
+      SPOTKIT_DEMO_CRATE_TRACKS.filter(
+        (_, idx) => (seedHash + idx * 7) % 11 < 6,
+      ).map((s) => s.id),
+    )
+    if (selectedIds.size < 12) {
+      SPOTKIT_DEMO_CRATE_TRACKS.slice(0, 14).forEach((s) =>
+        selectedIds.add(s.id),
+      )
+    }
+    return {
+      meta: {
+        id: parsedId,
+        name: `Custom Public Playlist (${parsedId.slice(0, 8)}…)`,
+        description:
+          'Simulated public playlist generated in Demo Mode from your pasted URL.',
+        ownerName: 'Mock Spotify Listener',
+        totalTracks: selectedIds.size,
+        imageUrl: null,
+        externalUrl: playlistUrl || SPOTKIT_DEMO_PLAYLIST_PRESETS[0].url,
+      },
+      trackFilter: (seed: SharedDemoTrackSeed) => selectedIds.has(seed.id),
+    }
+  }
+
+  const fallback = SPOTKIT_DEMO_PLAYLIST_PRESETS[0]
+  const count = SPOTKIT_DEMO_CRATE_TRACKS.filter((s) =>
+    s.playlistIds.includes(fallback.id),
+  ).length
+  return {
+    meta: {
+      id: fallback.id,
+      name: fallback.name,
+      description: fallback.description,
+      ownerName: fallback.ownerName,
+      totalTracks: count,
+      imageUrl: null,
+      externalUrl: fallback.url,
+    },
+    trackFilter: (seed: SharedDemoTrackSeed) =>
+      seed.playlistIds.includes(fallback.id),
+  }
+}
+
+export function buildSharedDemoTracksForMode(
+  deps: CrateBuilderDeps,
+  sourceMode: 'liked' | 'playlist' | 'both',
+  playlistUrl?: string,
+) {
+  const { trackFilter } = resolveSharedDemoPlaylist(
+    deps.parsePlaylistId,
+    playlistUrl,
+  )
+
+  return SPOTKIT_DEMO_CRATE_TRACKS.flatMap((seed) => {
+    const inLiked = seed.inLiked
+    const inPlaylist = trackFilter(seed)
+
+    const include =
+      sourceMode === 'liked'
+        ? inLiked
+        : sourceMode === 'playlist'
+          ? inPlaylist
+          : inLiked || inPlaylist
+
+    if (!include) return []
+
+    const origins: ('liked' | 'playlist')[] = []
+    if (inLiked && (sourceMode === 'liked' || sourceMode === 'both')) {
+      origins.push('liked')
+    }
+    if (inPlaylist && (sourceMode === 'playlist' || sourceMode === 'both')) {
+      origins.push('playlist')
+    }
+    if (origins.length === 0) {
+      if (inLiked) origins.push('liked')
+      if (inPlaylist) origins.push('playlist')
+    }
+
+    const cam = deps.camelotToPitchAndMode(seed.camelot)
+    return [
+      {
+        id: seed.id,
+        uri: `spotify:track:${seed.id}`,
+        name: seed.name,
+        artists: seed.artists,
+        artistNames: seed.artists.join(', '),
+        albumName: seed.albumName,
+        albumId: seed.albumId,
+        albumArtUrl: createCoverSvg(
+          seed.albumName,
+          seed.artists[0] || seed.albumName,
+          seed.colorA,
+          seed.colorB,
+          seed.accent,
+        ),
+        durationMs: seed.durationMs,
+        popularity: seed.popularity,
+        externalUrl: null,
+        previewUrl: null,
+        isrc: null,
+        bpm: seed.bpm,
+        camelot: seed.camelot,
+        musicalKey: cam.musicalKey,
+        pitchClass: cam.pitchClass,
+        mode: cam.mode,
+        energy: seed.energy,
+        danceability: seed.danceability,
+        valence: seed.valence,
+        featureSource: 'curated' as const,
+        sources: origins,
+        genreHint: seed.genreHint,
+        vibeTags: seed.vibeTags,
+      },
+    ]
+  })
+}
+
+export function buildSharedDemoCrate(
+  deps: CrateBuilderDeps,
+  sourceMode: 'liked' | 'playlist' | 'both',
+  playlistUrl?: string,
+) {
+  const resolved = resolveSharedDemoPlaylist(deps.parsePlaylistId, playlistUrl)
+  const tracks = buildSharedDemoTracksForMode(deps, sourceMode, playlistUrl)
+  const likedCount = tracks.filter((t) => t.sources.includes('liked')).length
+  const playlistCount = tracks.filter((t) =>
+    t.sources.includes('playlist'),
+  ).length
+
+  return {
+    user: {
+      id: 'spotkit_demo',
+      display_name: 'SpotKit Demo DJ',
+      product: 'premium',
+    },
+    sourceMode,
+    playlistMeta:
+      sourceMode === 'playlist' || sourceMode === 'both' ? resolved.meta : null,
+    tracks,
+    likedCount,
+    playlistCount,
+    isDemo: true,
+    analyzedAt: new Date().toISOString(),
+    featureSummary: {
+      spotify: 0,
+      reccobeats: 0,
+      estimated: 0,
+      curated: tracks.length,
+      manual: 0,
+    },
+  }
+}

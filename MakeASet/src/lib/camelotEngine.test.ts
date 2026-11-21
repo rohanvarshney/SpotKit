@@ -3,6 +3,7 @@
 
 import { describe, expect, it } from 'vitest'
 import {
+  ALL_CAMELOT_CODES,
   camelotToPitchAndMode,
   computeCohesionScore,
   estimateTrackAudioFeatures,
@@ -12,7 +13,11 @@ import {
   rankRemainingTracksByCohesion,
 } from './camelotEngine'
 import {
+  DEMO_LIKED_TRACK_COUNT,
   DEMO_PLAYLIST_PRESETS,
+  SPOTKIT_DEMO_ALBUMS,
+  SPOTKIT_DEMO_CATALOG_VERSION,
+  SPOTKIT_DEMO_CRATE_TRACKS,
   buildDemoCrate,
 } from '../mocks/demoData'
 import type { AnalyzedTrack } from '../types/spotify'
@@ -200,6 +205,37 @@ describe('camelotEngine', () => {
       expect(ranked[i - 1].cohesion.totalScore).toBeGreaterThanOrEqual(
         ranked[i].cohesion.totalScore,
       )
+    }
+  })
+
+  it('uses the unified shared catalog across all 8 genre presets, 24 Camelot keys, and TopAlbums metadata', () => {
+    expect(SPOTKIT_DEMO_CATALOG_VERSION).toBe('2026.2-unified')
+    expect(SPOTKIT_DEMO_ALBUMS.length).toBeGreaterThanOrEqual(110)
+    expect(SPOTKIT_DEMO_CRATE_TRACKS.length).toBeGreaterThanOrEqual(100)
+    expect(DEMO_PLAYLIST_PRESETS.length).toBe(8)
+
+    const albumById = new Map(SPOTKIT_DEMO_ALBUMS.map((a) => [a.id, a]))
+    for (const seed of SPOTKIT_DEMO_CRATE_TRACKS) {
+      const album = albumById.get(seed.albumId)
+      expect(album).toBeDefined()
+      expect(seed.albumName).toBe(album?.name)
+      const matched = album?.tracks.find((t) => t.name === seed.name)
+      expect(matched).toBeDefined()
+      expect(seed.inLiked).toBe(matched?.liked)
+    }
+
+    const likedCrate = buildDemoCrate('liked')
+    expect(likedCrate.tracks.length).toBe(DEMO_LIKED_TRACK_COUNT)
+
+    const coveredKeys = new Set(SPOTKIT_DEMO_CRATE_TRACKS.map((t) => t.camelot))
+    for (const code of ALL_CAMELOT_CODES) {
+      expect(coveredKeys.has(code)).toBe(true)
+    }
+
+    for (const preset of DEMO_PLAYLIST_PRESETS) {
+      const presetCrate = buildDemoCrate('playlist', preset.url)
+      expect(presetCrate.playlistMeta?.id).toBe(preset.id)
+      expect(presetCrate.tracks.length).toBeGreaterThanOrEqual(10)
     }
   })
 })

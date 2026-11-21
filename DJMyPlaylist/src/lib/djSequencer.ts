@@ -438,10 +438,11 @@ export function sequencePlaylist(
   }
 
   // Baseline 1-step greedy sequence from seedIndices[0] for comparison
-  const baselineSum = (() => {
+  const { baselineSeq, baselineSum } = (() => {
     const visited = new Uint8Array(n)
     const first = seedIndices[0]
     visited[first] = 1
+    const seq: number[] = [first]
     let cur = first
     let total = 0
     for (let step = 1; step < targetCount; step += 1) {
@@ -457,10 +458,11 @@ export function sequencePlaylist(
       }
       if (bestNext === -1) break
       visited[bestNext] = 1
+      seq.push(bestNext)
       total += bestScore
       cur = bestNext
     }
-    return total
+    return { baselineSeq: seq, baselineSum: total }
   })()
 
   const baselineCohesion =
@@ -712,7 +714,8 @@ export function sequencePlaylist(
   // =========================================================================
   // PHASE 3: ITERATIVE REFINEMENT PASSES (2-Opt, Relocations, Pool Swaps)
   // =========================================================================
-  const currentSeq = [...winningSeed.seq]
+  const currentSeq =
+    winningSeed.sum >= baselineSum ? [...winningSeed.seq] : [...baselineSeq]
   const startMutableIdx = preferredOpenerLocked ? 1 : 0
   const L = currentSeq.length
 
