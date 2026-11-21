@@ -157,6 +157,7 @@ export interface ScoredAlbum {
   releaseDate: string
   releaseYear: string
   coverUrl: string
+  fallbackCoverUrl?: string
   spotifyUrl: string
   likedCount: number
   totalTracks: number

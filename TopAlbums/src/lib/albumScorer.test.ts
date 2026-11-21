@@ -17,7 +17,8 @@ import {
   SPOTKIT_DEMO_CRATE_TRACKS,
   SPOTKIT_DEMO_PLAYLIST_PRESETS,
 } from '../../../shared/spotkitDemoCatalog'
-import type { ScoredAlbum } from '../types/spotify'
+import demoArtworkManifest from '../../../assets/demoArtworkManifest.json'
+import type { RawLibraryDataset, ScoredAlbum } from '../types/spotify'
 import {
   DEFAULT_WEIGHTS,
   normalizeAlbumTitle,
@@ -1172,5 +1173,291 @@ describe('albumScorer', () => {
     ]) {
       expect(artists.has(expectedArtist)).toBe(true)
     }
+  })
+
+  it('populates pinned demo album artwork manifest URLs with SVG fallback only for demo data', () => {
+    const manifestAlbums = demoArtworkManifest.albums as Record<
+      string,
+      { url?: string } | undefined
+    >
+    const dataset = buildDemoLibraryDataset()
+
+    for (const spec of SPOTKIT_DEMO_ALBUMS) {
+      const entry = manifestAlbums[spec.id]
+      expect(entry?.url).toBeDefined()
+      expect(entry?.url?.startsWith('https://')).toBe(true)
+    }
+
+    const demoScored = scoreAndFilterAlbums(dataset, {
+      rankingMode: 'weighted',
+      customWeights: DEFAULT_WEIGHTS,
+      minTotalTracks: 1,
+      minLikedTracks: 1,
+      fullAlbumsOnly: false,
+      deduplicateEditions: true,
+      searchQuery: '',
+    })
+
+    const currents = demoScored.find((a) => a.albumId === 'alb_currents')
+    expect(currents?.coverUrl).toBe(manifestAlbums.alb_currents?.url)
+    expect(currents?.fallbackCoverUrl?.startsWith('data:image/svg+xml')).toBe(
+      true,
+    )
+
+    const sampleSaved = dataset.savedTracks.find(
+      (item) => item.track.album.id === 'alb_currents',
+    )
+    expect(sampleSaved?.track.album.images[0]?.url).toBe(
+      manifestAlbums.alb_currents?.url,
+    )
+    expect(
+      sampleSaved?.track.album.images[1]?.url.startsWith('data:image/svg+xml'),
+    ).toBe(true)
+
+    const prodDataset: RawLibraryDataset = {
+      user: { id: 'real_user', display_name: 'Real Listener' },
+      isDemo: false,
+      fetchedAt: '2026-11-20T00:00:00Z',
+      topTracksMap: {},
+      hydratedAlbumsMap: {},
+      savedTracks: [
+        {
+          added_at: '2026-11-01T00:00:00Z',
+          track: {
+            id: 'trk_real_1',
+            name: 'Real Track',
+            track_number: 1,
+            disc_number: 1,
+            duration_ms: 200000,
+            popularity: 80,
+            artists: [{ id: 'art_real', name: 'Real Artist' }],
+            album: {
+              id: 'alb_real_1',
+              name: 'Real Album',
+              album_type: 'album',
+              total_tracks: 10,
+              release_date: '2025-01-01',
+              artists: [{ id: 'art_real', name: 'Real Artist' }],
+              images: [
+                {
+                  url: 'https://i.scdn.co/image/ab67616d0000b273realcover',
+                  width: 640,
+                  height: 640,
+                },
+              ],
+            },
+          },
+        },
+      ],
+    }
+
+    const prodScored = scoreAndFilterAlbums(prodDataset, {
+      rankingMode: 'weighted',
+      customWeights: DEFAULT_WEIGHTS,
+      minTotalTracks: 1,
+      minLikedTracks: 1,
+      fullAlbumsOnly: false,
+      deduplicateEditions: true,
+      searchQuery: '',
+    })
+    expect(prodScored[0]?.coverUrl).toBe(
+      'https://i.scdn.co/image/ab67616d0000b273realcover',
+    )
+    expect(prodScored[0]?.fallbackCoverUrl).toBeUndefined()
+  })
+
+  it('uses CORS proxy with SVG fallback only for demo share exports and loads production covers directly', async () => {
+    const loadedSrcs: string[] = []
+    let failProxyLoads = false
+
+    class MockExportImage {
+      srcValue = ''
+      naturalWidth = 400
+      naturalHeight = 400
+      width = 400
+      height = 400
+      crossOrigin: string | null = null
+      onload: (() => void) | null = null
+      onerror: (() => void) | null = null
+
+      set src(val: string) {
+        this.srcValue = val
+        loadedSrcs.push(val)
+        queueMicrotask(() => {
+          if (failProxyLoads && val.startsWith('https://wsrv.nl/')) {
+            this.onerror?.()
+          } else {
+            this.onload?.()
+          }
+        })
+      }
+
+      get src(): string {
+        return this.srcValue
+      }
+    }
+
+    const drawnSrcs: string[] = []
+    const createMockCanvas = () => ({
+      width: 0,
+      height: 0,
+      getContext: () => {
+        const gradient = { addColorStop: () => {} }
+        return {
+          fillStyle: '',
+          strokeStyle: '',
+          lineWidth: 1,
+          font: '',
+          textAlign: 'left',
+          textBaseline: 'alphabetic',
+          globalAlpha: 1,
+          shadowColor: '',
+          shadowBlur: 0,
+          shadowOffsetY: 0,
+          imageSmoothingEnabled: true,
+          imageSmoothingQuality: 'high',
+          save: () => {},
+          restore: () => {},
+          scale: () => {},
+          beginPath: () => {},
+          closePath: () => {},
+          moveTo: () => {},
+          lineTo: () => {},
+          quadraticCurveTo: () => {},
+          arc: () => {},
+          clip: () => {},
+          fill: () => {},
+          stroke: () => {},
+          fillRect: () => {},
+          createLinearGradient: () => gradient,
+          createRadialGradient: () => gradient,
+          measureText: (txt: string) => ({ width: txt.length * 8 }),
+          fillText: () => {},
+          drawImage: (asset: { src?: string }) => {
+            if (asset?.src) drawnSrcs.push(asset.src)
+          },
+          getImageData: (_x: number, _y: number, w: number, h: number) => ({
+            data: new Uint8ClampedArray(w * h * 4),
+            width: w,
+            height: h,
+          }),
+          putImageData: () => {},
+        }
+      },
+    })
+
+    vi.stubGlobal('Image', MockExportImage)
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
+    vi.stubGlobal('document', {
+      createElement: () => createMockCanvas(),
+    })
+
+    const demoAlbum: ScoredAlbum = {
+      key: 'demo-key',
+      albumId: 'alb_currents',
+      name: 'Currents',
+      canonicalName: 'currents',
+      mergedEditionNames: ['Currents'],
+      albumType: 'album',
+      artists: [{ id: 'art_tame', name: 'Tame Impala' }],
+      primaryArtist: 'Tame Impala',
+      releaseDate: '2015-07-17',
+      releaseYear: '2015',
+      coverUrl: 'https://is1-ssl.mzstatic.com/image/thumb/currents/600x600bb.jpg',
+      fallbackCoverUrl: 'data:image/svg+xml;charset=utf-8,fallback-svg',
+      spotifyUrl: 'https://open.spotify.com/search/Currents',
+      likedCount: 12,
+      totalTracks: 13,
+      proportionLiked: 12 / 13,
+      averagePopularity: 80,
+      topTracksCount: 3,
+      topTracksBoostScore: 70,
+      recencyScore: 60,
+      bayesianProportion: 0.88,
+      finalScore: 91.2,
+      scoreBreakdown: {
+        proportionComponent: 88,
+        volumeComponent: 80,
+        topTracksComponent: 70,
+        popularityComponent: 80,
+        recencyComponent: 60,
+      },
+      latestLikedAt: '2026-10-28T23:05:00Z',
+      tracks: [],
+      isTracklistComplete: true,
+    }
+
+    // 1) Demo export proxies mzstatic.com via wsrv.nl
+    await renderShareImageCanvas({
+      viewLayout: 'grid',
+      albums: [demoAlbum],
+      userDisplayName: 'Demo User',
+      totalLikedSongs: 12,
+      noSkipCount: 0,
+      topBoostedCount: 1,
+      rankingMode: 'weighted',
+      gradeBasedTiering: false,
+      brandLogoSrc: 'data:image/png;base64,mock-logo',
+      signatureSrc: 'data:image/png;base64,mock-sig',
+      isDemo: true,
+    })
+    expect(
+      loadedSrcs.some((src) =>
+        src.startsWith(
+          'https://wsrv.nl/?url=https%3A%2F%2Fis1-ssl.mzstatic.com%2F',
+        ),
+      ),
+    ).toBe(true)
+
+    // 2) Demo export falls back to SVG data URI if proxy load fails
+    loadedSrcs.length = 0
+    drawnSrcs.length = 0
+    failProxyLoads = true
+    await renderShareImageCanvas({
+      viewLayout: 'grid',
+      albums: [demoAlbum],
+      userDisplayName: 'Demo User',
+      totalLikedSongs: 12,
+      noSkipCount: 0,
+      topBoostedCount: 1,
+      rankingMode: 'weighted',
+      gradeBasedTiering: false,
+      brandLogoSrc: 'data:image/png;base64,mock-logo',
+      signatureSrc: 'data:image/png;base64,mock-sig',
+      isDemo: true,
+    })
+    expect(
+      loadedSrcs.includes('data:image/svg+xml;charset=utf-8,fallback-svg'),
+    ).toBe(true)
+    expect(
+      drawnSrcs.includes('data:image/svg+xml;charset=utf-8,fallback-svg'),
+    ).toBe(true)
+
+    // 3) Production export loads coverUrl directly without wsrv.nl
+    loadedSrcs.length = 0
+    failProxyLoads = false
+    const prodAlbum: ScoredAlbum = {
+      ...demoAlbum,
+      key: 'prod-key',
+      coverUrl: 'https://i.scdn.co/image/ab67616d0000b273realcover',
+      fallbackCoverUrl: undefined,
+    }
+    await renderShareImageCanvas({
+      viewLayout: 'grid',
+      albums: [prodAlbum],
+      userDisplayName: 'Real User',
+      totalLikedSongs: 12,
+      noSkipCount: 0,
+      topBoostedCount: 1,
+      rankingMode: 'weighted',
+      gradeBasedTiering: false,
+      brandLogoSrc: 'data:image/png;base64,mock-logo',
+      signatureSrc: 'data:image/png;base64,mock-sig',
+      isDemo: false,
+    })
+    expect(loadedSrcs.some((src) => src.includes('wsrv.nl'))).toBe(false)
+    expect(
+      loadedSrcs.includes('https://i.scdn.co/image/ab67616d0000b273realcover'),
+    ).toBe(true)
   })
 })

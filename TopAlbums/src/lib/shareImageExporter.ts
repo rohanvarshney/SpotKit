@@ -62,6 +62,7 @@ export interface ShareImageExportOptions {
   artistSummary?: ArtistGroupSummary
   artistExportMode?: ArtistExportMode
   customArtistTiers?: CustomArtistTierMap
+  isDemo?: boolean
 }
 
 export interface ShareImageLayoutSpec {
@@ -515,6 +516,47 @@ async function loadImageSafe(
   }
 
   return { asset: null }
+}
+
+const DEMO_NON_CORS_HOST_SUFFIXES = [
+  'mzstatic.com',
+  'coverartarchive.org',
+  'archive.org',
+  'dzcdn.net',
+]
+
+function buildDemoCorsProxyUrl(src: string): string | null {
+  if (!src) return null
+  try {
+    const parsed = new URL(src)
+    if (parsed.protocol !== 'https:') return null
+    const host = parsed.hostname.toLowerCase()
+    const matchesKnownDemoHost = DEMO_NON_CORS_HOST_SUFFIXES.some(
+      (suffix) => host === suffix || host.endsWith(`.${suffix}`),
+    )
+    if (!matchesKnownDemoHost) return null
+    return `https://wsrv.nl/?url=${encodeURIComponent(src)}&w=600&h=600&fit=cover&output=png`
+  } catch {
+    return null
+  }
+}
+
+async function loadAlbumCoverSafe(
+  album: ScoredAlbum,
+  isDemo: boolean,
+): Promise<{ asset: DrawableAsset | null; revoke?: () => void }> {
+  if (!isDemo) {
+    return loadImageSafe(album.coverUrl)
+  }
+  const proxyUrl = buildDemoCorsProxyUrl(album.coverUrl)
+  const primary = await loadImageSafe(proxyUrl ?? album.coverUrl)
+  if (primary.asset) {
+    return primary
+  }
+  if (album.fallbackCoverUrl) {
+    return loadImageSafe(album.fallbackCoverUrl)
+  }
+  return primary
 }
 
 function processSignatureAsset(
@@ -2831,7 +2873,7 @@ export async function renderShareImageCanvas(
     loadImageSafe(options.brandLogoSrc),
     loadImageSafe(options.signatureSrc),
     ...albumsToLoad.map((album) =>
-      loadImageSafe(album.coverUrl).then((res) => ({
+      loadAlbumCoverSafe(album, Boolean(options.isDemo)).then((res) => ({
         key: album.key,
         res,
       })),

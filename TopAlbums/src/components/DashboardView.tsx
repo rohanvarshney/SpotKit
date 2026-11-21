@@ -1,7 +1,14 @@
 // SPDX-FileCopyrightText: 2026 Rohan Varshney
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-import { type CSSProperties, Fragment, useEffect, useMemo, useState } from 'react'
+import {
+  type CSSProperties,
+  type SyntheticEvent,
+  Fragment,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import freehandSignatureUrl from '../assets/freehand-signature-3.png'
 import brandLogoUrl from '../assets/logo.png'
 import { DEFAULT_WEIGHTS, scoreAndFilterAlbums } from '../lib/albumScorer'
@@ -48,6 +55,18 @@ function formatDuration(ms: number): string {
   const mins = Math.floor(totalSec / 60)
   const secs = totalSec % 60
   return `${mins}:${secs.toString().padStart(2, '0')}`
+}
+
+function handleAlbumCoverError(
+  e: SyntheticEvent<HTMLImageElement>,
+  fallbackCoverUrl?: string,
+) {
+  const img = e.currentTarget
+  const currentSrc = img.getAttribute('src') || ''
+  if (!fallbackCoverUrl || currentSrc === fallbackCoverUrl) return
+  if (img.dataset.fallbackAppliedFor === currentSrc) return
+  img.dataset.fallbackAppliedFor = currentSrc
+  img.src = fallbackCoverUrl
 }
 
 function formatDateShort(iso?: string): string {
@@ -231,6 +250,7 @@ export function DashboardView({
           mode === 'custom-tier'
             ? (tiersToUse ?? buildDefaultArtistTierMap(activeArtistGroup))
             : undefined,
+        isDemo: dataset.isDemo,
       })
       setIsArtistDownloadModalOpen(false)
     } finally {
@@ -257,6 +277,7 @@ export function DashboardView({
         gradeBasedTiering,
         brandLogoSrc: brandLogoUrl,
         signatureSrc: freehandSignatureUrl,
+        isDemo: dataset.isDemo,
       })
     } finally {
       setIsExportingImage(false)
@@ -798,6 +819,12 @@ export function DashboardView({
                                 alt={album.name}
                                 className="tableThumb"
                                 loading="lazy"
+                                onError={(e) =>
+                                  handleAlbumCoverError(
+                                    e,
+                                    album.fallbackCoverUrl,
+                                  )
+                                }
                               />
                             ) : (
                               <div className="tableThumbFallback">💿</div>
@@ -1011,6 +1038,9 @@ function AlbumGridCard({
               alt={album.name}
               className="gridAlbumCover"
               loading="lazy"
+              onError={(e) =>
+                handleAlbumCoverError(e, album.fallbackCoverUrl)
+              }
             />
           ) : (
             <div className="gridAlbumFallback">💿</div>
@@ -1474,6 +1504,12 @@ function FibonacciTierView({
                                       alt={album.name}
                                       className="tierTileCover"
                                       loading="lazy"
+                                      onError={(e) =>
+                                        handleAlbumCoverError(
+                                          e,
+                                          album.fallbackCoverUrl,
+                                        )
+                                      }
                                     />
                                   ) : (
                                     <div className="tierTileFallback">💿</div>
@@ -2260,6 +2296,12 @@ function ArtistDownloadModal({
                                     src={album.coverUrl}
                                     alt={album.name}
                                     className="customTierThumb"
+                                    onError={(e) =>
+                                      handleAlbumCoverError(
+                                        e,
+                                        album.fallbackCoverUrl,
+                                      )
+                                    }
                                   />
                                 ) : (
                                   <div className="customTierThumbFallback">

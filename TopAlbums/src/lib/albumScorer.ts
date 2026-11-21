@@ -593,6 +593,10 @@ export function scoreAndFilterAlbums(
       primaryAlbum.images?.[0]?.url ||
       primaryAlbum.images?.[1]?.url ||
       ''
+    const fallbackCoverUrl = primaryAlbum.images?.find(
+      (img) =>
+        img.url && img.url !== coverUrl && img.url.startsWith('data:image/'),
+    )?.url
 
     results.push({
       key: bucket.key,
@@ -608,6 +612,7 @@ export function scoreAndFilterAlbums(
       releaseDate: primaryAlbum.release_date || '',
       releaseYear: (primaryAlbum.release_date || '').slice(0, 4) || '—',
       coverUrl,
+      fallbackCoverUrl,
       spotifyUrl:
         primaryAlbum.external_urls?.spotify ||
         `https://open.spotify.com/album/${primaryAlbum.id}`,

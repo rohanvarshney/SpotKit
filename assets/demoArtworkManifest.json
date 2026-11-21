@@ -1,0 +1,950 @@
+{
+  "catalogVersion": "2026.2-unified",
+  "generatedAt": "2026-11-21T01:08:12.024Z",
+  "albums": {
+    "alb_1989_tv": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/11/a6/80/11a680e6-2e48-08fa-5e87-3f18e838d31f/23UM1IM11868.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Taylor Swift",
+      "matchedAlbum": "1989 (Taylor's Version)"
+    },
+    "alb_24k_magic": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/e3/47/a0/e347a0cc-87ce-5d05-d560-176c7d48f66e/075679904119.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Bruno Mars",
+      "matchedAlbum": "24K Magic"
+    },
+    "alb_2_ruff": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/42/85/89/428589a8-ed9c-206f-615f-fcd0afd73d48/23UMGIM94970.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Chase & Status",
+      "matchedAlbum": "2 RUFF, Vol. 1"
+    },
+    "alb_abbey_road": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/48/53/43/485343e3-dd6a-0034-faec-f4b6403f8108/13UMGIM63890.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "The Beatles",
+      "matchedAlbum": "Abbey Road (2019 Mix)"
+    },
+    "alb_actual_life_3": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/b0/9c/b7/b09cb72c-cca9-5d66-bc9d-a9b5e5f86b22/5054197236389.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Fred again..",
+      "matchedAlbum": "Actual Life 3 (January 1 - September 9 2022)"
+    },
+    "alb_after_hours": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/2b/b9/fe/2bb9fef5-d7f3-8345-25a9-db0e79fde4e4/20UMGIM11048.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "The Weeknd",
+      "matchedAlbum": "After Hours"
+    },
+    "alb_aja": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/c2/3c/54/c23c5414-20d1-7aea-f0f5-187974c58d65/23UMGIM79990.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Steely Dan",
+      "matchedAlbum": "Aja"
+    },
+    "alb_alligator_bites": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/5f/a3/e8/5fa3e8b9-9065-47af-63e1-f213d3074580/24UMGIM88644.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Doechii",
+      "matchedAlbum": "Alligator Bites Never Heal"
+    },
+    "alb_am": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/69/9c/b5/699cb5d6-115c-ff73-9d26-e57ea4350d72/887828031795.png/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Arctic Monkeys",
+      "matchedAlbum": "AM"
+    },
+    "alb_amsp": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/b7/f2/5d/b7f25d91-4320-47c8-146a-6f84d5bc7e78/cover.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Radiohead",
+      "matchedAlbum": "A Moon Shaped Pool"
+    },
+    "alb_anti": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/13/27/57/132757ba-42e6-9584-7390-ca694292a20e/16UMGIM03372.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Rihanna",
+      "matchedAlbum": "ANTI"
+    },
+    "alb_astroworld": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/e7/49/8f/e7498f65-df8f-bead-d6e3-2a8d4d642a79/886447235317.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Travis Scott",
+      "matchedAlbum": "ASTROWORLD"
+    },
+    "alb_awaken_my_love": {
+      "url": "https://coverartarchive.org/release-group/fd817615-3d43-4f07-9509-d0a46b2bc278/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Childish Gambino",
+      "matchedAlbum": "“Awaken, My Love!”"
+    },
+    "alb_back_to_black": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/cf/3f/09/cf3f0994-980d-d8ed-088d-ae89af256b73/15UMGIM24224.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Amy Winehouse",
+      "matchedAlbum": "Back to Black"
+    },
+    "alb_because_the_internet": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/6b/59/46/6b5946b3-821b-32d1-8586-1b12b3c9d3ed/0044003173453_Cover.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Childish Gambino",
+      "matchedAlbum": "Because the Internet"
+    },
+    "alb_begin_again": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/85/1e/cb/851ecbdf-84e9-80ac-95c5-4cd8edbfc128/5039060664698.png/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Ben Böhmer",
+      "matchedAlbum": "Begin Again"
+    },
+    "alb_blonde": {
+      "url": "https://coverartarchive.org/release-group/0da340a0-6ad7-4fc2-a272-6f94393a7831/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Frank Ocean",
+      "matchedAlbum": "Blonde"
+    },
+    "alb_bloom": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8b/b7/08/8bb7086b-cdb5-1ffe-926b-e7637bda6a0d/BeachHouse_Bloom_iTunes.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Beach House",
+      "matchedAlbum": "Bloom"
+    },
+    "alb_born_in_the_wild": {
+      "url": "https://coverartarchive.org/release-group/10bb7c0f-b95e-41e2-8fad-68e131deb09d/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Tems",
+      "matchedAlbum": "Born in the Wild"
+    },
+    "alb_brat": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/88/4e/63/884e6321-ad41-aab1-f6f0-20efcafcfd55/075679666130.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Charli xcx",
+      "matchedAlbum": "BRAT"
+    },
+    "alb_brat_deluxe": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/cf/0b/2b/cf0b2bae-d4c1-49ce-de5c-b7c3fcd9e4cd/075679643087.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Charli xcx",
+      "matchedAlbum": "Brat and it’s the same but there’s three more songs so it’s not"
+    },
+    "alb_bubba": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/4e/6b/37/4e6b371d-1dcb-73da-9e58-da3f58c88b88/886448119760.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "KAYTRANADA",
+      "matchedAlbum": "BUBBA"
+    },
+    "alb_carrie_lowell": {
+      "url": "https://coverartarchive.org/release-group/21666540-83c8-4c54-9be1-0363a0848f33/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Sufjan Stevens",
+      "matchedAlbum": "Carrie & Lowell"
+    },
+    "alb_channel_orange": {
+      "url": "https://coverartarchive.org/release-group/f8f4167d-897c-4b25-a171-638374d1dfa4/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Frank Ocean",
+      "matchedAlbum": "channel ORANGE"
+    },
+    "alb_chemistry": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/4a/ea/34/4aea34d6-94a0-eedb-39b1-0c01564ad9f5/cover.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Chris Lake",
+      "matchedAlbum": "Chemistry"
+    },
+    "alb_crash": {
+      "url": "https://coverartarchive.org/release-group/8d0f0148-7c6e-455d-872e-9851284c5522/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Charli XCX",
+      "matchedAlbum": "CRASH"
+    },
+    "alb_ctrl": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a2/bc/ad/a2bcad46-b389-4be1-8bac-5a0959b0b8e4/886446548449.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "SZA",
+      "matchedAlbum": "Ctrl"
+    },
+    "alb_currents": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/a8/2e/b4/a82eb490-f30a-a321-461a-0383c88fec95/15UMGIM23316.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Tame Impala",
+      "matchedAlbum": "Currents"
+    },
+    "alb_currents_b": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/64/48/5c/64485cc9-968c-68cc-764e-9a7c71733def/00602567155454.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Tame Impala",
+      "matchedAlbum": "Currents B-Sides & Remixes - EP"
+    },
+    "alb_damn": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/ab/16/ef/ab16efe9-e7f1-66ec-021c-5592a23f0f9e/17UMGIM88793.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Kendrick Lamar",
+      "matchedAlbum": "DAMN."
+    },
+    "alb_dark_side": {
+      "url": "https://coverartarchive.org/release-group/f5093c06-23e3-404f-aeaa-40f72885ee3a/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Pink Floyd",
+      "matchedAlbum": "The Dark Side of the Moon"
+    },
+    "alb_dawn_fm": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/92/14/e3/9214e352-3322-3708-4903-cf5059c4985f/21UM1IM58861.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "The Weeknd",
+      "matchedAlbum": "Dawn FM"
+    },
+    "alb_day_night": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/34/f9/48/34f948ce-6b13-7df4-f662-e6bfce74f9dd/5060899077335_cover.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Parcels",
+      "matchedAlbum": "Day/Night"
+    },
+    "alb_demon_days": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/1c/0f/81/1c0f818a-e458-dd84-6f1b-ccbdf5fe14d6/825646291045.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Gorillaz",
+      "matchedAlbum": "Demon Days"
+    },
+    "alb_depression_cherry": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/09/e0/d5/09e0d559-0682-f0f0-5e0c-3cd11e3114fd/beachhouse_depressioncherry_2400_300.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Beach House",
+      "matchedAlbum": "Depression Cherry"
+    },
+    "alb_desire_turn_into_you": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/10/51/f2/1051f2cc-195f-ddb6-2d9e-26c74f0387fd/197187988518.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Caroline Polachek",
+      "matchedAlbum": "Desire, I Want to Turn Into You"
+    },
+    "alb_discovery": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/fd/4a/77/fd4a77db-0ebc-d043-41a2-f32fa1bb0fb4/dj.qrikkdwj.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Daft Punk",
+      "matchedAlbum": "Discovery"
+    },
+    "alb_emotion": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/8e/b9/9b/8eb99b2a-f730-0df5-3c2c-4175d57cd84d/15UMGIM31527.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Carly Rae Jepsen",
+      "matchedAlbum": "E•MO•TION"
+    },
+    "alb_fame_monster": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/e9/1a/4e/e91a4eb9-31e7-89fb-3aad-e8172e534bb6/09UMGIM42295.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Lady Gaga",
+      "matchedAlbum": "The Fame Monster"
+    },
+    "alb_flower_boy": {
+      "url": "https://coverartarchive.org/release-group/e248e931-c26c-4c94-aba2-2f89ce583901/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Tyler, The Creator",
+      "matchedAlbum": "Flower Boy"
+    },
+    "alb_folklore": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/7c/04/ba/7c04ba17-2ff8-21b3-0ac0-7d141f86e924/20UMGIM64216.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Taylor Swift",
+      "matchedAlbum": "folklore"
+    },
+    "alb_for_emma": {
+      "url": "https://coverartarchive.org/release-group/187935b5-a0a4-3e6f-9684-48b67a5190a1/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Bon Iver",
+      "matchedAlbum": "For Emma, Forever Ago"
+    },
+    "alb_forest_hills": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/ee/28/67/ee286794-6c33-a8c2-5c37-c04f1cb5e8a6/21UM1IM54415.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "J. Cole",
+      "matchedAlbum": "2014 Forest Hills Drive"
+    },
+    "alb_freudian": {
+      "url": "https://coverartarchive.org/release-group/ba660007-8e88-4301-ba89-5574d06d29cc/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Daniel Caesar",
+      "matchedAlbum": "Freudian"
+    },
+    "alb_future_nostalgia": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/6c/11/d6/6c11d681-aa3a-d59e-4c2e-f77e181026ab/190295092665.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Dua Lipa",
+      "matchedAlbum": "Future Nostalgia"
+    },
+    "alb_get_up_ep": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/d3/4b/7e/d34b7e1e-af3b-43b6-2949-7a8c652a1bc9/196922462726_Cover.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "NewJeans",
+      "matchedAlbum": "NewJeans 2nd EP 'Get Up'"
+    },
+    "alb_gkmc": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/9a/50/a1/9a50a1d8-01c2-2504-8d99-3f2fc7e5c2ff/12UMGIM52988.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Kendrick Lamar",
+      "matchedAlbum": "good kid, m.A.A.d city"
+    },
+    "alb_good_lies": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/e9/6d/1a/e96d1ab0-0176-685c-1f4d-01e73e91a925/191404901076.png/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Overmono",
+      "matchedAlbum": "Good Lies"
+    },
+    "alb_graduation": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/39/25/2d/39252d65-2d50-b991-0962-f7a98a761271/00602517483507.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Kanye West",
+      "matchedAlbum": "Graduation"
+    },
+    "alb_guts": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/9e/0d/17/9e0d17e0-c068-fbd9-fd85-610cc87c86aa/23UMGIM71511.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Olivia Rodrigo",
+      "matchedAlbum": "GUTS"
+    },
+    "alb_heroes_villains": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/82/f7/2b/82f72ba4-524c-fc9d-cb8c-5a96d2ddf536/22UM1IM35267.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Metro Boomin",
+      "matchedAlbum": "HEROES & VILLAINS"
+    },
+    "alb_hifn": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/1a/5c/e9/1a5ce93c-aef4-6667-b7d1-7162203e1c39/190295229993.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Charli xcx",
+      "matchedAlbum": "how i'm feeling now"
+    },
+    "alb_hit_me_hard_and_soft": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/92/9f/69/929f69f1-9977-3a44-d674-11f70c852d1b/24UMGIM36186.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Billie Eilish",
+      "matchedAlbum": "HIT ME HARD AND SOFT"
+    },
+    "alb_hyperdrama": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/d1/6c/30/d16c300f-c26c-89f1-9207-23b71c5e6584/5056556135845_cover.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Justice",
+      "matchedAlbum": "Hyperdrama"
+    },
+    "alb_i_hear_you": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/5d/67/1e/5d671e2a-5130-5296-69ac-0457c8a8ed94/191404137574.png/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Peggy Gou",
+      "matchedAlbum": "I Hear You"
+    },
+    "alb_igor": {
+      "url": "https://coverartarchive.org/release-group/0f1b9e07-b38b-4bba-9794-55e0924d7177/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Tyler, The Creator",
+      "matchedAlbum": "IGOR"
+    },
+    "alb_imaginal": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/8f/e3/6c/8fe36c7a-d280-2d0e-8e67-4ee0fd4523cd/810090095448.png/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Magdalena Bay",
+      "matchedAlbum": "Imaginal Disk"
+    },
+    "alb_in_rainbows": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/dd/50/c7/dd50c790-99ac-d3d0-5ab8-e3891fb8fd52/634904032463.png/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Radiohead",
+      "matchedAlbum": "In Rainbows"
+    },
+    "alb_in_waves": {
+      "url": "https://coverartarchive.org/release-group/1668c806-5c28-4655-89a2-f1f7bc786084/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Jamie xx",
+      "matchedAlbum": "In Waves"
+    },
+    "alb_innerspeaker": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/e2/45/28/e2452872-ff3d-a53b-847e-72361827d428/00602577163883.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Tame Impala",
+      "matchedAlbum": "InnerSpeaker"
+    },
+    "alb_is_this_it": {
+      "url": "https://coverartarchive.org/release-group/6d44b57a-2b9d-372a-b7c2-c670dca997d3/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "The Strokes",
+      "matchedAlbum": "Is This It"
+    },
+    "alb_isles": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/69/12/b0/6912b05d-b728-f9f6-cb2b-ba99082c9123/5054429139228.png/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Bicep",
+      "matchedAlbum": "Isles"
+    },
+    "alb_kid_a": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/bd/8e/13/bd8e1358-b367-a689-cb84-cebd0b067dc4/634904078263.png/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Radiohead",
+      "matchedAlbum": "Kid A"
+    },
+    "alb_lonerism": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/b7/40/9b/b7409bc6-24fa-b956-5613-4be8dc62be06/12UMGIM64219.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Tame Impala",
+      "matchedAlbum": "Lonerism"
+    },
+    "alb_love_damini": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/d2/c5/ae/d2c5ae58-d8c0-bea0-3427-e55166218438/075679688477.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Burna Boy",
+      "matchedAlbum": "Love, Damini"
+    },
+    "alb_love_deluxe": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/18/c8/d7/18c8d7bc-8491-09e6-df0d-6e0a83ead680/mzi.wsikzifg.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Sade",
+      "matchedAlbum": "Love Deluxe"
+    },
+    "alb_lush": {
+      "url": "https://coverartarchive.org/release-group/18564a20-d557-4f7c-81e7-8d1d40a1be55/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Mitski",
+      "matchedAlbum": "Be the Cowboy"
+    },
+    "alb_mbdtf": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/d1/74/da/d174dacf-5782-dfe2-19f7-ce037dcd0237/00602527584935.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Kanye West",
+      "matchedAlbum": "My Beautiful Dark Twisted Fantasy"
+    },
+    "alb_melodrama": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/58/11/b1/5811b172-e180-25a6-69e6-4385fbbfb5dc/17UM1IM02207.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Lorde",
+      "matchedAlbum": "Melodrama"
+    },
+    "alb_midwest_princess": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/42/a0/c5/42a0c5e6-6b98-f1f9-7d6b-6d6c61aba562/23UMGIM84225.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Chappell Roan",
+      "matchedAlbum": "The Rise and Fall of a Midwest Princess"
+    },
+    "alb_mmatbs": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/eb/44/c9/eb44c9e1-401e-b118-6254-7b9a10888c39/22UMGIM52376.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Kendrick Lamar",
+      "matchedAlbum": "Mr. Morale & The Big Steppers"
+    },
+    "alb_motomami": {
+      "url": "https://coverartarchive.org/release-group/f455f658-dd55-4790-8cd3-99c7c273018a/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "ROSALÍA",
+      "matchedAlbum": "MOTOMAMI"
+    },
+    "alb_nevermind": {
+      "url": "https://coverartarchive.org/release-group/1b022e01-4da6-387b-8658-8678046e4cef/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Nirvana",
+      "matchedAlbum": "Nevermind"
+    },
+    "alb_new_abnormal": {
+      "url": "https://coverartarchive.org/release-group/43ca5aa6-92de-47e9-8f0b-9112e4881426/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "The Strokes",
+      "matchedAlbum": "The New Abnormal"
+    },
+    "alb_norman_rockwell": {
+      "url": "https://coverartarchive.org/release-group/24fd0887-9e83-42e3-b27e-e7f89ead4c03/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Lana Del Rey",
+      "matchedAlbum": "Norman Fucking Rockwell!"
+    },
+    "alb_ogwau": {
+      "url": "https://coverartarchive.org/release-group/91ee3856-0ee6-467d-b01d-9d529affc9f4/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Vampire Weekend",
+      "matchedAlbum": "Only God Was Above Us"
+    },
+    "alb_ok_computer": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/07/60/ba/0760ba0f-148c-b18f-d0ff-169ee96f3af5/634904078164.png/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Radiohead",
+      "matchedAlbum": "OK Computer"
+    },
+    "alb_oracular": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/e5/06/cc/e506ccd5-56ec-3d4c-69f7-14900bea74f0/mzi.bbgsikee.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "MGMT",
+      "matchedAlbum": "Oracular Spectacular"
+    },
+    "alb_orquideas": {
+      "url": "https://coverartarchive.org/release-group/ffe90330-8efd-49ec-b3dd-5edf11348eea/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Kali Uchis",
+      "matchedAlbum": "ORQUÍDEAS"
+    },
+    "alb_parachutes": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f5/93/8c/f5938c49-964c-31d1-4b33-78b634f71fb7/190295978075.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Coldplay",
+      "matchedAlbum": "Parachutes"
+    },
+    "alb_plastic_beach": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/b8/f9/b9/b8f9b9f8-a609-bde2-0302-349436ffc508/825646291038.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Gorillaz",
+      "matchedAlbum": "Plastic Beach"
+    },
+    "alb_punisher": {
+      "url": "https://coverartarchive.org/release-group/cf75fd5a-ca84-4371-94d7-27410360f06b/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Phoebe Bridgers",
+      "matchedAlbum": "Punisher"
+    },
+    "alb_pure_heroine": {
+      "url": "https://coverartarchive.org/release-group/8e8a1db7-1d43-44d3-9796-fd69f12730cb/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Lorde",
+      "matchedAlbum": "Pure Heroine"
+    },
+    "alb_purple_rain": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/00/17/f2/0017f24f-e580-b77a-71a8-1bc7b75881bf/603497822065.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Prince & The Revolution",
+      "matchedAlbum": "Purple Rain"
+    },
+    "alb_quest_for_fire": {
+      "url": "https://coverartarchive.org/release-group/fa601528-2970-436a-8b57-6f6e05205964/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Skrillex",
+      "matchedAlbum": "Quest for Fire"
+    },
+    "alb_ram": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/e8/43/5f/e8435ffa-b6b9-b171-40ab-4ff3959ab661/886443919266.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Daft Punk",
+      "matchedAlbum": "Random Access Memories"
+    },
+    "alb_renaissance": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/fe/ba/43/feba43be-99e8-ad8c-9fad-1bfdea7a4e98/196589344267.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Beyoncé",
+      "matchedAlbum": "RENAISSANCE"
+    },
+    "alb_rufus_bloom": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/aa/5f/d8/aa5fd889-4c2e-7e24-e8b2-428beaf9d4fe/SWEATA009.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "RÜFÜS DU SOL",
+      "matchedAlbum": "Bloom"
+    },
+    "alb_rumours": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/4d/13/ba/4d13bac3-d3d5-7581-2c74-034219eadf2b/081227970949.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Fleetwood Mac",
+      "matchedAlbum": "Rumours"
+    },
+    "alb_rush_of_blood": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/b9/b4/2a/b9b42ad1-1e25-5096-da43-497a247e69a3/190295978051.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Coldplay",
+      "matchedAlbum": "A Rush of Blood to the Head"
+    },
+    "alb_settle": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/c3/eb/3e/c3eb3efb-bc90-d5ac-c7c3-a047b08af582/13UMGIM46983.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Disclosure",
+      "matchedAlbum": "Settle"
+    },
+    "alb_short_n_sweet": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a1/1c/ca/a11ccab6-7d4c-e041-d028-998bcebeb709/24UMGIM61704.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Sabrina Carpenter",
+      "matchedAlbum": "Short n' Sweet"
+    },
+    "alb_silk_sonic": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/c5/33/dc/c533dc8e-2baa-94f9-22be-e6e28945f932/075679754134.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Silk Sonic, Bruno Mars & Anderson .Paak",
+      "matchedAlbum": "An Evening With Silk Sonic"
+    },
+    "alb_single_demo": {
+      "url": "https://coverartarchive.org/release-group/7668dd02-8c93-492f-bf9e-c7b95e5a3bd0/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Tame Impala",
+      "matchedAlbum": "Breathe Deeper (Lil Yachty remix)"
+    },
+    "alb_single_ease": {
+      "url": "https://coverartarchive.org/release-group/726ae50e-c626-4d80-af72-abd7f75de6cf/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Chris Lake × Abel Balder",
+      "matchedAlbum": "Ease My Mind"
+    },
+    "alb_single_psycho": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/58/5c/e8/585ce83f-d3bd-d7d4-fae0-f78ecac6dcfd/cover.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Chris Lake",
+      "matchedAlbum": "Psycho - EP"
+    },
+    "alb_single_savana": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/53/a4/0f/53a40ffd-1767-362a-fcbe-949675458452/cover.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Chris Lake",
+      "matchedAlbum": "Savana - Single"
+    },
+    "alb_slow_rush": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/65/e3/e7/65e3e740-b69f-f5cb-f2e6-7dedb5265ac9/19UMGIM96748.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Tame Impala",
+      "matchedAlbum": "The Slow Rush"
+    },
+    "alb_sos": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/62/93/13/6293132e-20ff-67ab-3d1f-96bb6797a6ba/196589564955.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "SZA",
+      "matchedAlbum": "SOS"
+    },
+    "alb_sour": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/02/ed/8c/02ed8cab-c089-2fdd-7ce6-ab334a9a4e19/21UMGIM26093.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Olivia Rodrigo",
+      "matchedAlbum": "SOUR"
+    },
+    "alb_stankonia": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/d6/21/fb/d621fbde-c099-6794-7102-2692f10c4dbb/886448814283.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Outkast",
+      "matchedAlbum": "Stankonia"
+    },
+    "alb_starboy": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/b5/92/bb/b592bb72-52e3-e756-9b26-9f56d08f47ab/16UMGIM67864.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "The Weeknd",
+      "matchedAlbum": "Starboy"
+    },
+    "alb_sub_marine": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/0b/4d/b6/0b4db6bd-2d40-55a5-1714-67f5c816294d/075679659644.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "The Marías",
+      "matchedAlbum": "Submarine"
+    },
+    "alb_swimming": {
+      "url": "https://coverartarchive.org/release-group/8bddc517-1322-40a9-b33b-c65248b52b54/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Mac Miller",
+      "matchedAlbum": "Swimming"
+    },
+    "alb_tako_tsubo": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/0a/3e/16/0a3e1678-1579-f661-0941-267e04eb2f0b/3663729117120_cover.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "L'Impératrice",
+      "matchedAlbum": "Tako Tsubo"
+    },
+    "alb_thriller": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/32/4f/fd/324ffda2-9e51-8f6a-0c2d-c6fd2b41ac55/074643811224.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Michael Jackson",
+      "matchedAlbum": "Thriller"
+    },
+    "alb_timeless": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/7c/67/dd/7c67dd0e-c3aa-9f6c-40b6-7e10b74a39ef/196871978699.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "KAYTRANADA",
+      "matchedAlbum": "TIMELESS"
+    },
+    "alb_titanic_rising": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/54/f6/fc/54f6fc73-6a18-d97a-a634-a4630ec35593/WeyesBlood_TitanicRising_3600.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Weyes Blood",
+      "matchedAlbum": "Titanic Rising"
+    },
+    "alb_tpab": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/b5/a6/91/b5a69171-5232-3d5b-9c15-8963802f83dd/15UMGIM15814.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Kendrick Lamar",
+      "matchedAlbum": "To Pimp a Butterfly"
+    },
+    "alb_un_verano_sin_ti": {
+      "url": "https://coverartarchive.org/release-group/e992b449-141b-4aea-b07b-9b2a478a8570/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Bad Bunny",
+      "matchedAlbum": "Un verano sin ti"
+    },
+    "alb_usb": {
+      "url": "https://coverartarchive.org/release-group/0d223bf8-1096-4cc5-adb5-df6123f676d1/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Fred again..",
+      "matchedAlbum": "USB"
+    },
+    "alb_utopia": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/7d/4f/94/7d4f9468-56e1-3a2d-7186-c8088170ef58/196871341899.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Travis Scott",
+      "matchedAlbum": "UTOPIA"
+    },
+    "alb_volcano": {
+      "url": "https://coverartarchive.org/release-group/07bd527b-afe9-405b-bc92-0766cb280d05/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Jungle",
+      "matchedAlbum": "Volcano"
+    },
+    "alb_vroom_ep": {
+      "url": "https://coverartarchive.org/release-group/d4cc6eea-bf86-4c79-a5d9-2da07df19e0e/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Charli XCX",
+      "matchedAlbum": "Vroom Vroom"
+    },
+    "alb_when_will_we_land": {
+      "url": "https://coverartarchive.org/release-group/672a4973-eaf5-4308-8261-ffad7a5a5887/front-500",
+      "source": "coverartarchive",
+      "width": 500,
+      "height": 500,
+      "matchedArtist": "Barry Can’t Swim",
+      "matchedAlbum": "When Will We Land?"
+    },
+    "alb_wwafawdwg": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/1a/37/d1/1a37d1b1-8508-54f2-f541-bf4e437dda76/19UMGIM05028.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Billie Eilish",
+      "matchedAlbum": "WHEN WE ALL FALL ASLEEP, WHERE DO WE GO?"
+    },
+    "alb_xx": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/28/44/8e/28448e14-19be-438b-bc9b-8c1d3f68f578/609008295069.png/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "The xx",
+      "matchedAlbum": "xx"
+    },
+    "alb_ziggy": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/5f/fa/56/5ffa56c2-ea1f-7a17-6bad-192ff9b6476d/825646124206.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "David Bowie",
+      "matchedAlbum": "The Rise and Fall of Ziggy Stardust and the Spiders from Mars (2012 Remaster)"
+    }
+  }
+}
