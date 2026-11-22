@@ -9,6 +9,7 @@ import {
   useMemo,
   useState,
 } from 'react'
+import { applyFallbackImageOnError } from '../../../shared/demoArtwork'
 import freehandSignatureUrl from '../assets/freehand-signature-3.png'
 import brandLogoUrl from '../assets/logo.png'
 import { DEFAULT_WEIGHTS, scoreAndFilterAlbums } from '../lib/albumScorer'
@@ -61,12 +62,7 @@ function handleAlbumCoverError(
   e: SyntheticEvent<HTMLImageElement>,
   fallbackCoverUrl?: string,
 ) {
-  const img = e.currentTarget
-  const currentSrc = img.getAttribute('src') || ''
-  if (!fallbackCoverUrl || currentSrc === fallbackCoverUrl) return
-  if (img.dataset.fallbackAppliedFor === currentSrc) return
-  img.dataset.fallbackAppliedFor = currentSrc
-  img.src = fallbackCoverUrl
+  applyFallbackImageOnError(e.currentTarget, fallbackCoverUrl)
 }
 
 function formatDateShort(iso?: string): string {

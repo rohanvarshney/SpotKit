@@ -120,6 +120,7 @@ export interface AnalyzedTrack {
   albumName: string
   albumId: string
   albumArtUrl: string | null
+  fallbackAlbumArtUrl?: string
   durationMs: number
   popularity: number
   externalUrl: string | null

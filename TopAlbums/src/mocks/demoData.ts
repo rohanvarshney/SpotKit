@@ -1,12 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Rohan Varshney
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-import demoArtworkManifest from '../../../assets/demoArtworkManifest.json'
+import { buildDemoAlbumImages } from '../../../shared/demoArtwork'
 import {
   SPOTKIT_DEMO_ALBUMS,
   SPOTKIT_DEMO_CATALOG_VERSION,
   UNHYDRATED_DEMO_ALBUM_IDS,
-  createCoverSvg,
 } from '../../../shared/spotkitDemoCatalog'
 import { normalizeTrackTitle } from '../lib/albumScorer'
 import type {
@@ -17,17 +16,6 @@ import type {
 } from '../types/spotify'
 
 export { SPOTKIT_DEMO_ALBUMS, SPOTKIT_DEMO_CATALOG_VERSION }
-
-interface DemoArtworkManifestEntry {
-  url: string
-  width?: number
-  height?: number
-}
-
-const DEMO_ARTWORK_ALBUMS = demoArtworkManifest.albums as Record<
-  string,
-  DemoArtworkManifestEntry | undefined
->
 
 const DEMO_FULL_ALBUMS_MAP: Record<string, SpotifyAlbumFull> = {}
 
@@ -51,24 +39,14 @@ export function buildDemoLibraryDataset(): RawLibraryDataset {
   const hydratedAlbumsMap: Record<string, SpotifyAlbumFull> = {}
 
   for (const spec of SPOTKIT_DEMO_ALBUMS) {
-    const fallbackSvg = createCoverSvg(
-      spec.name,
-      spec.artistName,
-      spec.colorA,
-      spec.colorB,
-      spec.accent,
-    )
-    const manifestEntry = DEMO_ARTWORK_ALBUMS[spec.id]
-    const images = manifestEntry?.url
-      ? [
-          {
-            url: manifestEntry.url,
-            height: manifestEntry.height ?? 600,
-            width: manifestEntry.width ?? 600,
-          },
-          { url: fallbackSvg, height: 400, width: 400 },
-        ]
-      : [{ url: fallbackSvg, height: 400, width: 400 }]
+    const images = buildDemoAlbumImages({
+      albumId: spec.id,
+      albumName: spec.name,
+      artistName: spec.artistName,
+      colorA: spec.colorA,
+      colorB: spec.colorB,
+      accent: spec.accent,
+    })
     const artistObj = {
       id: spec.artistId,
       name: spec.artistName,

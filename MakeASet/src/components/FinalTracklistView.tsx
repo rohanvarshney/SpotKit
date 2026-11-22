@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
 import { useMemo, useState } from 'react'
+import { applyFallbackImageOnError } from '../../../shared/demoArtwork'
 import { computeCohesionScore, formatDuration } from '../lib/camelotEngine'
 import type {
   AnalyzedCrate,
@@ -345,6 +346,13 @@ export function FinalTracklistView({
                       src={track.albumArtUrl}
                       alt={track.albumName}
                       className="trackThumbSmall"
+                      loading="lazy"
+                      onError={(e) =>
+                        applyFallbackImageOnError(
+                          e.currentTarget,
+                          track.fallbackAlbumArtUrl,
+                        )
+                      }
                     />
                   ) : (
                     <div className="trackThumbSmall placeholderArt">🎵</div>

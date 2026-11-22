@@ -14,6 +14,7 @@ import {
   sequencePlaylist,
 } from './djSequencer'
 import {
+  DEMO_ARTWORK_ALBUMS,
   DEMO_LIKED_TRACK_COUNT,
   DEMO_PLAYLIST_PRESETS,
   SPOTKIT_DEMO_ALBUMS,
@@ -211,8 +212,27 @@ describe('djSequencer', () => {
 
     const likedCrate = buildDemoCrate('liked')
     expect(likedCrate.tracks.length).toBe(DEMO_LIKED_TRACK_COUNT)
+    expect(
+      likedCrate.tracks.every(
+        (t) =>
+          t.albumArtUrl === DEMO_ARTWORK_ALBUMS[t.albumId]?.url &&
+          t.albumArtUrl?.startsWith('https://') &&
+          t.fallbackAlbumArtUrl?.startsWith('data:image/svg+xml'),
+      ),
+    ).toBe(true)
 
     const combinedCrate = buildDemoCrate('both', DEMO_PLAYLIST_PRESETS[0].url)
+    for (const track of combinedCrate.tracks) {
+      expect(track.albumArtUrl).toBe(DEMO_ARTWORK_ALBUMS[track.albumId]?.url)
+      expect(track.albumArtUrl?.startsWith('https://')).toBe(true)
+      expect(track.fallbackAlbumArtUrl?.startsWith('data:image/svg+xml')).toBe(
+        true,
+      )
+    }
+
+    const syntheticTrack = makeTrack('prod_trk_1', '8A', 122)
+    expect(syntheticTrack.fallbackAlbumArtUrl).toBeUndefined()
+
     const coveredKeys = new Set(combinedCrate.tracks.map((t) => t.camelot))
     for (const seed of SPOTKIT_DEMO_CRATE_TRACKS) {
       coveredKeys.add(seed.camelot)

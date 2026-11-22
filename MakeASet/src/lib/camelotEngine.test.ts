@@ -13,6 +13,7 @@ import {
   rankRemainingTracksByCohesion,
 } from './camelotEngine'
 import {
+  DEMO_ARTWORK_ALBUMS,
   DEMO_LIKED_TRACK_COUNT,
   DEMO_PLAYLIST_PRESETS,
   SPOTKIT_DEMO_ALBUMS,
@@ -179,8 +180,11 @@ describe('camelotEngine', () => {
     expect(likedCrate.tracks.length).toBeGreaterThanOrEqual(20)
     expect(likedCrate.tracks.every((t) => t.sources.includes('liked'))).toBe(true)
     expect(
-      likedCrate.tracks.every((t) =>
-        t.albumArtUrl?.startsWith('data:image/svg+xml'),
+      likedCrate.tracks.every(
+        (t) =>
+          t.albumArtUrl === DEMO_ARTWORK_ALBUMS[t.albumId]?.url &&
+          t.albumArtUrl?.startsWith('https://') &&
+          t.fallbackAlbumArtUrl?.startsWith('data:image/svg+xml'),
       ),
     ).toBe(true)
 
@@ -237,5 +241,28 @@ describe('camelotEngine', () => {
       expect(presetCrate.playlistMeta?.id).toBe(preset.id)
       expect(presetCrate.tracks.length).toBeGreaterThanOrEqual(10)
     }
+  })
+
+  it('wires pinned artwork manifest URLs and SVG fallbacks for every demo crate track while leaving non-demo tracks without fallback', () => {
+    for (const seed of SPOTKIT_DEMO_CRATE_TRACKS) {
+      const entry = DEMO_ARTWORK_ALBUMS[seed.albumId]
+      expect(entry?.url).toBeDefined()
+      expect(entry?.url?.startsWith('https://')).toBe(true)
+    }
+
+    const combinedCrate = buildDemoCrate('both', DEMO_PLAYLIST_PRESETS[0].url)
+    for (const track of combinedCrate.tracks) {
+      expect(track.albumArtUrl).toBe(DEMO_ARTWORK_ALBUMS[track.albumId]?.url)
+      expect(track.albumArtUrl?.startsWith('https://')).toBe(true)
+      expect(track.fallbackAlbumArtUrl?.startsWith('data:image/svg+xml')).toBe(
+        true,
+      )
+    }
+
+    const syntheticTrack = makeTrack({
+      id: 'prod_trk_1',
+      albumArtUrl: 'https://i.scdn.co/image/ab67616d0000b273realcover',
+    })
+    expect(syntheticTrack.fallbackAlbumArtUrl).toBeUndefined()
   })
 })

@@ -8,7 +8,7 @@ This directory contains offline developer tooling for maintaining SpotKit's stat
 
 ### Context & Why This Exists
 
-SpotKit's demo/mock catalog lives in [`../shared/spotkitDemoCatalog.ts`](../shared/spotkitDemoCatalog.ts) (`SPOTKIT_DEMO_ALBUMS`, currently 118 real albums combined from `shared/baseCatalogData.ts`, `shared/expandedMainstreamAlbums.ts`, and `shared/expandedDanceAlbums.ts`).
+SpotKit's demo/mock album catalog lives in [`../shared/demoCatalogCore.ts`](../shared/demoCatalogCore.ts) and is re-exported by [`../shared/spotkitDemoCatalog.ts`](../shared/spotkitDemoCatalog.ts) (`SPOTKIT_DEMO_ALBUMS`, currently 118 real albums combined from `shared/baseCatalogData.ts`, `shared/expandedMainstreamAlbums.ts`, and `shared/expandedDanceAlbums.ts`).
 
 Because SpotKit runs as a static client-side suite on GitHub Pages and Demo Mode has no authenticated Spotify Web API session:
 
@@ -16,22 +16,23 @@ Because SpotKit runs as a static client-side suite on GitHub Pages and Demo Mode
 2. **No image binaries in git:** Checking 118 copyrighted album covers into the repository would bloat git history and re-host third-party artwork.
 3. **Deterministic over runtime search:** Querying search APIs from end-user browsers is slow, rate-limited (e.g., iTunes caps per IP and blocks browser `fetch()` via CORS), and non-deterministic (search rankings can drift to tribute albums, instrumentals, or wrong editions).
 
-To solve this, `sync-demo-artwork.mjs` separates **offline discovery** (run once by a maintainer when the demo catalog changes) from **runtime delivery** (reading a static, sorted JSON map in [`../assets/demoArtworkManifest.json`](../assets/demoArtworkManifest.json)).
+To solve this, `sync-demo-artwork.mjs` separates **offline discovery** (run once by a maintainer when the demo catalog changes) from **runtime delivery** (reading a static, sorted JSON map in [`../assets/demoArtworkManifest.json`](../assets/demoArtworkManifest.json) via [`../shared/demoArtwork.ts`](../shared/demoArtwork.ts)).
 
-### Scope Boundary (`TopAlbums` Demo Mode Only)
+### Scope Boundary (SpotKit Demo Mode: `TopAlbums`, `MakeASet`, and `DJMyPlaylist`)
 
-This artwork manifest is **strictly scoped to `TopAlbums` mock/demo data** (`dataset.isDemo === true`):
+This artwork manifest is shared across SpotKit's album/track demo tools via [`../shared/demoArtwork.ts`](../shared/demoArtwork.ts) (`isDemo === true` only):
 
-- **Mock data (`TopAlbums/src/mocks/demoData.ts`):** `buildDemoLibraryDataset()` reads [`../assets/demoArtworkManifest.json`](../assets/demoArtworkManifest.json) and sets `images[0]` to the pinned HTTPS CDN URL (`width: 600` / `500`), keeping the generated vinyl `createCoverSvg()` data URI at `images[1]` as a local fallback. `hydrateDemoAlbumById()` automatically inherits the same `images` array.
-- **UI fallback (`TopAlbums/src/lib/albumScorer.ts` & `TopAlbums/src/components/DashboardView.tsx`):** `scoreAndFilterAlbums()` extracts `fallbackCoverUrl` only when `images` contains a `data:image/` fallback entry. All four cover `<img>` views (`tableThumb`, `gridAlbumCover`, `tierTileCover`, `customTierThumb`) attach `handleAlbumCoverError` so offline browsers or broken URLs degrade smoothly to the SVG cover.
+- **Shared resolver (`shared/demoArtwork.ts`):** Reads [`../assets/demoArtworkManifest.json`](../assets/demoArtworkManifest.json), resolves each album's pinned HTTPS CDN URL alongside its deterministic `createCoverSvg()` fallback from [`../shared/demoCatalogCore.ts`](../shared/demoCatalogCore.ts), and exports `buildDemoAlbumImages()`, `resolveDemoAlbumArtwork()`, and `applyFallbackImageOnError()`.
+- **`TopAlbums` (`TopAlbums/src/mocks/demoData.ts`, `TopAlbums/src/lib/albumScorer.ts`, `TopAlbums/src/components/DashboardView.tsx`):** `buildDemoLibraryDataset()` populates `images[0]` with the pinned manifest URL (`width: 600` / `500`) and keeps the generated vinyl `createCoverSvg()` data URI at `images[1]` as a local fallback (`hydrateDemoAlbumById()` automatically inherits the same `images` array). All four cover `<img>` views (`tableThumb`, `gridAlbumCover`, `tierTileCover`, `customTierThumb`) attach `handleAlbumCoverError` (delegating to `applyFallbackImageOnError`) so offline browsers or broken URLs degrade smoothly to the SVG cover.
 - **Demo-only Canvas CORS handling (`TopAlbums/src/lib/shareImageExporter.ts`):** Apple (`mzstatic.com`) and Deezer/CAA redirects do not always send `Access-Control-Allow-Origin: *`, which would taint HTML5 `<canvas>` exports (`toBlob` / `toDataURL`). When `options.isDemo` is `true`, `loadAlbumCoverSafe()` routes known non-CORS demo CDNs (`mzstatic.com`, `coverartarchive.org`, `archive.org`, `dzcdn.net`) through `https://wsrv.nl/?url=...&w=600&h=600&fit=cover&output=png`, and falls back to `album.fallbackCoverUrl` if that fails.
-- **Production Spotify data untouched:** Real Spotify sessions (`TopAlbums/src/lib/spotifyApi.ts`) only receive `https://i.scdn.co/...` URLs with no `data:image/` fallback, so `fallbackCoverUrl` remains `undefined` and `renderShareImageCanvas()` loads `album.coverUrl` directly without ever calling `wsrv.nl`. `DJMyPlaylist`, `MakeASet`, and `SESH` are likewise completely untouched.
+- **`MakeASet` & `DJMyPlaylist` (`shared/spotkitDemoCatalog.ts`, `MakeASet/`, `DJMyPlaylist/`):** `buildSharedDemoTracksForMode()` resolves each crate track's `albumArtUrl` from `assets/demoArtworkManifest.json` via `resolveDemoAlbumArtwork()` and attaches `fallbackAlbumArtUrl` for offline/error resilience. Track `<img>` surfaces (`SetBuilderView.tsx`, `FinalTracklistView.tsx`, and `PlaylistResultView.tsx`) attach `applyFallbackImageOnError`.
+- **Production Spotify data & `SESH` untouched:** Real Spotify sessions (`spotifyApi.ts` across `TopAlbums`, `MakeASet`, and `DJMyPlaylist`) only receive `https://i.scdn.co/...` URLs with no `data:image/` fallback, so `fallbackCoverUrl` / `fallbackAlbumArtUrl` remains `undefined` and `TopAlbums` `renderShareImageCanvas()` loads `album.coverUrl` directly without calling `wsrv.nl`. `SESH` has no album cover UI and does not use `SPOTKIT_DEMO_ALBUMS`, so it remains untouched.
 
 ---
 
 ### How the Script Works
 
-- **Zero external dependencies:** Uses Node's built-in `node:module` `registerHooks` and native TypeScript type-stripping (requires **Node 22.15+ / 26+**) to import `../shared/spotkitDemoCatalog.ts` directly with no `npm install` or build step.
+- **Zero external dependencies:** Uses Node's built-in `node:module` `registerHooks` and native TypeScript type-stripping (requires **Node 22.15+ / 26+**) to import `../shared/demoCatalogCore.ts` (kept free of JSON imports so `--refresh` works even before a manifest exists) with no `npm install` or build step.
 - **Resolution cascade (in priority order):**
   1. **`MANUAL_OVERRIDES`:** Explicit per-`albumId` overrides inside `scripts/sync-demo-artwork.mjs` (checked and HTTP-verified first; kept empty unless automated lookup cannot disambiguate a release).
   2. **Apple iTunes Search & Artist Lookup API (`source: "itunes"`):**
@@ -122,14 +123,15 @@ node scripts/sync-demo-artwork.mjs --audit
 node scripts/sync-demo-artwork.mjs --verify
 ```
 
-### 6. Validate `TopAlbums` Integration After Manifest Updates
+### 6. Validate SpotKit Tool Integrations After Manifest Updates
 
 ```bash
-# 1. Runs TopAlbums unit tests (including manifest completeness for all demo
-#    albums, SVG fallback assignment, and demo vs. production share-export tests).
-# 2. Runs `tsc -b` + Vite production build (which type-checks the static JSON
-#    import via TopAlbums/tsconfig.app.json).
-cd TopAlbums && npm test && npm run build
+# 1. Runs unit tests (including manifest completeness for all demo albums/tracks
+#    and SVG fallback assignment) and `tsc -b` + Vite production builds
+#    (type-checking the static JSON import via each tool's tsconfig.app.json).
+(cd TopAlbums && npm test && npm run build)
+(cd MakeASet && npm test && npm run build)
+(cd DJMyPlaylist && npm test && npm run build)
 ```
 
 ---
@@ -145,4 +147,4 @@ When adding new albums to `shared/` or fixing an edition mismatch surfaced by `-
    - Use `requireSubstrings` when multiple similarly named editions exist and a specific tag must appear (e.g., `["taylor's version"]` on `alb_1989_tv`).
 2. **Use `MANUAL_OVERRIDES` only as a last resort:**
    - If neither iTunes nor MusicBrainz/CAA returns the right cover cleanly, add `{ url, source, width, height, matchedArtist, matchedAlbum }` under `MANUAL_OVERRIDES[albumId]` (the script still runs `verifyImageUrl()` on it before saving).
-3. **Re-run `--only=<id>`, `--audit`, `--verify`, and `cd TopAlbums && npm test && npm run build`** before committing changes to `scripts/sync-demo-artwork.mjs` and `assets/demoArtworkManifest.json`.
+3. **Re-run `--only=<id>`, `--audit`, `--verify`, and the unit tests + builds for `TopAlbums`, `MakeASet`, and `DJMyPlaylist`** before committing changes to `scripts/sync-demo-artwork.mjs` and `assets/demoArtworkManifest.json`.

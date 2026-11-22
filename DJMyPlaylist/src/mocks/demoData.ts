@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
 import {
+  DEMO_ARTWORK_ALBUMS,
   SPOTKIT_DEMO_ALBUMS,
   SPOTKIT_DEMO_CATALOG_VERSION,
   SPOTKIT_DEMO_CRATE_TRACKS,
@@ -18,6 +19,7 @@ import type { AnalyzedCrate, AnalyzedTrack, SourceMode } from '../types/spotify'
 export type DemoPlaylistPreset = SharedDemoPlaylistPreset
 
 export {
+  DEMO_ARTWORK_ALBUMS,
   SPOTKIT_DEMO_ALBUMS,
   SPOTKIT_DEMO_CATALOG_VERSION,
   SPOTKIT_DEMO_CRATE_TRACKS,

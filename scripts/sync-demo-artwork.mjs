@@ -25,7 +25,7 @@ registerHooks({
 })
 
 const { SPOTKIT_DEMO_ALBUMS, SPOTKIT_DEMO_CATALOG_VERSION } = await import(
-  '../shared/spotkitDemoCatalog.ts'
+  '../shared/demoCatalogCore.ts'
 )
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url))

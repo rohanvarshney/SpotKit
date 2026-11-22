@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
 import { useEffect, useMemo, useState } from 'react'
+import { applyFallbackImageOnError } from '../../../shared/demoArtwork'
 import {
   ALL_CAMELOT_CODES,
   camelotToPitchAndMode,
@@ -843,6 +844,13 @@ export function PlaylistResultView({
                       src={track.albumArtUrl}
                       alt={track.albumName}
                       className="trackThumbSmall"
+                      loading="lazy"
+                      onError={(e) =>
+                        applyFallbackImageOnError(
+                          e.currentTarget,
+                          track.fallbackAlbumArtUrl,
+                        )
+                      }
                     />
                   ) : (
                     <div className="trackThumbSmall placeholderArt">🎵</div>
@@ -997,6 +1005,13 @@ export function PlaylistResultView({
                         src={track.albumArtUrl}
                         alt={track.albumName}
                         className="trackThumbSmall"
+                        loading="lazy"
+                        onError={(e) =>
+                          applyFallbackImageOnError(
+                            e.currentTarget,
+                            track.fallbackAlbumArtUrl,
+                          )
+                        }
                       />
                     ) : (
                       <div className="trackThumbSmall placeholderArt">🎵</div>

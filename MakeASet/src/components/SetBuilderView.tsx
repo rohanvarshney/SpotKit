@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
 import { useMemo, useState } from 'react'
+import { applyFallbackImageOnError } from '../../../shared/demoArtwork'
 import {
   ALL_CAMELOT_CODES,
   camelotToPitchAndMode,
@@ -378,9 +379,16 @@ export function SetBuilderView({
             <div className="anchorTrackInfo">
               {currentAnchor.albumArtUrl ? (
                 <img
+                  key={currentAnchor.id}
                   src={currentAnchor.albumArtUrl}
                   alt={currentAnchor.albumName}
                   className="anchorArt"
+                  onError={(e) =>
+                    applyFallbackImageOnError(
+                      e.currentTarget,
+                      currentAnchor.fallbackAlbumArtUrl,
+                    )
+                  }
                 />
               ) : (
                 <div className="anchorArt placeholderArt">🎵</div>
@@ -604,6 +612,13 @@ export function SetBuilderView({
                         src={track.albumArtUrl}
                         alt={track.albumName}
                         className="trackThumb"
+                        loading="lazy"
+                        onError={(e) =>
+                          applyFallbackImageOnError(
+                            e.currentTarget,
+                            track.fallbackAlbumArtUrl,
+                          )
+                        }
                       />
                     ) : (
                       <div className="trackThumb placeholderArt">🎵</div>
@@ -751,6 +766,13 @@ export function SetBuilderView({
                         src={track.albumArtUrl}
                         alt={track.albumName}
                         className="trackThumbSmall"
+                        loading="lazy"
+                        onError={(e) =>
+                          applyFallbackImageOnError(
+                            e.currentTarget,
+                            track.fallbackAlbumArtUrl,
+                          )
+                        }
                       />
                     ) : (
                       <div className="trackThumbSmall placeholderArt">🎵</div>
