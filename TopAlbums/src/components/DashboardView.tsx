@@ -105,6 +105,10 @@ function InfoTooltip({ title, body }: InfoTooltipProps) {
   )
 }
 
+export const MIN_GRID_COLUMNS = 2
+export const MAX_GRID_COLUMNS = 8
+export const DEFAULT_GRID_COLUMNS = 3
+
 export function DashboardView({
   dataset,
   onLogout,
@@ -124,7 +128,7 @@ export function DashboardView({
   const [viewLayout, setViewLayout] = useState<
     'grid' | 'list' | 'tier' | 'artist'
   >('grid')
-  const [gridColumns, setGridColumns] = useState<number>(3)
+  const [gridColumns, setGridColumns] = useState<number>(DEFAULT_GRID_COLUMNS)
   const [gradeBasedTiering, setGradeBasedTiering] = useState<boolean>(false)
   const [selectedArtistKey, setSelectedArtistKey] = useState<string | null>(
     null,
@@ -628,8 +632,8 @@ export function DashboardView({
               </span>
               <input
                 type="range"
-                min={2}
-                max={6}
+                min={MIN_GRID_COLUMNS}
+                max={MAX_GRID_COLUMNS}
                 step={1}
                 value={gridColumns}
                 onChange={(e) => setGridColumns(Number(e.target.value))}
@@ -1030,7 +1034,11 @@ function AlbumGridCard({
 
   return (
     <div className={`gridAlbumCard ${isExpanded ? 'expanded' : ''}`}>
-      <div className="gridCardClickArea" onClick={onToggleExpand}>
+      <div
+        className="gridCardClickArea"
+        onClick={onToggleExpand}
+        title={`${album.name} — ${album.primaryArtist} (${pct}% liked)`}
+      >
         <div className="gridCoverContainer">
           {album.coverUrl ? (
             <img
@@ -1046,7 +1054,13 @@ function AlbumGridCard({
             <div className="gridAlbumFallback">💿</div>
           )}
           <span className={`gridRankBadge ${rank <= 3 ? `top${rank}` : ''}`}>
-            {artistContext ? `Artist #${artistContext.artistRank}` : `#${rank}`}
+            {artistContext ? (
+              <>
+                <span className="rankPrefix">Artist </span>#{artistContext.artistRank}
+              </>
+            ) : (
+              `#${rank}`
+            )}
           </span>
           <span
             className="gridScoreOverlay"
@@ -1086,8 +1100,10 @@ function AlbumGridCard({
           <div className="completionBlock">
             <div className="completionLabels">
               <span className="completionPrimary">
-                <strong>{pct}%</strong> ({album.likedCount}/{album.totalTracks}{' '}
-                liked)
+                <strong>{pct}%</strong>
+                <span className="completionCount">
+                  {' '}({album.likedCount}/{album.totalTracks} liked)
+                </span>
               </span>
               {unlikedCount === 0 ? (
                 <span className="perfectBadge">★ No-Skip</span>

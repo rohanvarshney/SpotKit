@@ -5,7 +5,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   buildFibonacciTierGroups,
   buildGradeTierGroups,
+  DEFAULT_GRID_COLUMNS,
   isNoSkipAlbum,
+  MAX_GRID_COLUMNS,
+  MIN_GRID_COLUMNS,
 } from '../components/DashboardView'
 import {
   SPOTKIT_DEMO_ALBUMS,
@@ -1459,5 +1462,31 @@ describe('albumScorer', () => {
     expect(
       loadedSrcs.includes('https://i.scdn.co/image/ab67616d0000b273realcover'),
     ).toBe(true)
+  })
+
+  it('supports up to 8 cards per row without mobile/tablet media query column caps', async () => {
+    expect(MIN_GRID_COLUMNS).toBe(2)
+    expect(DEFAULT_GRID_COLUMNS).toBe(3)
+    expect(MAX_GRID_COLUMNS).toBe(8)
+
+    const fsModule = 'node:fs'
+    const { readFileSync } = (await import(/* @vite-ignore */ fsModule)) as {
+      readFileSync: (path: URL, encoding: 'utf8') => string
+    }
+    const appCss = readFileSync(new URL('../App.css', import.meta.url), 'utf8')
+
+    expect(appCss).toMatch(
+      /\.albumsGridCards\s*\{[^}]*grid-template-columns:\s*repeat\(var\(--grid-cols,\s*3\),\s*minmax\(0,\s*1fr\)\)/s,
+    )
+    expect(appCss).toMatch(
+      /\.gridAlbumCard\s*\{[^}]*container-type:\s*inline-size/s,
+    )
+
+    // Ensure no @media rule overrides .albumsGridCards grid-template-columns
+    const gridColsMatches = appCss.match(
+      /\.albumsGridCards[^{]*\{[^}]*grid-template-columns\s*:[^}]*\}/gs,
+    )
+    expect(gridColsMatches).toHaveLength(1)
+    expect(appCss).not.toContain('min(var(--grid-cols')
   })
 })

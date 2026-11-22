@@ -3,6 +3,7 @@
 
 .appShell {
   min-height: 100vh;
+  overflow-x: clip;
   background:
     radial-gradient(1000px circle at 20% 15%, rgba(29, 185, 84, 0.14), transparent 55%),
     radial-gradient(1000px circle at 85% 5%, rgba(139, 92, 246, 0.16), transparent 55%),
@@ -177,6 +178,7 @@
 }
 
 .infoPopover {
+  display: none;
   position: absolute;
   bottom: calc(100% + 10px);
   left: 50%;
@@ -216,6 +218,7 @@
 
 .infoTooltipWrap:hover .infoPopover,
 .infoTooltipWrap:focus .infoPopover {
+  display: block;
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
@@ -928,6 +931,11 @@
   grid-template-columns: repeat(var(--grid-cols, 3), minmax(0, 1fr));
   gap: 18px;
   align-items: start;
+  min-width: 0;
+}
+
+.albumsGridCards.cols-4 {
+  gap: 14px;
 }
 
 .albumsGridCards.cols-5,
@@ -935,52 +943,129 @@
   gap: 12px;
 }
 
-.albumsGridCards.cols-5 .gridCardBody,
-.albumsGridCards.cols-6 .gridCardBody {
-  padding: 12px;
+.albumsGridCards.cols-7,
+.albumsGridCards.cols-8 {
+  gap: 10px;
 }
 
-.albumsGridCards.cols-5 .gridAlbumTitle,
-.albumsGridCards.cols-6 .gridAlbumTitle {
-  font-size: 14px;
+.albumsGridCards.cols-5 .gridAlbumCard:not(.expanded),
+.albumsGridCards.cols-6 .gridAlbumCard:not(.expanded) {
+  border-radius: 14px;
 }
 
-.albumsGridCards.cols-5 .gridAlbumSub,
-.albumsGridCards.cols-6 .gridAlbumSub {
-  font-size: 11px;
-}
-
-.albumsGridCards.cols-5 .completionLabels,
-.albumsGridCards.cols-6 .completionLabels {
-  font-size: 11px;
-}
-
-.albumsGridCards.cols-5 .completionPrimary strong,
-.albumsGridCards.cols-6 .completionPrimary strong {
-  font-size: 12px;
-}
-
-.albumsGridCards.cols-5 .gridRankBadge,
-.albumsGridCards.cols-6 .gridRankBadge,
-.albumsGridCards.cols-5 .gridScoreOverlay,
-.albumsGridCards.cols-6 .gridScoreOverlay {
-  font-size: 10px;
-  padding: 3px 7px;
+.albumsGridCards.cols-7 .gridAlbumCard:not(.expanded),
+.albumsGridCards.cols-8 .gridAlbumCard:not(.expanded) {
+  border-radius: 12px;
 }
 
 @media (max-width: 980px) {
   .albumsGridCards {
-    grid-template-columns: repeat(min(var(--grid-cols, 3), 2), minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .albumsGridCards.cols-5,
+  .albumsGridCards.cols-6 {
+    gap: 8px;
+  }
+
+  .albumsGridCards.cols-7,
+  .albumsGridCards.cols-8 {
+    gap: 6px;
+  }
+
+  .albumsGridCards.cols-7 .gridAlbumCard:not(.expanded),
+  .albumsGridCards.cols-8 .gridAlbumCard:not(.expanded) {
+    border-radius: 10px;
   }
 }
 
 @media (max-width: 620px) {
+  .appHeader {
+    padding: 16px 14px 8px;
+  }
+
+  .appMain {
+    padding: 12px 14px 56px;
+  }
+
   .albumsGridCards {
-    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .albumsGridCards.cols-3 {
+    gap: 8px;
+  }
+
+  .albumsGridCards.cols-4 {
+    gap: 6px;
+  }
+
+  .albumsGridCards.cols-5 {
+    gap: 5px;
+  }
+
+  .albumsGridCards.cols-6,
+  .albumsGridCards.cols-7 {
+    gap: 4px;
+  }
+
+  .albumsGridCards.cols-8 {
+    gap: 3px;
+  }
+
+  .albumsGridCards .gridAlbumCard:not(.expanded) {
+    border-radius: 12px;
+  }
+
+  .albumsGridCards.cols-4 .gridAlbumCard:not(.expanded) {
+    border-radius: 9px;
+  }
+
+  .albumsGridCards.cols-5 .gridAlbumCard:not(.expanded),
+  .albumsGridCards.cols-6 .gridAlbumCard:not(.expanded) {
+    border-radius: 7px;
+  }
+
+  .albumsGridCards.cols-7 .gridAlbumCard:not(.expanded),
+  .albumsGridCards.cols-8 .gridAlbumCard:not(.expanded) {
+    border-radius: 6px;
+  }
+
+  .gridAlbumCard.expanded .gridCardClickArea {
+    padding: 12px;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .gridAlbumCard.expanded .gridCoverContainer {
+    width: 84px;
+    height: 84px;
+    border-radius: 10px;
+  }
+
+  .gridAlbumCard.expanded .gridCardBody {
+    padding: 0;
+  }
+
+  .gridAlbumCard.expanded .gridRankBadge {
+    top: 5px;
+    left: 5px;
+    font-size: 9px;
+    padding: 2px 5px;
+  }
+
+  .gridAlbumCard.expanded .gridScoreOverlay {
+    bottom: 5px;
+    right: 5px;
+    font-size: 9px;
+    padding: 2px 5px;
   }
 }
 
 .gridAlbumCard {
+  min-width: 0;
+  container-type: inline-size;
+  container-name: album-card;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 18px;
@@ -1591,6 +1676,47 @@
 
 .trackPlayLink:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 620px) {
+  .tracklistDrawer {
+    padding: 12px;
+  }
+
+  .trackRow {
+    flex-wrap: wrap;
+    row-gap: 4px;
+    column-gap: 8px;
+    padding: 8px;
+  }
+
+  .trackNum {
+    width: 20px;
+    flex-shrink: 0;
+  }
+
+  .trackHeart {
+    flex-shrink: 0;
+  }
+
+  .trackMain {
+    flex: 1 1 calc(100% - 56px);
+  }
+
+  .trackDate {
+    margin-left: 50px;
+    font-size: 11px;
+  }
+
+  .trackDuration {
+    width: auto;
+    margin-left: auto;
+    font-size: 11px;
+  }
+
+  .trackPlayLink {
+    font-size: 11px;
+  }
 }
 
 .emptyState {
@@ -2424,4 +2550,279 @@
   padding-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   flex-wrap: wrap;
+}
+
+/* =========================================
+   RESPONSIVE CARD DENSITY (CONTAINER QUERIES)
+   ========================================= */
+@container album-card (max-width: 225px) {
+  .gridCardClickArea .gridCardBody {
+    padding: 12px;
+  }
+
+  .gridCardClickArea .gridAlbumTitle {
+    font-size: 14px;
+  }
+
+  .gridCardClickArea .gridAlbumSub {
+    font-size: 11px;
+  }
+
+  .gridCardClickArea .completionBlock {
+    margin-top: 9px;
+  }
+
+  .gridCardClickArea .completionLabels {
+    font-size: 11px;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .gridCardClickArea .completionPrimary strong {
+    font-size: 12px;
+  }
+
+  .gridCardClickArea .gridRankBadge,
+  .gridCardClickArea .gridScoreOverlay {
+    font-size: 10px;
+    padding: 3px 7px;
+  }
+
+  .gridCardClickArea .gridRankBadge {
+    top: 8px;
+    left: 8px;
+  }
+
+  .gridCardClickArea .gridScoreOverlay {
+    bottom: 8px;
+    right: 8px;
+  }
+
+  .gridCardClickArea .metaBadges {
+    margin-top: 9px;
+    gap: 5px;
+  }
+
+  .gridCardClickArea .metaBadge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .gridCardClickArea .expandToggleLabel {
+    font-size: 11px;
+  }
+}
+
+@container album-card (max-width: 158px) {
+  .gridCardClickArea .gridCardBody {
+    padding: 8px 9px;
+  }
+
+  .gridCardClickArea .gridAlbumTitle {
+    font-size: 12px;
+  }
+
+  .gridCardClickArea .gridAlbumSub {
+    font-size: 10.5px;
+    margin-top: 2px;
+    gap: 4px;
+  }
+
+  .gridCardClickArea .gridRankBadge,
+  .gridCardClickArea .gridScoreOverlay {
+    font-size: 9.5px;
+    padding: 2px 6px;
+  }
+
+  .gridCardClickArea .gridRankBadge {
+    top: 6px;
+    left: 6px;
+  }
+
+  .gridCardClickArea .gridScoreOverlay {
+    bottom: 6px;
+    right: 6px;
+  }
+
+  .gridCardClickArea .artistExtraMetaRow {
+    margin-top: 5px;
+    gap: 3px;
+  }
+
+  .gridCardClickArea .artistMetaChip {
+    font-size: 9px;
+    padding: 1px 5px;
+  }
+
+  .gridCardClickArea .completionBlock {
+    margin-top: 7px;
+  }
+
+  .gridCardClickArea .completionLabels {
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+
+  .gridCardClickArea .completionPrimary strong {
+    font-size: 11px;
+  }
+
+  .gridCardClickArea .progressBar {
+    height: 5px;
+  }
+
+  .gridCardClickArea .metaBadges {
+    margin-top: 7px;
+    gap: 4px;
+  }
+
+  .gridCardClickArea .metaBadge {
+    font-size: 9.5px;
+    padding: 2px 5px;
+  }
+
+  .gridCardClickArea .expandToggleLabel {
+    font-size: 10px;
+  }
+}
+
+@container album-card (max-width: 110px) {
+  .gridCardClickArea .gridRankBadge {
+    top: 4px;
+    left: 4px;
+    font-size: 9px;
+    padding: 2px 5px;
+  }
+
+  .gridCardClickArea .rankPrefix {
+    display: none;
+  }
+
+  .gridCardClickArea .gridScoreOverlay {
+    bottom: 4px;
+    right: 4px;
+    font-size: 8.5px;
+    padding: 1px 5px;
+  }
+
+  .gridCardClickArea .gridAlbumFallback {
+    font-size: 28px;
+  }
+
+  .gridCardClickArea .gridCardBody {
+    padding: 6px;
+  }
+
+  .gridCardClickArea .gridAlbumTitle {
+    font-size: 11px;
+    line-height: 1.2;
+  }
+
+  .gridCardClickArea .gridAlbumSub {
+    font-size: 9.5px;
+  }
+
+  .gridCardClickArea .artistExtraMetaRow,
+  .gridCardClickArea .metaBadges,
+  .gridCardClickArea .completionCount,
+  .gridCardClickArea .missingHint,
+  .gridCardClickArea .perfectBadge {
+    display: none;
+  }
+
+  .gridCardClickArea .completionBlock {
+    margin-top: 5px;
+  }
+
+  .gridCardClickArea .completionLabels {
+    font-size: 9.5px;
+    margin-bottom: 3px;
+  }
+
+  .gridCardClickArea .completionPrimary strong {
+    font-size: 10px;
+  }
+
+  .gridCardClickArea .progressBar {
+    height: 4px;
+  }
+}
+
+@container album-card (max-width: 72px) {
+  .gridCardClickArea .gridRankBadge {
+    top: 3px;
+    left: 3px;
+    font-size: 8px;
+    line-height: 1.1;
+    padding: 1px 4px;
+    border-radius: 5px;
+  }
+
+  .gridCardClickArea .gridScoreOverlay {
+    display: none;
+  }
+
+  .gridCardClickArea .gridAlbumFallback {
+    font-size: 20px;
+  }
+
+  .gridCardClickArea .gridCardBody {
+    padding: 4px;
+  }
+
+  .gridCardClickArea .gridAlbumTitle {
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1.15;
+  }
+
+  .gridCardClickArea .gridAlbumSub,
+  .gridCardClickArea .completionLabels {
+    display: none;
+  }
+
+  .gridCardClickArea .completionBlock {
+    margin-top: 3px;
+  }
+
+  .gridCardClickArea .progressBar {
+    height: 3px;
+  }
+}
+
+@container album-card (max-width: 52px) {
+  .gridCardClickArea .gridRankBadge {
+    top: 2px;
+    left: 2px;
+    font-size: 7.5px;
+    line-height: 1;
+    padding: 1px 3px;
+    border-width: 0;
+    border-radius: 4px;
+  }
+
+  .gridCardClickArea .gridAlbumFallback {
+    font-size: 16px;
+  }
+
+  .gridCardClickArea .gridCardBody {
+    padding: 0;
+  }
+
+  .gridCardClickArea .gridAlbumTitle {
+    display: none;
+  }
+
+  .gridCardClickArea .completionBlock {
+    margin-top: 0;
+  }
+
+  .gridCardClickArea .progressBar {
+    height: 3px;
+    border-radius: 0;
+  }
+
+  .gridCardClickArea .progressFill {
+    border-radius: 0;
+  }
 }
