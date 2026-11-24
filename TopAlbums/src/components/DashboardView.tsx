@@ -804,14 +804,14 @@ export function DashboardView({
                         className={`rankingRow ${isExpanded ? 'expandedRow' : ''}`}
                         onClick={() => toggleExpandAlbum(album)}
                       >
-                        <td>
+                        <td className="tdRank">
                           <span
                             className={`tableRankBadge ${rank <= 3 ? `top${rank}` : ''}`}
                           >
                             #{rank}
                           </span>
                         </td>
-                        <td>
+                        <td className="tdAlbum">
                           <div className="tableAlbumCell">
                             {album.coverUrl ? (
                               <img
@@ -829,8 +829,21 @@ export function DashboardView({
                             ) : (
                               <div className="tableThumbFallback">💿</div>
                             )}
-                            <div>
+                            <div className="tableAlbumInfo">
                               <div className="tableAlbumTitle">{album.name}</div>
+                              <div className="tableAlbumMobileMeta">
+                                <span className="tableAlbumMobileArtist">
+                                  {album.artists.map((a) => a.name).join(', ')}
+                                </span>
+                                {album.releaseYear && (
+                                  <>
+                                    <span className="dot">•</span>
+                                    <span className="tableAlbumMobileYear">
+                                      {album.releaseYear}
+                                    </span>
+                                  </>
+                                )}
+                              </div>
                               <div className="tableInlineBadges">
                                 {unlikedCount === 0 && (
                                   <span className="metaBadge noSkip">
@@ -850,15 +863,15 @@ export function DashboardView({
                             </div>
                           </div>
                         </td>
-                        <td className="tableArtistCell">
+                        <td className="tdArtist tableArtistCell">
                           {album.artists.map((a) => a.name).join(', ')}
                         </td>
-                        <td className="monoCell">{album.releaseYear}</td>
-                        <td className="monoCell">
+                        <td className="tdYear monoCell">{album.releaseYear}</td>
+                        <td className="tdLiked monoCell">
                           <strong>{album.likedCount}</strong> /{' '}
                           {album.totalTracks}
                         </td>
-                        <td>
+                        <td className="tdPct">
                           <div className="tablePctCell">
                             <span className="tablePctVal">{pct}%</span>
                             <div className="progressBar tableMiniBar">
@@ -869,7 +882,9 @@ export function DashboardView({
                             </div>
                           </div>
                         </td>
-                        <td>
+                        <td
+                          className={`tdTopHits ${album.topTracksCount === 0 ? 'isEmpty' : ''}`}
+                        >
                           {album.topTracksCount > 0 ? (
                             <span className="metaBadge flame">
                               🔥 {album.topTracksCount} Top{' '}
@@ -879,12 +894,15 @@ export function DashboardView({
                             <span className="muted">—</span>
                           )}
                         </td>
-                        <td>
+                        <td className="tdScore">
                           <span className="scorePill">
                             {album.finalScore.toFixed(1)}
                           </span>
                         </td>
-                        <td style={{ textAlign: 'right' }}>
+                        <td
+                          className="tdTracklist"
+                          style={{ textAlign: 'right' }}
+                        >
                           <button
                             type="button"
                             className="tableExpandBtn"

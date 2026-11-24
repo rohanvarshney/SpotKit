@@ -1222,6 +1222,7 @@
 .tableWrap {
   width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .rankingTable thead .infoPopover {
@@ -1238,7 +1239,7 @@
 
 .rankingTable {
   width: 100%;
-  min-width: 860px;
+  min-width: 1100px;
   border-collapse: collapse;
   text-align: left;
   font-size: 13px;
@@ -1246,7 +1247,7 @@
 }
 
 .rankingTable th.colRank {
-  width: 64px;
+  width: 72px;
 }
 
 .rankingTable th.colAlbum {
@@ -1262,7 +1263,7 @@
 }
 
 .rankingTable th.colLiked {
-  width: 106px;
+  width: 110px;
 }
 
 .rankingTable th.colPct {
@@ -1278,7 +1279,7 @@
 }
 
 .rankingTable th.colTracklist {
-  width: 102px;
+  width: 106px;
 }
 
 .rankingTable thead th {
@@ -1332,6 +1333,7 @@
 }
 
 .tableAlbumCell > div {
+  flex: 1;
   min-width: 0;
 }
 
@@ -1351,13 +1353,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .tableAlbumTitle {
   font-weight: 750;
   font-size: 14px;
+  line-height: 1.25;
   color: #fff;
   overflow-wrap: break-word;
+}
+
+.tableAlbumMobileMeta {
+  display: none;
 }
 
 .tableInlineBadges {
@@ -1424,6 +1432,168 @@
 
 .tableExpandBtn:hover {
   background: rgba(255, 255, 255, 0.14);
+}
+
+@media (max-width: 720px) {
+  .tableWrap {
+    overflow-x: visible;
+  }
+
+  .rankingTable {
+    min-width: 0;
+    width: 100%;
+    table-layout: auto;
+    display: block;
+  }
+
+  .rankingTable thead {
+    display: none;
+  }
+
+  .rankingTable tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .rankingRow {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    column-gap: 10px;
+    row-gap: 8px;
+    padding: 12px 14px;
+    align-items: center;
+  }
+
+  .rankingRow td,
+  .rankingRow td:first-child,
+  .rankingRow td:last-child {
+    display: block;
+    padding: 0;
+    min-width: 0;
+  }
+
+  .rankingRow .tdRank {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    padding-top: 2px;
+  }
+
+  .rankingRow .tdAlbum {
+    grid-column: 2 / 4;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .rankingRow .tdScore {
+    grid-column: 4;
+    grid-row: 1;
+    align-self: start;
+    justify-self: end;
+  }
+
+  .rankingRow .tdArtist,
+  .rankingRow .tdYear {
+    display: none;
+  }
+
+  .rankingRow .tdLiked {
+    grid-column: 1 / 3;
+    grid-row: 2;
+    font-size: 12px;
+  }
+
+  .rankingRow .tdPct {
+    grid-column: 3;
+    grid-row: 2;
+    min-width: 0;
+  }
+
+  .rankingRow .tdTracklist {
+    grid-column: 4;
+    grid-row: 2;
+    justify-self: end;
+  }
+
+  .rankingRow .tdTopHits {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  .rankingRow .tdTopHits.isEmpty {
+    display: none;
+  }
+
+  .rankingRow .tableRankBadge {
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+
+  .rankingRow .tableAlbumCell {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .rankingRow .tableThumb,
+  .rankingRow .tableThumbFallback {
+    width: 42px;
+    height: 42px;
+  }
+
+  .rankingRow .tableAlbumTitle {
+    font-size: 13.5px;
+    line-height: 1.25;
+  }
+
+  .rankingRow .tableAlbumMobileMeta {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 2px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.64);
+    min-width: 0;
+  }
+
+  .rankingRow .tableAlbumMobileArtist {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  .rankingRow .tableAlbumMobileYear {
+    flex-shrink: 0;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.54);
+  }
+
+  .rankingRow .tablePctVal {
+    width: 34px;
+    font-size: 12px;
+  }
+
+  .rankingRow .tableMiniBar {
+    min-width: 40px;
+  }
+
+  .rankingRow .tableExpandBtn {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .tableDrawerRow,
+  .tableDrawerRow td,
+  .tableBrandDividerRow,
+  .tableBrandDividerRow td {
+    display: block;
+    width: 100%;
+  }
+
+  .tableBrandDividerRow td {
+    padding: 6px 12px !important;
+  }
 }
 
 /* Shared Badges & Completion Bar */

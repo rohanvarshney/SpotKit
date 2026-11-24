@@ -1489,4 +1489,54 @@ describe('albumScorer', () => {
     expect(gridColsMatches).toHaveLength(1)
     expect(appCss).not.toContain('min(var(--grid-cols')
   })
+
+  it('allocates sufficient Album column width in Ranking Table and switches to a grid list on mobile', async () => {
+    const fsModule = 'node:fs'
+    const { readFileSync } = (await import(/* @vite-ignore */ fsModule)) as {
+      readFileSync: (path: URL, encoding: 'utf8') => string
+    }
+    const appCss = readFileSync(new URL('../App.css', import.meta.url), 'utf8')
+
+    const tableMinWidthMatch = appCss.match(
+      /\.rankingTable\s*\{[^}]*min-width:\s*(\d+)px/s,
+    )
+    expect(tableMinWidthMatch).not.toBeNull()
+    const minWidth = Number(tableMinWidthMatch![1])
+    expect(minWidth).toBeGreaterThanOrEqual(1080)
+
+    const fixedCols = [
+      'colRank',
+      'colYear',
+      'colLiked',
+      'colPct',
+      'colTopHits',
+      'colScore',
+      'colTracklist',
+    ]
+    const fixedSum = fixedCols.reduce((sum, cls) => {
+      const m = appCss.match(
+        new RegExp(`\\.rankingTable\\s+th\\.${cls}\\s*\\{[^}]*width:\\s*(\\d+)px`, 's'),
+      )
+      expect(m).not.toBeNull()
+      return sum + Number(m![1])
+    }, 0)
+
+    const artistMatch = appCss.match(
+      /\.rankingTable\s+th\.colArtist\s*\{[^}]*width:\s*(\d+)%/s,
+    )
+    expect(artistMatch).not.toBeNull()
+    const artistWidth = minWidth * (Number(artistMatch![1]) / 100)
+
+    const albumWidthAtMin = minWidth - fixedSum - artistWidth
+    expect(albumWidthAtMin).toBeGreaterThanOrEqual(200)
+
+    // Ensure mobile media query resets table min-width and uses grid rows
+    const mobileBlockMatch = appCss.match(
+      /@media\s*\(max-width:\s*720px\)\s*\{[\s\S]*?\.rankingRow\s*\{[^}]*display:\s*grid/s,
+    )
+    expect(mobileBlockMatch).not.toBeNull()
+    expect(appCss).toMatch(
+      /@media\s*\(max-width:\s*720px\)\s*\{[\s\S]*?\.rankingTable\s*\{[^}]*min-width:\s*0/s,
+    )
+  })
 })
