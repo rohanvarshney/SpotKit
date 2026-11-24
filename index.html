@@ -41,12 +41,12 @@
       .shell {
         max-width: 1080px;
         margin: 0 auto;
-        padding: 48px 24px 80px;
+        padding: 40px 24px 80px;
       }
       .hero {
         text-align: center;
         max-width: 680px;
-        margin: 0 auto 44px;
+        margin: 0 auto 36px;
       }
       .jointLogoTopBar {
         display: flex;
@@ -116,6 +116,47 @@
         color: rgba(255, 255, 255, 0.68);
         margin: 0;
       }
+      .accessNotice {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 20px;
+        padding: 11px 16px;
+        border-radius: 14px;
+        background: rgba(168, 85, 247, 0.09);
+        border: 1px solid rgba(168, 85, 247, 0.3);
+        text-align: left;
+      }
+      .accessPill {
+        flex-shrink: 0;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 4px 9px;
+        border-radius: 999px;
+        background: rgba(245, 158, 11, 0.16);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.36);
+      }
+      .accessText {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.45;
+        color: rgba(255, 255, 255, 0.8);
+      }
+      .demoChip {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 750;
+        color: #e9d5ff;
+        padding: 1px 8px;
+        margin: 0 2px;
+        border-radius: 999px;
+        background: rgba(168, 85, 247, 0.22);
+        border: 1px solid rgba(168, 85, 247, 0.45);
+        white-space: nowrap;
+      }
       .toolsGrid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -127,6 +168,13 @@
         }
         h1 {
           font-size: 36px;
+        }
+      }
+      @media (max-width: 640px) {
+        .accessNotice {
+          flex-direction: column;
+          text-align: center;
+          gap: 8px;
         }
       }
       .toolCard {
@@ -245,15 +293,18 @@
         font-size: 13px;
         font-weight: 750;
         text-decoration: none;
-        color: #c4b5fd;
-        padding: 6px 12px;
+        color: #e9d5ff;
+        padding: 7px 14px;
         border-radius: 999px;
-        background: rgba(168, 85, 247, 0.14);
-        border: 1px solid rgba(168, 85, 247, 0.35);
-        transition: background 0.15s ease;
+        background: rgba(168, 85, 247, 0.22);
+        border: 1px solid rgba(168, 85, 247, 0.5);
+        transition: background 0.15s ease, border-color 0.15s ease,
+          box-shadow 0.15s ease;
       }
       .demoLink:hover {
-        background: rgba(168, 85, 247, 0.26);
+        background: rgba(168, 85, 247, 0.35);
+        border-color: rgba(192, 132, 252, 0.75);
+        box-shadow: 0 0 18px rgba(168, 85, 247, 0.28);
       }
       .siteFooter {
         margin-top: 56px;
@@ -280,9 +331,17 @@
         <div class="heroBadge">SPOTKIT SUITE</div>
         <h1><span>SpotKit</span> Web Tools</h1>
         <p class="subtitle">
-          Browser-native Spotify tools: explore history, rank favourite albums,
-          sequence playlists.
+          Browser-native utilities for personal Spotify analytics and library
+          workflows.
         </p>
+        <div class="accessNotice" role="note" aria-label="Allowlist access notice">
+          <span class="accessPill">Allowlist Only</span>
+          <p class="accessText">
+            Live tools require an allowlisted account—use
+            <span class="demoChip">▶ Try Demo</span> on any card to explore how
+            each tool works.
+          </p>
+        </div>
       </header>
 
       <main class="toolsGrid">
