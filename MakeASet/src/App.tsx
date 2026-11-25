@@ -251,7 +251,7 @@ export function App() {
       },
       {
         stage: 'camelot_mapping',
-        stageLabel: 'Mapping Tracks to the Camelot Wheel',
+        stageLabel: 'Mapping Song Keys Across Crate',
         detail: `Resolving harmonic neighbors & cohesion vectors for ${total} tracks…`,
         tracksFetched: total,
         tracksTotal: total,
@@ -276,7 +276,7 @@ export function App() {
         reccoMatchedCount: 0,
         estimatedCount: 0,
         recentLogs: [
-          `Crate ready: ${total} tracks mapped to the Camelot Wheel`,
+          `Crate ready: ${total} tracks mapped by song key`,
           `Analyzed: "${tLast.name}" → ${tLast.camelot} (${tLast.musicalKey}) • ${tLast.bpm} BPM`,
         ],
         percent: 100,

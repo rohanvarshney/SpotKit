@@ -12,7 +12,7 @@ const STAGES: { id: AnalysisStageId; label: string; icon: string }[] = [
   { id: 'sources', label: 'Import Crate', icon: '📥' },
   { id: 'audio_features', label: 'Spotify Audio', icon: '🎛️' },
   { id: 'fallback_lookup', label: 'BPM & Key Lookup', icon: '🔎' },
-  { id: 'camelot_mapping', label: 'Camelot Wheel', icon: '🎡' },
+  { id: 'camelot_mapping', label: 'Song Keys', icon: '🎡' },
   { id: 'ready', label: 'Crate Ready', icon: '✨' },
 ]
 

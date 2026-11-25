@@ -8,12 +8,12 @@ This directory contains offline developer tooling for maintaining SpotKit's stat
 
 ### Context & Why This Exists
 
-SpotKit's demo/mock album catalog lives in [`../shared/demoCatalogCore.ts`](../shared/demoCatalogCore.ts) and is re-exported by [`../shared/spotkitDemoCatalog.ts`](../shared/spotkitDemoCatalog.ts) (`SPOTKIT_DEMO_ALBUMS`, currently 118 real albums combined from `shared/baseCatalogData.ts`, `shared/expandedMainstreamAlbums.ts`, and `shared/expandedDanceAlbums.ts`).
+SpotKit's demo/mock album catalog lives in [`../shared/demoCatalogCore.ts`](../shared/demoCatalogCore.ts) and is re-exported by [`../shared/spotkitDemoCatalog.ts`](../shared/spotkitDemoCatalog.ts) (`SPOTKIT_DEMO_ALBUMS`, currently 124 real albums combined from `shared/baseCatalogData.ts`, `shared/expandedMainstreamAlbums.ts`, and `shared/expandedDanceAlbums.ts`).
 
 Because SpotKit runs as a static client-side suite on GitHub Pages and Demo Mode has no authenticated Spotify Web API session:
 
 1. **No runtime Spotify API calls:** Demo Mode cannot hit authenticated `api.spotify.com/v1/*` endpoints to fetch album images.
-2. **No image binaries in git:** Checking 118 copyrighted album covers into the repository would bloat git history and re-host third-party artwork.
+2. **No image binaries in git:** Checking 124 copyrighted album covers into the repository would bloat git history and re-host third-party artwork.
 3. **Deterministic over runtime search:** Querying search APIs from end-user browsers is slow, rate-limited (e.g., iTunes caps per IP and blocks browser `fetch()` via CORS), and non-deterministic (search rankings can drift to tribute albums, instrumentals, or wrong editions).
 
 To solve this, `sync-demo-artwork.mjs` separates **offline discovery** (run once by a maintainer when the demo catalog changes) from **runtime delivery** (reading a static, sorted JSON map in [`../assets/demoArtworkManifest.json`](../assets/demoArtworkManifest.json) via [`../shared/demoArtwork.ts`](../shared/demoArtwork.ts)).

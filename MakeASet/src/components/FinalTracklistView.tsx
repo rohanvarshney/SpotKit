@@ -62,7 +62,7 @@ export function FinalTracklistView({
     [setTracks],
   )
 
-  const defaultDescription = `Sequenced with SpotKit MakeASet • ${setTracks.length} tracks • ${avgCohesion}% avg Camelot & BPM cohesion${opener && closer ? ` • ${opener.bpm}→${closer.bpm} BPM` : ''}`
+  const defaultDescription = `Sequenced with SpotKit MakeASet • ${setTracks.length} tracks • ${avgCohesion}% avg song key & BPM cohesion${opener && closer ? ` • ${opener.bpm}→${closer.bpm} BPM` : ''}`
 
   const [showPlaylistModal, setShowPlaylistModal] = useState(false)
   const [playlistName, setPlaylistName] = useState(defaultName)

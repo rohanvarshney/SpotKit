@@ -160,7 +160,7 @@ export function SourceDialogView({
         <h2 className="dialogTitle">Choose your playlist &amp; set length</h2>
         <p className="dialogLead">
           By default, DJMyPlaylist loads your <strong>Spotify Liked Songs</strong>{' '}
-          and sequences the <strong>entire crate</strong> by Camelot Wheel
+          and sequences the <strong>entire crate</strong> by song key
           harmony and BPM. Paste any public playlist URL or set an optional{' '}
           <strong>up to X tracks</strong> subset limit below.
         </p>

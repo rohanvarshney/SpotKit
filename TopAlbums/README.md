@@ -1,10 +1,10 @@
 # TopAlbums
 
-**TopAlbums** is a React + Vite TypeScript web application in `SpotKit` that connects to the Spotify Web API via OAuth 2.0 PKCE, scans a user's **Liked Songs** (`/v1/me/tracks`) and **Top Tracks** (`/v1/me/top/tracks`), hydrates complete album tracklists (`/v1/albums`), and ranks their top albums.
+**TopAlbums** is a React + Vite TypeScript web application in `SpotKit` that connects to the Spotify Web API, scans a user's **Liked Songs** (`/v1/me/tracks`) and **Top Tracks** (`/v1/me/top/tracks`), hydrates complete album tracklists (`/v1/albums`), and ranks their top albums.
 
 ## Features
 
-- **Spotify OAuth 2.0 PKCE Login**: Pure client-side authentication (no client secret or backend server required).
+- **Browser-Native Spotify Login**: Pure client-side authentication (no client secret or backend server required).
 - **Multi-Stage Loading View**: Live progress bar, stage indicators, and real-time streaming log while fetching Liked Songs, Top Tracks, and full album tracklists.
 - **Weighted Album Scoring**:
   - **Bayesian % Liked**: Balances completion percentage (`liked_tracks / total_tracks`) with album depth so 1-track singles don't outrank 12-track albums.

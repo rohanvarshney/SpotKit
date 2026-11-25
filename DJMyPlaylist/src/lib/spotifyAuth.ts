@@ -109,7 +109,7 @@ export async function handleOAuthCallbackIfPresent(): Promise<string | null> {
 
   if (!codeVerifier) {
     cleanUrl()
-    throw new Error('Missing PKCE code verifier in session. Please log in again.')
+    throw new Error('Your login session expired or was interrupted. Please log in again.')
   }
 
   if (expectedState && returnedState && expectedState !== returnedState) {

@@ -122,6 +122,17 @@ const QUERY_HINTS = {
   alb_lush: {
     term: 'Mitski Be the Cowboy',
   },
+  alb_miseducation: {
+    artistAliases: ['Ms. Lauryn Hill', 'Lauryn Hill'],
+    term: 'Lauryn Hill The Miseducation of Lauryn Hill',
+  },
+  alb_morning_glory: {
+    term: "Oasis What's the Story Morning Glory",
+    albumAliases: [
+      "(What's the Story) Morning Glory?",
+      "(What's the Story) Morning Glory? (Remastered)",
+    ],
+  },
 }
 
 /**

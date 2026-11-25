@@ -917,6 +917,7 @@ describe('albumScorer', () => {
     const kendrick = findArtist('Kendrick Lamar')
     const radiohead = findArtist('Radiohead')
     const charli = findArtist('Charli xcx')
+    const weeknd = findArtist('The Weeknd')
 
     expect(tameImpala?.albums.length).toBe(4)
     expect(tameImpala?.eraSpan).toBe('2010–2020')
@@ -930,7 +931,8 @@ describe('albumScorer', () => {
 
     expect(kendrick?.albums.length).toBe(4)
     expect(radiohead?.albums.length).toBe(4)
-    expect(charli?.albums.length).toBe(3)
+    expect(charli?.albums.length).toBe(1)
+    expect(weeknd?.albums.length).toBe(3)
 
     const defaultTiers = buildDefaultArtistTierMap(tameImpala!)
     const totalAssigned = Object.values(defaultTiers).reduce(

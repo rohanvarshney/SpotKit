@@ -97,14 +97,14 @@ export function LoginView({
         </h1>
         <p className="heroLead">
           Load your <em>Liked Songs</em> or paste any public Spotify playlist,
-          run track-by-track Camelot key &amp; BPM analysis, pick your opening
+          run track-by-track song key &amp; BPM analysis, pick your opening
           song, and follow real-time <strong>Cohesion Scores</strong> as the
           crate re-sorts around every selection.
         </p>
 
         <div className="featurePills">
           <span className="pill">💚 Liked Songs + Public Playlist URL</span>
-          <span className="pill">🎡 Camelot Wheel + BPM Cohesion</span>
+          <span className="pill">🎡 Song Key + BPM Cohesion</span>
           <span className="pill">🔄 Live Re-Sort Per Pick</span>
           <span className="pill">↩ Branch &amp; Revert Anytime</span>
           <span className="pill">🚀 Export Straight to Spotify</span>
@@ -211,7 +211,7 @@ export function LoginView({
             className="textLinkBtn"
             onClick={() => setShowConfig((v) => !v)}
           >
-            {showConfig ? '▾' : '▸'} Developer Settings (Custom PKCE Override){' '}
+            {showConfig ? '▾' : '▸'} Developer Settings (Custom Override){' '}
             {effective.hasCustomOverride ? (
               <span className="statusTag warn">Custom Override Active</span>
             ) : (
@@ -224,7 +224,7 @@ export function LoginView({
               <div className="configHint">
                 <p>
                   <strong>MakeASet is pre-configured</strong> with SpotKit&apos;s
-                  Spotify OAuth PKCE client credentials. Only enter values below
+                  Spotify client credentials. Only enter values below
                   if you have registered your own Spotify Developer App and want
                   to override the Client ID or Redirect URI.
                 </p>

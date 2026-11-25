@@ -566,8 +566,8 @@ export async function fetchAndAnalyzeCrate(options: {
   // Stage 4: Track-by-track Camelot mapping + deterministic estimator for any unresolved tracks
   onProgress({
     stage: 'camelot_mapping',
-    stageLabel: 'Mapping Tracks to the Camelot Wheel',
-    detail: `Computing Camelot harmonic keys & cohesion vectors across ${totalTracks.toLocaleString()} tracks…`,
+    stageLabel: 'Mapping Song Keys Across Crate',
+    detail: `Computing song keys & cohesion vectors across ${totalTracks.toLocaleString()} tracks…`,
     tracksFetched: totalTracks,
     tracksTotal: totalTracks,
     tracksAnalyzed: featureMap.size,
@@ -657,7 +657,7 @@ export async function fetchAndAnalyzeCrate(options: {
   onProgress({
     stage: 'ready',
     stageLabel: 'Track-by-Track Analysis Complete',
-    detail: `Ready! ${analyzedTracks.length.toLocaleString()} tracks mapped to the Camelot Wheel.`,
+    detail: `Ready! ${analyzedTracks.length.toLocaleString()} tracks mapped by song key.`,
     tracksFetched: totalTracks,
     tracksTotal: totalTracks,
     tracksAnalyzed: analyzedTracks.length,

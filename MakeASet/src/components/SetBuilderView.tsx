@@ -221,7 +221,7 @@ export function SetBuilderView({
               {showEstimationNote && (
                 <span
                   className="metaPill subtleWarnPill"
-                  title="Spotify restricted /audio-features in Dev Mode for some tracks, so MakeASet used public lookup + deterministic estimates. You can manually fine-tune any track's BPM or Camelot key with the Edit button."
+                  title="Spotify restricted /audio-features in Dev Mode for some tracks, so MakeASet used public lookup + deterministic estimates. You can manually fine-tune any track's BPM or song key with the Edit button."
                 >
                   ℹ {crate.featureSummary.estimated} estimated (editable)
                 </span>
@@ -420,7 +420,7 @@ export function SetBuilderView({
             </div>
 
             <div className="camelotWheelBox">
-              <div className="camelotWheelLabel">Best Camelot Targets</div>
+              <div className="camelotWheelLabel">Best Song Key Targets</div>
               <div className="camelotTargetRow">
                 <span className="targetChip exact" title="Same Key (50/50 harmonic)">
                   Exact: {compatibleKeys.exact}
@@ -452,7 +452,7 @@ export function SetBuilderView({
                 />
               </label>
               <label className="inlineEditField">
-                Camelot Key
+                Song Key
                 <select
                   className="select smallInput"
                   value={editCamelot}
@@ -497,9 +497,9 @@ export function SetBuilderView({
               onChange={(e) =>
                 setCamelotFilter(e.target.value as 'all' | CamelotCode)
               }
-              aria-label="Filter by Camelot Key"
+              aria-label="Filter by Song Key"
             >
-              <option value="all">All Camelot Keys</option>
+              <option value="all">All Song Keys</option>
               {ALL_CAMELOT_CODES.map((code) => (
                 <option key={code} value={code}>
                   {code} ({camelotToPitchAndMode(code).musicalKey})
@@ -527,7 +527,7 @@ export function SetBuilderView({
               <option value="default">Crate Order</option>
               <option value="bpm_asc">BPM: Low → High</option>
               <option value="bpm_desc">BPM: High → Low</option>
-              <option value="camelot">Camelot Wheel (1A → 12B)</option>
+              <option value="camelot">Song Key (1A → 12B)</option>
               <option value="energy_desc">Energy: High → Low</option>
             </select>
           </div>
@@ -820,7 +820,7 @@ export function SetBuilderView({
                             />
                           </label>
                           <label className="inlineEditField">
-                            Camelot
+                            Song Key
                             <select
                               className="select smallInput"
                               value={editCamelot}

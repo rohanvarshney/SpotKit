@@ -279,7 +279,7 @@ export function sequencePlaylist(
   addLog(
     'scan',
     'SCAN',
-    `Mapped ${n.toLocaleString()} tracks across ${populatedKeys.length} Camelot keys (${bpmRange.min}–${bpmRange.max} BPM, median ${bpmRange.median} BPM).`,
+    `Mapped ${n.toLocaleString()} tracks across ${populatedKeys.length} song keys (${bpmRange.min}–${bpmRange.max} BPM, median ${bpmRange.median} BPM).`,
     `Top keys in crate: ${topKeysText}. Target mode: ${
       isSubsetMode
         ? `Optimal ${targetCount}-track subset out of ${n}`
@@ -348,7 +348,7 @@ export function sequencePlaylist(
     'cluster',
     'CLUSTER',
     `Identified dominant harmonic pocket around ${bestNeighborhoodKey} (${bestKeyMeta.musicalKey}) and ${bestBpmCenter - 4}–${bestBpmCenter + 4} BPM.`,
-    `${bestNeighborhoodCount} tracks sit inside compatible Camelot neighbors (${bestNeighborhoodKeysList.join(' / ')}); ${bestBpmPocketCount} tracks cluster inside the core tempo pocket.${
+    `${bestNeighborhoodCount} tracks sit inside compatible song key neighbors (${bestNeighborhoodKeysList.join(' / ')}); ${bestBpmPocketCount} tracks cluster inside the core tempo pocket.${
       isSubsetMode
         ? ` Subsetting to ${targetCount} tracks allows pruning isolated tempo/key outliers.`
         : ''

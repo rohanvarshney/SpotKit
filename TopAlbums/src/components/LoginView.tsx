@@ -215,7 +215,7 @@ export function LoginView({
             className="textLinkBtn"
             onClick={() => setShowConfig((v) => !v)}
           >
-            {showConfig ? '▾' : '▸'} Developer Settings (Custom PKCE Override){' '}
+            {showConfig ? '▾' : '▸'} Developer Settings (Custom Override){' '}
             {effective.hasCustomOverride ? (
               <span className="statusTag warn">Custom Override Active</span>
             ) : (
@@ -228,7 +228,7 @@ export function LoginView({
               <div className="configHint">
                 <p>
                   <strong>TopAlbums is already pre-configured</strong> with
-                  built-in Spotify OAuth PKCE credentials (hidden for security).
+                  built-in Spotify credentials (hidden for security).
                   Only enter values below if you have registered your own
                   Spotify Developer App and want to override the default Client
                   ID or Redirect URI.

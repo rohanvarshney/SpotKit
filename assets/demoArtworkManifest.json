@@ -1,6 +1,6 @@
 {
   "catalogVersion": "2026.2-unified",
-  "generatedAt": "2026-11-21T01:08:12.024Z",
+  "generatedAt": "2026-11-25T15:46:07.184Z",
   "albums": {
     "alb_1989_tv": {
       "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/11/a6/80/11a680e6-2e48-08fa-5e87-3f18e838d31f/23UM1IM11868.rgb.jpg/600x600bb.jpg",
@@ -202,14 +202,6 @@
       "matchedArtist": "Chris Lake",
       "matchedAlbum": "Chemistry"
     },
-    "alb_crash": {
-      "url": "https://coverartarchive.org/release-group/8d0f0148-7c6e-455d-872e-9851284c5522/front-500",
-      "source": "coverartarchive",
-      "width": 500,
-      "height": 500,
-      "matchedArtist": "Charli XCX",
-      "matchedAlbum": "CRASH"
-    },
     "alb_ctrl": {
       "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a2/bc/ad/a2bcad46-b389-4be1-8bac-5a0959b0b8e4/886446548449.jpg/600x600bb.jpg",
       "source": "itunes",
@@ -290,6 +282,14 @@
       "matchedArtist": "Caroline Polachek",
       "matchedAlbum": "Desire, I Want to Turn Into You"
     },
+    "alb_diamond_life": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/51/d0/6a/mzi.zxcjkymx.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Sade",
+      "matchedAlbum": "Diamond Life"
+    },
     "alb_discovery": {
       "url": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/fd/4a/77/fd4a77db-0ebc-d043-41a2-f32fa1bb0fb4/dj.qrikkdwj.jpg/600x600bb.jpg",
       "source": "itunes",
@@ -297,6 +297,14 @@
       "height": 600,
       "matchedArtist": "Daft Punk",
       "matchedAlbum": "Discovery"
+    },
+    "alb_el_madrileno": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/63/8c/02/638c027b-3487-1cc6-8028-2be8546ae151/886448978985.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "C. Tangana",
+      "matchedAlbum": "El Madrileño"
     },
     "alb_emotion": {
       "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/8e/b9/9b/8eb99b2a-f730-0df5-3c2c-4175d57cd84d/15UMGIM31527.rgb.jpg/600x600bb.jpg",
@@ -410,14 +418,6 @@
       "matchedArtist": "Metro Boomin",
       "matchedAlbum": "HEROES & VILLAINS"
     },
-    "alb_hifn": {
-      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/1a/5c/e9/1a5ce93c-aef4-6667-b7d1-7162203e1c39/190295229993.jpg/600x600bb.jpg",
-      "source": "itunes",
-      "width": 600,
-      "height": 600,
-      "matchedArtist": "Charli xcx",
-      "matchedAlbum": "how i'm feeling now"
-    },
     "alb_hit_me_hard_and_soft": {
       "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/92/9f/69/929f69f1-9977-3a44-d674-11f70c852d1b/24UMGIM36186.rgb.jpg/600x600bb.jpg",
       "source": "itunes",
@@ -482,6 +482,14 @@
       "matchedArtist": "Tame Impala",
       "matchedAlbum": "InnerSpeaker"
     },
+    "alb_innervisions": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/ff/c2/5f/ffc25f04-cb3b-b56e-dd28-8b77ae63e613/00602537070824.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Stevie Wonder",
+      "matchedAlbum": "Innervisions"
+    },
     "alb_is_this_it": {
       "url": "https://coverartarchive.org/release-group/6d44b57a-2b9d-372a-b7c2-c670dca997d3/front-500",
       "source": "coverartarchive",
@@ -522,14 +530,6 @@
       "matchedArtist": "Burna Boy",
       "matchedAlbum": "Love, Damini"
     },
-    "alb_love_deluxe": {
-      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/18/c8/d7/18c8d7bc-8491-09e6-df0d-6e0a83ead680/mzi.wsikzifg.jpg/600x600bb.jpg",
-      "source": "itunes",
-      "width": 600,
-      "height": 600,
-      "matchedArtist": "Sade",
-      "matchedAlbum": "Love Deluxe"
-    },
     "alb_lush": {
       "url": "https://coverartarchive.org/release-group/18564a20-d557-4f7c-81e7-8d1d40a1be55/front-500",
       "source": "coverartarchive",
@@ -537,6 +537,30 @@
       "height": 500,
       "matchedArtist": "Mitski",
       "matchedAlbum": "Be the Cowboy"
+    },
+    "alb_made_in_lagos": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/b0/09/8e/b0098ed0-ef53-f2b5-386a-c8e6181f3c8a/886448775256.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Wizkid",
+      "matchedAlbum": "Made In Lagos"
+    },
+    "alb_malibu": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/32/04/f0/3204f09c-4580-3880-7f5f-254dfa4d258f/888915184455_cover.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Anderson .Paak",
+      "matchedAlbum": "Malibu"
+    },
+    "alb_manana_sera_bonito": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/9b/01/44/9b0144e6-21ae-b53f-2b25-ef6c594b18a3/22UM1IM38716.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "KAROL G",
+      "matchedAlbum": "MAÑANA SERÁ BONITO"
     },
     "alb_mbdtf": {
       "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/d1/74/da/d174dacf-5782-dfe2-19f7-ce037dcd0237/00602527584935.rgb.jpg/600x600bb.jpg",
@@ -562,6 +586,14 @@
       "matchedArtist": "Chappell Roan",
       "matchedAlbum": "The Rise and Fall of a Midwest Princess"
     },
+    "alb_miseducation": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/09/6b/55/096b55c4-ee8f-23bd-df8f-0ca0821f3028/886446727189.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Lauryn Hill",
+      "matchedAlbum": "The Miseducation of Lauryn Hill"
+    },
     "alb_mmatbs": {
       "url": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/eb/44/c9/eb44c9e1-401e-b118-6254-7b9a10888c39/22UMGIM52376.rgb.jpg/600x600bb.jpg",
       "source": "itunes",
@@ -570,21 +602,13 @@
       "matchedArtist": "Kendrick Lamar",
       "matchedAlbum": "Mr. Morale & The Big Steppers"
     },
-    "alb_motomami": {
-      "url": "https://coverartarchive.org/release-group/f455f658-dd55-4790-8cd3-99c7c273018a/front-500",
-      "source": "coverartarchive",
-      "width": 500,
-      "height": 500,
-      "matchedArtist": "ROSALÍA",
-      "matchedAlbum": "MOTOMAMI"
-    },
-    "alb_nevermind": {
-      "url": "https://coverartarchive.org/release-group/1b022e01-4da6-387b-8658-8678046e4cef/front-500",
-      "source": "coverartarchive",
-      "width": 500,
-      "height": 500,
-      "matchedArtist": "Nirvana",
-      "matchedAlbum": "Nevermind"
+    "alb_morning_glory": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/04/92/e0/0492e08b-cbcc-9969-9ad6-8f5a0888068c/5051961007107.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Oasis",
+      "matchedAlbum": "(What's the Story) Morning Glory?"
     },
     "alb_new_abnormal": {
       "url": "https://coverartarchive.org/release-group/43ca5aa6-92de-47e9-8f0b-9112e4881426/front-500",
@@ -601,6 +625,14 @@
       "height": 500,
       "matchedArtist": "Lana Del Rey",
       "matchedAlbum": "Norman Fucking Rockwell!"
+    },
+    "alb_nurture": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/f7/b0/67/f7b067e8-6759-c676-6b6d-d4f5b049d23f/858275061918_Cover.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Porter Robinson",
+      "matchedAlbum": "Nurture"
     },
     "alb_ogwau": {
       "url": "https://coverartarchive.org/release-group/91ee3856-0ee6-467d-b01d-9d529affc9f4/front-500",
@@ -625,14 +657,6 @@
       "height": 600,
       "matchedArtist": "MGMT",
       "matchedAlbum": "Oracular Spectacular"
-    },
-    "alb_orquideas": {
-      "url": "https://coverartarchive.org/release-group/ffe90330-8efd-49ec-b3dd-5edf11348eea/front-500",
-      "source": "coverartarchive",
-      "width": 500,
-      "height": 500,
-      "matchedArtist": "Kali Uchis",
-      "matchedAlbum": "ORQUÍDEAS"
     },
     "alb_parachutes": {
       "url": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f5/93/8c/f5938c49-964c-31d1-4b33-78b634f71fb7/190295978075.jpg/600x600bb.jpg",
@@ -689,6 +713,14 @@
       "height": 600,
       "matchedArtist": "Daft Punk",
       "matchedAlbum": "Random Access Memories"
+    },
+    "alb_remain_in_light": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/87/5f/5b/mzi.zzquknhm.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Talking Heads",
+      "matchedAlbum": "Remain In Light"
     },
     "alb_renaissance": {
       "url": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/fe/ba/43/feba43be-99e8-ad8c-9fad-1bfdea7a4e98/196589344267.jpg/600x600bb.jpg",
@@ -914,6 +946,14 @@
       "matchedArtist": "Charli XCX",
       "matchedAlbum": "Vroom Vroom"
     },
+    "alb_whats_going_on": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/76/36/2d/76362d74-cb7a-8ef9-104e-cde1d858e9a9/20UMGIM95279.rgb.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Marvin Gaye",
+      "matchedAlbum": "What's Going On"
+    },
     "alb_when_will_we_land": {
       "url": "https://coverartarchive.org/release-group/672a4973-eaf5-4308-8261-ffad7a5a5887/front-500",
       "source": "coverartarchive",
@@ -921,6 +961,14 @@
       "height": 500,
       "matchedArtist": "Barry Can’t Swim",
       "matchedAlbum": "When Will We Land?"
+    },
+    "alb_wolfgang_phoenix": {
+      "url": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/28/8d/ab/288dabdd-f8de-80f6-1aab-40a24cb1b33f/00892038002190_Cover.jpg/600x600bb.jpg",
+      "source": "itunes",
+      "width": 600,
+      "height": 600,
+      "matchedArtist": "Phoenix",
+      "matchedAlbum": "Wolfgang Amadeus Phoenix"
     },
     "alb_wwafawdwg": {
       "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/1a/37/d1/1a37d1b1-8508-54f2-f541-bf4e437dda76/19UMGIM05028.rgb.jpg/600x600bb.jpg",

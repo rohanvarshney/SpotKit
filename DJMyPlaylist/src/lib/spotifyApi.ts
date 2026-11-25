@@ -573,8 +573,8 @@ export async function fetchAndAnalyzeCrate(options: {
 
   onProgress({
     stage: 'camelot_mapping',
-    stageLabel: 'Mapping Entire Playlist to Camelot Wheel',
-    detail: `Resolving Camelot keys & BPM profiles across ${totalTracks.toLocaleString()} tracks…`,
+    stageLabel: 'Mapping Song Keys Across Playlist',
+    detail: `Resolving song keys & BPM profiles across ${totalTracks.toLocaleString()} tracks…`,
     tracksFetched: totalTracks,
     tracksTotal: totalTracks,
     tracksAnalyzed: featureMap.size,
@@ -663,7 +663,7 @@ export async function fetchAndAnalyzeCrate(options: {
 
   onProgress({
     stage: 'ready',
-    stageLabel: 'Camelot & BPM Map Complete',
+    stageLabel: 'Song Key & BPM Map Complete',
     detail: `Mapped ${analyzedTracks.length.toLocaleString()} tracks — launching recursive sequencer…`,
     tracksFetched: totalTracks,
     tracksTotal: totalTracks,

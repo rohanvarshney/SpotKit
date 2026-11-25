@@ -126,7 +126,7 @@ export function PlaylistResultView({
 
   const defaultPlaylistDescription = useMemo(
     () =>
-      `Auto-sequenced with SpotKit DJMyPlaylist • ${orderedTracks.length} tracks • ${result.avgCohesion}% avg Camelot & BPM cohesion${
+      `Auto-sequenced with SpotKit DJMyPlaylist • ${orderedTracks.length} tracks • ${result.avgCohesion}% avg song key & BPM cohesion${
         opener && closer ? ` • ${opener.bpm}→${closer.bpm} BPM` : ''
       }`,
     [orderedTracks.length, result.avgCohesion, opener, closer],
@@ -293,7 +293,7 @@ export function PlaylistResultView({
               {showEstimationNote && (
                 <span
                   className="metaPill subtleWarnPill"
-                  title="Spotify restricted /audio-features in Dev Mode for some tracks, so DJMyPlaylist used ReccoBeats lookup + deterministic estimates. You can edit any track's BPM or Camelot key below."
+                  title="Spotify restricted /audio-features in Dev Mode for some tracks, so DJMyPlaylist used ReccoBeats lookup + deterministic estimates. You can edit any track's BPM or song key below."
                 >
                   ℹ {crate.featureSummary.estimated} estimated (editable)
                 </span>
@@ -305,7 +305,7 @@ export function PlaylistResultView({
                 : `Full ${orderedTracks.length}-Track Playlist Sequenced`}
             </h2>
             <p className="muted">
-              Ordered recursively &amp; iteratively by Camelot Wheel harmony and
+              Ordered recursively &amp; iteratively by song key harmony and
               BPM continuity. Fine-tune parameters, inspect the live reasoning
               log, or generate your Spotify playlist below.
             </p>
@@ -676,7 +676,7 @@ export function PlaylistResultView({
       <div className="card camelotOverviewCard">
         <div className="overviewHeaderRow">
           <div>
-            <h3>Camelot Wheel &amp; Crate Harmonic Map</h3>
+            <h3>Song Key &amp; Crate Harmonic Map</h3>
             <p className="mutedSmall">
               Crate BPM spread: <strong>{result.bpmRange.min}–{result.bpmRange.max} BPM</strong>{' '}
               (median {result.bpmRange.median} BPM) •{' '}
@@ -752,7 +752,7 @@ export function PlaylistResultView({
               {(
                 [
                   { id: 'all', label: `All Steps (${narrationLogs.length})` },
-                  { id: 'scan', label: 'Camelot Scan' },
+                  { id: 'scan', label: 'Song Key Scan' },
                   { id: 'recursive', label: 'Recursive Search & Backtracks' },
                   { id: 'iterate', label: 'Iterative 2-Opt & Swaps' },
                 ] as const
@@ -807,7 +807,7 @@ export function PlaylistResultView({
           <div>
             <h3>Generated DJ Tracklist ({orderedTracks.length} songs)</h3>
             <p className="mutedSmall">
-              Nudge tracks up/down, tune BPM/Camelot keys inline, or inspect
+              Nudge tracks up/down, tune BPM &amp; song keys inline, or inspect
               transition cohesion between each pair.
             </p>
           </div>
@@ -881,7 +881,7 @@ export function PlaylistResultView({
                           />
                         </label>
                         <label className="inlineEditField">
-                          Camelot Key
+                          Song Key
                           <select
                             className="select smallInput"
                             value={editCamelot}
@@ -928,7 +928,7 @@ export function PlaylistResultView({
                         type="button"
                         className="inlineEditBtn"
                         onClick={() => openEditor(track)}
-                        title="Edit track BPM & Camelot key"
+                        title="Edit track BPM & song key"
                       >
                         ✎ Tune
                       </button>

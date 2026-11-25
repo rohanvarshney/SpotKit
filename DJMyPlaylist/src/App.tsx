@@ -47,7 +47,7 @@ type AppScreen = 'login' | 'source_dialog' | 'sequencing' | 'result'
 const INITIAL_PROGRESS: SequencingProgress = {
   stage: 'sources',
   stageLabel: 'Loading Your Selected Playlist',
-  detail: 'Preparing Camelot Wheel & BPM analysis…',
+  detail: 'Preparing song key & BPM analysis…',
   tracksFetched: 0,
   tracksTotal: 0,
   tracksAnalyzed: 0,
@@ -321,7 +321,7 @@ export function App() {
 
       frames.push({
         stage: 'camelot_mapping',
-        stageLabel: 'Mapping Full Playlist to Camelot Wheel',
+        stageLabel: 'Mapping Song Keys Across Playlist',
         detail: `All ${total} tracks mapped (${tLast ? `through "${tLast.name}"` : 'complete'}) — starting harmonic census…`,
         tracksFetched: total,
         tracksTotal: total,
@@ -350,7 +350,7 @@ export function App() {
 
       const stageLabel =
         stage === 'camelot_mapping'
-          ? 'Full-Crate Camelot & BPM Census'
+          ? 'Full-Crate Song Key & BPM Census'
           : stage === 'recursive_search'
             ? 'Recursive Lookahead & Backtracking'
             : stage === 'iterative_refine'
@@ -649,7 +649,7 @@ export function App() {
       phase: 'iterate',
       badge: 'INSERT',
       message: `Inserted "${track.name}" (${track.camelot} • ${track.bpm} BPM) from crate pool at slot #${bestSlot.index + 1}.`,
-      detail: `Selected optimal bridge position based on adjacent Camelot & BPM cohesion.`,
+      detail: `Selected optimal bridge position based on adjacent song key & BPM cohesion.`,
       scoreImpact: `${evaluated.avgCohesion}% avg`,
     }
 
@@ -783,7 +783,7 @@ export function App() {
                 <span className="brandAccent">SpotKit</span> / DJMyPlaylist
               </div>
               <div className="brandSubtitle">
-                Recursive &amp; iterative Camelot + BPM playlist auto-sequencer
+                Recursive &amp; iterative song key + BPM playlist auto-sequencer
               </div>
             </div>
             <div

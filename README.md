@@ -2,10 +2,10 @@
 
 **SpotKit** is a suite of client-side Spotify web utilities hosted on GitHub Pages:
 
-1. **[TopAlbums](./TopAlbums/)**: Ranks your top albums using your Spotify **Liked Songs** and **Top 50 Tracks** via OAuth 2.0 PKCE.
+1. **[TopAlbums](./TopAlbums/)**: Ranks your top albums using your Spotify **Liked Songs** and **Top 50 Tracks**.
 2. **[SESH](./SESH/)**: Visualizes your Spotify Extended Streaming History (`my_spotify_data.zip`) directly in the browser.
-3. **[DJMyPlaylist](./DJMyPlaylist/)**: Automatically scans your Spotify **Liked Songs** or any public playlist URL, maps every track onto the Camelot Wheel & BPM grid, recursively and iteratively orders the full crate (or an optimal `X`-track subset) with live narrated thought-process logs, and exports the sequenced tracklist back to Spotify.
-4. **[MakeASet](./MakeASet/)**: Interactive DJ set builder—confirm your Liked Songs crate or paste any public Spotify playlist URL, run track-by-track Camelot wheel & BPM analysis, pick an opening track, follow Cohesion-scored next-track rankings that re-sort with every selection, and export the final tracklist to a Spotify playlist.
+3. **[DJMyPlaylist](./DJMyPlaylist/)**: Automatically scans your Spotify **Liked Songs** or any public playlist URL, maps every track by song key & BPM, recursively and iteratively orders the full crate (or an optimal `X`-track subset) with live narrated thought-process logs, and exports the sequenced tracklist back to Spotify.
+4. **[MakeASet](./MakeASet/)**: Interactive DJ set builder—confirm your Liked Songs crate or paste any public Spotify playlist URL, run track-by-track song key & BPM analysis, pick an opening track, follow Cohesion-scored next-track rankings that re-sort with every selection, and export the final tracklist to a Spotify playlist.
 
 ## GitHub Pages URLs
 

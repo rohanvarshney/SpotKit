@@ -13,7 +13,7 @@ interface SequencingViewProps {
 const STAGES: { id: SequenceStageId; label: string; icon: string }[] = [
   { id: 'sources', label: 'Import Crate', icon: '📥' },
   { id: 'audio_features', label: 'Audio & BPM Scan', icon: '🎛️' },
-  { id: 'camelot_mapping', label: 'Camelot Mapping', icon: '🎡' },
+  { id: 'camelot_mapping', label: 'Song Key Mapping', icon: '🎡' },
   { id: 'recursive_search', label: 'Recursive Search', icon: '🧠' },
   { id: 'iterative_refine', label: 'Iterative Refine', icon: '🔁' },
 ]
@@ -46,7 +46,7 @@ export function SequencingView({
           </div>
           <div>
             <div className="heroBadge">
-              CAMELOT SCAN &amp; RECURSIVE SEQUENCER
+              SONG KEY SCAN &amp; RECURSIVE SEQUENCER
             </div>
             <h2 className="loadingTitle">{progress.stageLabel}</h2>
             <p className="muted">{progress.detail}</p>
@@ -138,7 +138,7 @@ export function SequencingView({
           <div className="narrationScroll" ref={terminalRef}>
             {progress.narrationLogs.length === 0 ? (
               <div className="narrationEmpty">
-                Waiting for audio &amp; Camelot features to resolve…
+                Waiting for audio &amp; song key features to resolve…
               </div>
             ) : (
               progress.narrationLogs.map((entry, idx) => {
