@@ -1,6 +1,6 @@
 # DJMyPlaylist
 
-**DJMyPlaylist** is an automated harmonic & tempo playlist sequencer in the `SpotKit` suite built with React, TypeScript, Vite, and the Spotify Web API.
+**DJMyPlaylist** is the automated counterpart to **MakeASet** in the `SpotKit` suite—an automatic song key & BPM playlist sequencer built with React, TypeScript, Vite, and the Spotify Web API.
 
 ## Features
 

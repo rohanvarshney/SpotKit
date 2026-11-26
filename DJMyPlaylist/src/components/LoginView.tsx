@@ -97,11 +97,11 @@ export function LoginView({
           <span>seamless DJ set.</span>
         </h1>
         <p className="heroLead">
-          Load your <em>Liked Songs</em> or paste any public Spotify playlist,
-          map every track by <strong>song key &amp; BPM</strong>, and watch our
-          recursive &amp; iterative solver arrange the whole
-          crate—or your top <code>X</code> tracks—with narrated live thought
-          logs.
+          The automated counterpart to <em>MakeASet</em>: load your{' '}
+          <em>Liked Songs</em> or paste any public Spotify playlist, map every
+          track by <strong>song key &amp; BPM</strong>, and let our solver
+          sequence the whole crate (or your top <code>X</code> tracks)
+          automatically with narrated live thought logs.
         </p>
 
         <div className="featurePills">
