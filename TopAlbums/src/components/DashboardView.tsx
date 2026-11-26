@@ -16,11 +16,15 @@ import { DEFAULT_WEIGHTS, scoreAndFilterAlbums } from '../lib/albumScorer'
 import {
   buildArtistGroups,
   buildDefaultArtistTierMap,
+  downloadImageBlob,
   downloadShareImage,
+  isMobileSaveToPhotosDevice,
+  shareImageFile,
   TIER_LETTER_LIST,
   type ArtistExportMode,
   type ArtistGroupSummary,
   type CustomArtistTierMap,
+  type MobileSavePreviewData,
   type TierLetter,
 } from '../lib/shareImageExporter'
 import type {
@@ -142,6 +146,9 @@ export function DashboardView({
   )
   const [hydratingAlbumId, setHydratingAlbumId] = useState<string | null>(null)
   const [isExportingImage, setIsExportingImage] = useState<boolean>(false)
+  const isMobileDevice = useMemo(() => isMobileSaveToPhotosDevice(), [])
+  const [mobileSavePreview, setMobileSavePreview] =
+    useState<MobileSavePreviewData | null>(null)
 
   const options: FilterAndSortOptions = useMemo(
     () => ({
@@ -232,7 +239,7 @@ export function DashboardView({
     if (!activeArtistGroup || isExportingImage) return
     try {
       setIsExportingImage(true)
-      await downloadShareImage({
+      const result = await downloadShareImage({
         viewLayout: 'artist',
         albums: scoredAlbums,
         userDisplayName:
@@ -253,6 +260,9 @@ export function DashboardView({
         isDemo: dataset.isDemo,
       })
       setIsArtistDownloadModalOpen(false)
+      if (result.delivery === 'preview' && result.preview) {
+        setMobileSavePreview(result.preview)
+      }
     } finally {
       setIsExportingImage(false)
     }
@@ -266,7 +276,7 @@ export function DashboardView({
     }
     try {
       setIsExportingImage(true)
-      await downloadShareImage({
+      const result = await downloadShareImage({
         viewLayout,
         albums: scoredAlbums,
         userDisplayName: dataset.user.display_name || dataset.user.id || 'Listener',
@@ -279,6 +289,9 @@ export function DashboardView({
         signatureSrc: freehandSignatureUrl,
         isDemo: dataset.isDemo,
       })
+      if (result.delivery === 'preview' && result.preview) {
+        setMobileSavePreview(result.preview)
+      }
     } finally {
       setIsExportingImage(false)
     }
@@ -497,10 +510,14 @@ export function DashboardView({
                 }
               >
                 <span className="shareDownloadIcon" aria-hidden="true">
-                  {isExportingImage ? '⏳' : '⬇'}
+                  {isExportingImage ? '⏳' : isMobileDevice ? '⬆' : '⬇'}
                 </span>
                 <span>
-                  {isExportingImage ? 'Rendering 1:1 PNG…' : 'Download 1:1 Image'}
+                  {isExportingImage
+                    ? 'Rendering 1:1 PNG…'
+                    : isMobileDevice
+                      ? 'Save 1:1 Image'
+                      : 'Download 1:1 Image'}
                 </span>
               </button>
             </div>
@@ -970,10 +987,18 @@ export function DashboardView({
           tiers={customArtistTiers}
           onChangeTiers={setCustomArtistTiers}
           isExporting={isExportingImage}
+          isMobileDevice={isMobileDevice}
           onClose={() => setIsArtistDownloadModalOpen(false)}
           onExport={(mode, tiersToUse) => {
             void handleExportArtistImage(mode, tiersToUse)
           }}
+        />
+      )}
+
+      {mobileSavePreview && (
+        <MobileSaveImageModal
+          preview={mobileSavePreview}
+          onClose={() => setMobileSavePreview(null)}
         />
       )}
     </div>
@@ -2027,6 +2052,7 @@ interface ArtistDownloadModalProps {
   tiers: CustomArtistTierMap
   onChangeTiers: (next: CustomArtistTierMap) => void
   isExporting: boolean
+  isMobileDevice: boolean
   onClose: () => void
   onExport: (mode: ArtistExportMode, tiersToUse?: CustomArtistTierMap) => void
 }
@@ -2038,6 +2064,7 @@ function ArtistDownloadModal({
   tiers,
   onChangeTiers,
   isExporting,
+  isMobileDevice,
   onClose,
   onExport,
 }: ArtistDownloadModalProps) {
@@ -2432,9 +2459,126 @@ function ArtistDownloadModal({
               {isExporting
                 ? 'Rendering 1:1 PNG…'
                 : mode === 'cards'
-                  ? '⬇ Download 1:1 Artist Card PNG'
-                  : '⬇ Download Custom 1:1 Artist Tier PNG'}
+                  ? isMobileDevice
+                    ? '⬆ Save 1:1 Artist Card'
+                    : '⬇ Download 1:1 Artist Card PNG'
+                  : isMobileDevice
+                    ? '⬆ Save Custom 1:1 Artist Tier'
+                    : '⬇ Download Custom 1:1 Artist Tier PNG'}
             </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+interface MobileSaveImageModalProps {
+  preview: MobileSavePreviewData
+  onClose: () => void
+}
+
+function MobileSaveImageModal({ preview, onClose }: MobileSaveImageModalProps) {
+  const [isSharing, setIsSharing] = useState(false)
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onClose])
+
+  const handleNativeSaveToPhotos = async () => {
+    if (!preview.file || isSharing) return
+    try {
+      setIsSharing(true)
+      const outcome = await shareImageFile(preview.file)
+      if (outcome === 'shared') {
+        onClose()
+      }
+    } finally {
+      setIsSharing(false)
+    }
+  }
+
+  return (
+    <div
+      className="modalOverlay"
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
+      <div
+        className="card mobileSaveModal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mobileSaveModalTitle"
+      >
+        <div className="modalHeader">
+          <div>
+            <span className="heroBadge">1:1 IMAGE READY • SAVE TO PHOTOS</span>
+            <h3 id="mobileSaveModalTitle" className="modalTitle">
+              Save to Photos
+            </h3>
+          </div>
+          <button
+            type="button"
+            className="button secondary small modalCloseBtn"
+            onClick={onClose}
+            aria-label="Close save image dialog"
+          >
+            ✕
+          </button>
+        </div>
+
+        <p className="mobileSaveHint">
+          {preview.canNativeShare && preview.file
+            ? 'Tap Save to Photos and select "Save Image" in the share menu, or press and hold the image below to save it directly to your Photos library.'
+            : 'Press and hold the image below, then choose "Save to Photos" to add it directly to your Photos library.'}
+        </p>
+
+        {preview.previewUrl && (
+          <div className="mobileSavePreviewFrame">
+            <img
+              src={preview.previewUrl}
+              alt={`${preview.spec.layoutBadge} 1:1 share image`}
+              className="mobileSavePreviewImg"
+            />
+          </div>
+        )}
+
+        <div className="mobileSaveActions">
+          {preview.canNativeShare && preview.file && (
+            <button
+              type="button"
+              className="button spotifyBtn"
+              disabled={isSharing}
+              onClick={() => void handleNativeSaveToPhotos()}
+            >
+              {isSharing ? 'Opening Share Sheet…' : '⬆ Save to Photos'}
+            </button>
+          )}
+          <button
+            type="button"
+            className="button secondary"
+            onClick={() =>
+              downloadImageBlob(
+                preview.blob,
+                preview.spec.filename,
+                preview.previewUrl,
+              )
+            }
+          >
+            ⬇ Download File
+          </button>
+          <button
+            type="button"
+            className="button secondary"
+            onClick={onClose}
+          >
+            Done
           </button>
         </div>
       </div>

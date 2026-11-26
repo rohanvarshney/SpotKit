@@ -2722,6 +2722,56 @@
   flex-wrap: wrap;
 }
 
+.mobileSaveModal {
+  width: 100%;
+  max-width: 460px;
+  max-height: 92vh;
+  overflow-y: auto;
+  background: #12121b;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mobileSavePreviewFrame {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #09090f;
+}
+
+.mobileSavePreviewImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  -webkit-touch-callout: default;
+}
+
+.mobileSaveHint {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.mobileSaveActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 520px) {
+  .mobileSaveActions .spotifyBtn {
+    width: 100%;
+  }
+}
+
 /* =========================================
    RESPONSIVE CARD DENSITY (CONTAINER QUERIES)
    ========================================= */

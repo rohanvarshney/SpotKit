@@ -42,8 +42,12 @@ import {
   buildArtistGroups,
   buildDefaultArtistTierMap,
   buildShareImageFilename,
+  canShareImageFile,
+  downloadShareImage,
   getShareImageLayoutSpec,
+  isMobileSaveToPhotosDevice,
   renderShareImageCanvas,
+  shareImageFile,
   type CustomArtistTierMap,
   type ShareImageExportOptions,
 } from './shareImageExporter'
@@ -1540,5 +1544,317 @@ describe('albumScorer', () => {
     expect(appCss).toMatch(
       /@media\s*\(max-width:\s*720px\)\s*\{[\s\S]*?\.rankingTable\s*\{[^}]*min-width:\s*0/s,
     )
+  })
+
+  it('detects mobile and iPadOS devices for Save to Photos while excluding desktop macOS Safari', () => {
+    expect(
+      isMobileSaveToPhotosDevice({
+        userAgent:
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1',
+        maxTouchPoints: 5,
+      }),
+    ).toBe(true)
+
+    expect(
+      isMobileSaveToPhotosDevice({
+        userAgent:
+          'Mozilla/5.0 (iPad; CPU OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1',
+        maxTouchPoints: 5,
+      }),
+    ).toBe(true)
+
+    // iPadOS Desktop Website mode reports Macintosh + MacIntel with maxTouchPoints > 1
+    expect(
+      isMobileSaveToPhotosDevice({
+        userAgent:
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15',
+        platform: 'MacIntel',
+        maxTouchPoints: 5,
+      }),
+    ).toBe(true)
+
+    expect(
+      isMobileSaveToPhotosDevice({
+        userAgent:
+          'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36',
+        maxTouchPoints: 5,
+      }),
+    ).toBe(true)
+
+    expect(
+      isMobileSaveToPhotosDevice({
+        userAgent: 'CustomBrowser/1.0',
+        userAgentData: { mobile: true },
+      }),
+    ).toBe(true)
+
+    // Desktop macOS Safari must stay false
+    expect(
+      isMobileSaveToPhotosDevice({
+        userAgent:
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15',
+        platform: 'MacIntel',
+        maxTouchPoints: 0,
+      }),
+    ).toBe(false)
+
+    // Desktop Windows & Linux must stay false
+    expect(
+      isMobileSaveToPhotosDevice({
+        userAgent:
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        platform: 'Win32',
+        maxTouchPoints: 0,
+      }),
+    ).toBe(false)
+    expect(
+      isMobileSaveToPhotosDevice({
+        userAgent:
+          'Mozilla/5.0 (X11; Linux x86_64; rv:132.0) Gecko/20100101 Firefox/132.0',
+        platform: 'Linux x86_64',
+        maxTouchPoints: 0,
+      }),
+    ).toBe(false)
+  })
+
+  it('uses native file-only Web Share on mobile and opens Save to Photos preview fallback instead of anchor download', async () => {
+    const anchorClicks: Array<{ download: string; href: string }> = []
+
+    const setupDomStubs = () => {
+      class MockExportImage {
+        srcValue = ''
+        naturalWidth = 400
+        naturalHeight = 400
+        width = 400
+        height = 400
+        crossOrigin: string | null = null
+        onload: (() => void) | null = null
+        onerror: (() => void) | null = null
+        set src(val: string) {
+          this.srcValue = val
+          queueMicrotask(() => this.onload?.())
+        }
+        get src(): string {
+          return this.srcValue
+        }
+      }
+
+      const createMockCanvas = () => ({
+        width: 0,
+        height: 0,
+        getContext: () => {
+          const gradient = { addColorStop: () => {} }
+          return {
+            fillStyle: '',
+            strokeStyle: '',
+            lineWidth: 1,
+            font: '',
+            textAlign: 'left',
+            textBaseline: 'alphabetic',
+            globalAlpha: 1,
+            shadowColor: '',
+            shadowBlur: 0,
+            shadowOffsetY: 0,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+            save: () => {},
+            restore: () => {},
+            scale: () => {},
+            beginPath: () => {},
+            closePath: () => {},
+            moveTo: () => {},
+            lineTo: () => {},
+            quadraticCurveTo: () => {},
+            arc: () => {},
+            clip: () => {},
+            fill: () => {},
+            stroke: () => {},
+            fillRect: () => {},
+            createLinearGradient: () => gradient,
+            createRadialGradient: () => gradient,
+            measureText: (txt: string) => ({ width: txt.length * 8 }),
+            fillText: () => {},
+            drawImage: () => {},
+            getImageData: (_x: number, _y: number, w: number, h: number) => ({
+              data: new Uint8ClampedArray(w * h * 4),
+              width: w,
+              height: h,
+            }),
+            putImageData: () => {},
+          }
+        },
+        toBlob: (cb: (b: Blob | null) => void) =>
+          cb(new Blob(['mock-png'], { type: 'image/png' })),
+        toDataURL: () => 'data:image/png;base64,bW9jay1wbmc=',
+      })
+
+      vi.stubGlobal('Image', MockExportImage)
+      vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
+      vi.stubGlobal('document', {
+        body: { appendChild: () => {} },
+        createElement: (tag: string) => {
+          if (tag === 'a') {
+            const anchor = {
+              download: '',
+              href: '',
+              rel: '',
+              style: { display: '' },
+              click: () => {
+                anchorClicks.push({
+                  download: anchor.download,
+                  href: anchor.href,
+                })
+              },
+              remove: () => {},
+            }
+            return anchor
+          }
+          return createMockCanvas()
+        },
+      })
+      vi.stubGlobal('URL', {
+        createObjectURL: () => 'blob:mock-object-url',
+        revokeObjectURL: () => {},
+      })
+    }
+
+    const sampleAlbum: ScoredAlbum = {
+      key: 'alb-share-1',
+      albumId: 'alb-share-1',
+      name: 'Test Album',
+      canonicalName: 'test album',
+      mergedEditionNames: ['Test Album'],
+      albumType: 'album',
+      artists: [{ id: 'art-1', name: 'Test Artist' }],
+      primaryArtist: 'Test Artist',
+      releaseDate: '2025-01-01',
+      releaseYear: '2025',
+      coverUrl: '',
+      spotifyUrl: 'https://open.spotify.com/album/alb-share-1',
+      likedCount: 8,
+      totalTracks: 10,
+      proportionLiked: 0.8,
+      averagePopularity: 75,
+      topTracksCount: 1,
+      topTracksBoostScore: 20,
+      recencyScore: 60,
+      bayesianProportion: 0.72,
+      finalScore: 80.5,
+      scoreBreakdown: {
+        proportionComponent: 72,
+        volumeComponent: 70,
+        topTracksComponent: 20,
+        popularityComponent: 75,
+        recencyComponent: 60,
+      },
+      latestLikedAt: '2026-01-01T00:00:00Z',
+      tracks: [],
+      isTracklistComplete: true,
+    }
+
+    const baseExportOptions: ShareImageExportOptions = {
+      viewLayout: 'grid',
+      albums: [sampleAlbum],
+      userDisplayName: 'Mobile Listener',
+      totalLikedSongs: 10,
+      noSkipCount: 0,
+      topBoostedCount: 1,
+      rankingMode: 'weighted',
+      gradeBasedTiering: false,
+      brandLogoSrc: 'data:image/png;base64,mock-logo',
+      signatureSrc: 'data:image/png;base64,mock-sig',
+      isDemo: false,
+    }
+
+    // 1) iOS Safari: shares ONLY { files: [File] } and does not click <a>
+    setupDomStubs()
+    const shareMock = vi.fn(async () => {})
+    vi.stubGlobal('navigator', {
+      userAgent:
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1',
+      maxTouchPoints: 5,
+      canShare: vi.fn(() => true),
+      share: shareMock,
+    })
+
+    const sharedResult = await downloadShareImage(baseExportOptions)
+    expect(sharedResult.delivery).toBe('shared')
+    expect(shareMock).toHaveBeenCalledTimes(1)
+    const shareArg = (shareMock.mock.calls as unknown[][])[0][0] as ShareData
+    expect(Object.keys(shareArg)).toEqual(['files'])
+    expect(shareArg.files).toHaveLength(1)
+    expect(shareArg.files![0].name).toBe('spotkit-top-albums-grid.png')
+    expect(shareArg.files![0].type).toBe('image/png')
+    expect(anchorClicks).toHaveLength(0)
+
+    // 2) iOS Safari user cancels share sheet -> returns 'cancelled', no <a> download
+    const abortErr = Object.assign(new Error('Cancelled'), { name: 'AbortError' })
+    vi.stubGlobal('navigator', {
+      userAgent:
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1',
+      maxTouchPoints: 5,
+      canShare: vi.fn(() => true),
+      share: vi.fn(async () => {
+        throw abortErr
+      }),
+    })
+    const cancelledResult = await downloadShareImage(baseExportOptions)
+    expect(cancelledResult.delivery).toBe('cancelled')
+    expect(anchorClicks).toHaveLength(0)
+
+    // 3) iOS Safari NotAllowedError (gesture expired) -> returns 'preview' with data URL, no <a> download
+    const notAllowedErr = Object.assign(new Error('Not allowed'), {
+      name: 'NotAllowedError',
+    })
+    vi.stubGlobal('navigator', {
+      userAgent:
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1',
+      maxTouchPoints: 5,
+      canShare: vi.fn(() => true),
+      share: vi.fn(async () => {
+        throw notAllowedErr
+      }),
+    })
+    const blockedResult = await downloadShareImage(baseExportOptions)
+    expect(blockedResult.delivery).toBe('preview')
+    expect(blockedResult.preview?.previewUrl.startsWith('data:image/png')).toBe(
+      true,
+    )
+    expect(blockedResult.preview?.canNativeShare).toBe(true)
+    expect(anchorClicks).toHaveLength(0)
+
+    // 4) Mobile browser without file sharing -> returns 'preview' with canNativeShare: false
+    vi.stubGlobal('navigator', {
+      userAgent:
+        'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36',
+      maxTouchPoints: 5,
+      canShare: vi.fn(() => false),
+      share: vi.fn(async () => {}),
+    })
+    const unsupportedResult = await downloadShareImage(baseExportOptions)
+    expect(unsupportedResult.delivery).toBe('preview')
+    expect(unsupportedResult.preview?.canNativeShare).toBe(false)
+    expect(anchorClicks).toHaveLength(0)
+
+    // 5) Desktop macOS Safari -> skips navigator.share and triggers <a download>
+    const desktopShareMock = vi.fn(async () => {})
+    vi.stubGlobal('navigator', {
+      userAgent:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15',
+      platform: 'MacIntel',
+      maxTouchPoints: 0,
+      canShare: vi.fn(() => true),
+      share: desktopShareMock,
+    })
+    const desktopResult = await downloadShareImage(baseExportOptions)
+    expect(desktopResult.delivery).toBe('downloaded')
+    expect(desktopShareMock).not.toHaveBeenCalled()
+    expect(anchorClicks).toHaveLength(1)
+    expect(anchorClicks[0].download).toBe('spotkit-top-albums-grid.png')
+
+    // Helper sanity check for direct shareImageFile / canShareImageFile
+    const testFile = new File(['x'], 'test.png', { type: 'image/png' })
+    expect(canShareImageFile(testFile, { canShare: () => true, share: async () => {} })).toBe(true)
+    expect(await shareImageFile(testFile, { canShare: () => false })).toBe('unsupported')
   })
 })

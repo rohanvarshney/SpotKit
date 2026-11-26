@@ -2944,6 +2944,96 @@ export async function renderShareImageCanvas(
   return canvas
 }
 
+export interface MobileSavePreviewData {
+  spec: ShareImageLayoutSpec
+  file: File | null
+  blob: Blob | null
+  previewUrl: string
+  canNativeShare: boolean
+}
+
+export interface ShareImageExportResult {
+  spec: ShareImageLayoutSpec
+  delivery: 'shared' | 'cancelled' | 'downloaded' | 'preview'
+  preview?: MobileSavePreviewData
+}
+
+export interface NavigatorShareLike {
+  userAgent?: string
+  platform?: string
+  maxTouchPoints?: number
+  userAgentData?: { mobile?: boolean }
+  share?: (data: ShareData) => Promise<void>
+  canShare?: (data?: ShareData) => boolean
+}
+
+export function isMobileSaveToPhotosDevice(nav?: NavigatorShareLike): boolean {
+  const target =
+    nav ??
+    (typeof navigator !== 'undefined'
+      ? (navigator as unknown as NavigatorShareLike)
+      : undefined)
+  if (!target) return false
+  if (target.userAgentData?.mobile === true) return true
+  const ua = target.userAgent || ''
+  if (/iPhone|iPad|iPod|Android/i.test(ua)) return true
+  if (
+    (/Macintosh/i.test(ua) || target.platform === 'MacIntel') &&
+    (target.maxTouchPoints ?? 0) > 1
+  ) {
+    return true
+  }
+  return false
+}
+
+export function canShareImageFile(
+  file: File | null,
+  nav?: NavigatorShareLike,
+): boolean {
+  const target =
+    nav ??
+    (typeof navigator !== 'undefined'
+      ? (navigator as unknown as NavigatorShareLike)
+      : undefined)
+  if (
+    !file ||
+    !target ||
+    typeof target.share !== 'function' ||
+    typeof target.canShare !== 'function'
+  ) {
+    return false
+  }
+  try {
+    return Boolean(target.canShare({ files: [file] }))
+  } catch {
+    return false
+  }
+}
+
+export async function shareImageFile(
+  file: File,
+  nav?: NavigatorShareLike,
+): Promise<'shared' | 'cancelled' | 'unsupported' | 'blocked'> {
+  const target =
+    nav ??
+    (typeof navigator !== 'undefined'
+      ? (navigator as unknown as NavigatorShareLike)
+      : undefined)
+  if (!canShareImageFile(file, target)) {
+    return 'unsupported'
+  }
+  try {
+    // Pass ONLY `{ files: [file] }` so iOS Safari keeps "Save Image" at the top of the Share Sheet.
+    await target!.share!({ files: [file] })
+    return 'shared'
+  } catch (err) {
+    if ((err as { name?: string })?.name === 'AbortError') {
+      return 'cancelled'
+    }
+    return 'blocked'
+  }
+}
+
 function triggerUrlDownload(url: string, filename: string): void {
   const anchor = document.createElement('a')
   anchor.download = filename
@@ -2955,9 +3045,29 @@ function triggerUrlDownload(url: string, filename: string): void {
   anchor.remove()
 }
 
+export function downloadImageBlob(
+  blob: Blob | null,
+  filename: string,
+  fallbackDataUrl?: string,
+): void {
+  if (
+    blob &&
+    typeof URL !== 'undefined' &&
+    typeof URL.createObjectURL === 'function'
+  ) {
+    const objectUrl = URL.createObjectURL(blob)
+    triggerUrlDownload(objectUrl, filename)
+    const schedule =
+      typeof window !== 'undefined' ? window.setTimeout : setTimeout
+    schedule(() => URL.revokeObjectURL(objectUrl), 1000)
+  } else if (fallbackDataUrl) {
+    triggerUrlDownload(fallbackDataUrl, filename)
+  }
+}
+
 export async function downloadShareImage(
   options: ShareImageExportOptions,
-): Promise<ShareImageLayoutSpec> {
+): Promise<ShareImageExportResult> {
   const spec = getShareImageLayoutSpec(options)
   const canvas = await renderShareImageCanvas(options)
 
@@ -2969,18 +3079,59 @@ export async function downloadShareImage(
     }
   })
 
+  if (isMobileSaveToPhotosDevice()) {
+    const file =
+      blob && typeof File !== 'undefined'
+        ? new File([blob], spec.filename, { type: 'image/png' })
+        : null
+    const canNativeShare = canShareImageFile(file)
+
+    if (file && canNativeShare) {
+      const outcome = await shareImageFile(file)
+      if (outcome === 'shared') {
+        return { spec, delivery: 'shared' }
+      }
+      if (outcome === 'cancelled') {
+        return { spec, delivery: 'cancelled' }
+      }
+    }
+
+    let previewUrl = ''
+    try {
+      previewUrl = canvas.toDataURL('image/png')
+    } catch {
+      if (
+        blob &&
+        typeof URL !== 'undefined' &&
+        typeof URL.createObjectURL === 'function'
+      ) {
+        previewUrl = URL.createObjectURL(blob)
+      }
+    }
+
+    return {
+      spec,
+      delivery: 'preview',
+      preview: {
+        spec,
+        file,
+        blob,
+        previewUrl,
+        canNativeShare,
+      },
+    }
+  }
+
   if (
     blob &&
     typeof URL !== 'undefined' &&
     typeof URL.createObjectURL === 'function'
   ) {
-    const objectUrl = URL.createObjectURL(blob)
-    triggerUrlDownload(objectUrl, spec.filename)
-    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000)
+    downloadImageBlob(blob, spec.filename)
   } else {
     const dataUrl = canvas.toDataURL('image/png')
     triggerUrlDownload(dataUrl, spec.filename)
   }
 
-  return spec
+  return { spec, delivery: 'downloaded' }
 }
