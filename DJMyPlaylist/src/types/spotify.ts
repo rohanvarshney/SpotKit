@@ -137,7 +137,6 @@ export interface AnalyzedTrack {
   valence: number
   featureSource: AudioFeatureSource
   sources: TrackSourceOrigin[]
-  genreHint?: string
   vibeTags?: string
 }
 

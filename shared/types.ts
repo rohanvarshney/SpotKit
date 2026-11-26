@@ -95,7 +95,6 @@ export interface SharedDemoTrackSeed {
   valence: number
   inLiked: boolean
   playlistIds: string[]
-  genreHint: string
   vibeTags: string
   colorA: string
   colorB: string

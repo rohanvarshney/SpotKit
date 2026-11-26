@@ -151,7 +151,6 @@ interface CrateTrackRefSpec {
   danceability: number
   valence: number
   playlistIds: string[]
-  genreHint: string
   vibeTags: string
 }
 
@@ -187,7 +186,6 @@ function defineCrateTrack(spec: CrateTrackRefSpec): SharedDemoTrackSeed {
     valence: spec.valence,
     inLiked: albumTrack.liked,
     playlistIds: spec.playlistIds,
-    genreHint: spec.genreHint,
     vibeTags: spec.vibeTags,
     colorA: album.colorA,
     colorB: album.colorB,
@@ -209,7 +207,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.74,
     valence: 0.44,
     playlistIds: [P_AFTER],
-    genreHint: 'Indie Dance',
     vibeTags: 'anthemic emotional euphoric synth opener',
   }),
   defineCrateTrack({
@@ -222,7 +219,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.75,
     valence: 0.41,
     playlistIds: [P_AFTER],
-    genreHint: 'Deep House',
     vibeTags: 'melodic lush progressive warm synth',
   }),
   defineCrateTrack({
@@ -235,7 +231,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.72,
     valence: 0.39,
     playlistIds: [P_AFTER],
-    genreHint: 'Deep House',
     vibeTags: 'warm atmospheric hypnotic opener',
   }),
   defineCrateTrack({
@@ -249,7 +244,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.82,
     valence: 0.56,
     playlistIds: [P_AFTER, P_POP],
-    genreHint: 'UK Garage / House',
     vibeTags: 'iconic falsetto vocal punchy garage bass',
   }),
   defineCrateTrack({
@@ -262,7 +256,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.86,
     valence: 0.53,
     playlistIds: [P_AFTER, P_WAREHOUSE],
-    genreHint: 'UK House',
     vibeTags: 'driving club bassline crisp percussion',
   }),
   defineCrateTrack({
@@ -276,7 +269,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.87,
     valence: 0.64,
     playlistIds: [P_AFTER, P_WAREHOUSE],
-    genreHint: 'Club House',
     vibeTags: 'piano stabs chicago house diva energy',
   }),
   defineCrateTrack({
@@ -289,7 +281,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.81,
     valence: 0.55,
     playlistIds: [P_AFTER],
-    genreHint: 'UK House',
     vibeTags: 'pitched soul sample crisp breakbeat house',
   }),
   defineCrateTrack({
@@ -302,7 +293,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.88,
     valence: 0.62,
     playlistIds: [P_AFTER, P_WAREHOUSE],
-    genreHint: 'Tech House',
     vibeTags: 'peak hour rolling bassline tech house club',
   }),
   defineCrateTrack({
@@ -316,7 +306,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.83,
     valence: 0.49,
     playlistIds: [P_AFTER, P_WAREHOUSE],
-    genreHint: 'Tech House',
     vibeTags: 'hypnotic vocal chop peak energy warehouse',
   }),
   defineCrateTrack({
@@ -329,7 +318,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.85,
     valence: 0.58,
     playlistIds: [P_AFTER],
-    genreHint: 'Tech House',
     vibeTags: 'clean vocal groove bouncy club bassline',
   }),
   defineCrateTrack({
@@ -342,7 +330,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.87,
     valence: 0.69,
     playlistIds: [P_AFTER, P_WAREHOUSE, P_POP],
-    genreHint: 'Euro House',
     vibeTags: '90s piano riff vocal hook club anthem',
   }),
   defineCrateTrack({
@@ -355,7 +342,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.78,
     valence: 0.61,
     playlistIds: [P_AFTER, P_WAREHOUSE],
-    genreHint: 'UK Stutter House',
     vibeTags: 'euphoric vocal chop driving club beat',
   }),
   defineCrateTrack({
@@ -368,7 +354,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.76,
     valence: 0.59,
     playlistIds: [P_AFTER, P_WAREHOUSE],
-    genreHint: 'UK Stutter House',
     vibeTags: 'euphoric vocal chop fast festival closer',
   }),
   defineCrateTrack({
@@ -381,7 +366,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.83,
     valence: 0.68,
     playlistIds: [P_AFTER, P_SUNSET],
-    genreHint: 'Piano House',
     vibeTags: 'jazz piano chords uplifting sunrise groove',
   }),
   defineCrateTrack({
@@ -394,7 +378,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.76,
     valence: 0.48,
     playlistIds: [P_AFTER, P_WAREHOUSE],
-    genreHint: 'Breakbeat / Electronica',
     vibeTags: 'chopped choral loop rave synths',
   }),
   defineCrateTrack({
@@ -408,7 +391,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.81,
     valence: 0.54,
     playlistIds: [P_AFTER, P_SUNSET],
-    genreHint: 'French Electro / Disco',
     vibeTags: 'analog synth bassline falsetto crossover',
   }),
   defineCrateTrack({
@@ -421,7 +403,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.84,
     valence: 0.63,
     playlistIds: [P_AFTER],
-    genreHint: 'House',
     vibeTags: 'acid bass synth stabs afterhours uplift',
   }),
 
@@ -438,7 +419,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.88,
     valence: 0.79,
     playlistIds: [P_SUNSET, P_RNB],
-    genreHint: 'Funk / Neo-Soul',
     vibeTags: 'silky falsetto funk pocket groovy bassline',
   }),
   defineCrateTrack({
@@ -452,7 +432,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.9,
     valence: 0.76,
     playlistIds: [P_SUNSET, P_RNB, P_AFTER],
-    genreHint: 'Soulful House',
     vibeTags: 'bouncy pocket groove warm Rhodes bassline',
   }),
   defineCrateTrack({
@@ -466,7 +445,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.87,
     valence: 0.74,
     playlistIds: [P_SUNSET, P_RNB],
-    genreHint: 'Bounce / R&B House',
     vibeTags: 'sunny synth chords bouncy kaytranada groove',
   }),
   defineCrateTrack({
@@ -479,7 +457,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.86,
     valence: 0.81,
     playlistIds: [P_SUNSET],
-    genreHint: 'Nu-Disco',
     vibeTags: 'french touch bassline groovy rooftop disco',
   }),
   defineCrateTrack({
@@ -492,7 +469,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.84,
     valence: 0.75,
     playlistIds: [P_SUNSET],
-    genreHint: 'Indie Dance',
     vibeTags: 'crisp funk guitar warm vocal harmonies',
   }),
   defineCrateTrack({
@@ -505,7 +481,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.82,
     valence: 0.71,
     playlistIds: [P_SUNSET],
-    genreHint: 'Indie Disco',
     vibeTags: 'golden hour synth groove disco percussion',
   }),
   defineCrateTrack({
@@ -518,7 +493,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.79,
     valence: 0.74,
     playlistIds: [P_SUNSET],
-    genreHint: 'Psychedelic Disco',
     vibeTags: 'psychedelic synth bass bouncy disco transition',
   }),
   defineCrateTrack({
@@ -531,7 +505,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.81,
     valence: 0.78,
     playlistIds: [P_SUNSET, P_INDIE],
-    genreHint: 'Indie Psych',
     vibeTags: 'iconic bassline crowd singalong indie groove',
   }),
   defineCrateTrack({
@@ -544,7 +517,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.86,
     valence: 0.85,
     playlistIds: [P_SUNSET, P_AFTER, P_POP],
-    genreHint: 'French House',
     vibeTags: 'classic french filter house euphoric horn sample',
   }),
   defineCrateTrack({
@@ -557,7 +529,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.78,
     valence: 0.77,
     playlistIds: [P_SUNSET],
-    genreHint: 'French House',
     vibeTags: 'dreamy vocoder synth solo sunset classic',
   }),
   defineCrateTrack({
@@ -570,7 +541,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.89,
     valence: 0.86,
     playlistIds: [P_SUNSET, P_POP],
-    genreHint: 'Nu-Disco / Funk',
     vibeTags: 'nile rodgers funk guitar pharrell vocal',
   }),
   defineCrateTrack({
@@ -583,7 +553,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.79,
     valence: 0.61,
     playlistIds: [P_SUNSET, P_POP],
-    genreHint: 'Synth-Pop / Nu-Disco',
     vibeTags: 'sparkling arpeggios crisp snare danceable pop',
   }),
   defineCrateTrack({
@@ -597,7 +566,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.81,
     valence: 0.65,
     playlistIds: [P_SUNSET, P_AFTER],
-    genreHint: 'Indie Electro',
     vibeTags: 'gliding synth chords soaring chorus rooftop',
   }),
   defineCrateTrack({
@@ -610,7 +578,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.84,
     valence: 0.69,
     playlistIds: [P_SUNSET],
-    genreHint: 'Piano House',
     vibeTags: 'warm piano chords uplifting sunset closer',
   }),
 
@@ -628,7 +595,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.78,
     valence: 0.54,
     playlistIds: [P_WAREHOUSE],
-    genreHint: 'UK Garage / Club',
     vibeTags: 'high energy driving garage skippy drums',
   }),
   defineCrateTrack({
@@ -642,7 +608,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.75,
     valence: 0.42,
     playlistIds: [P_WAREHOUSE, P_HIPHOP],
-    genreHint: 'Drum & Bass / Rap',
     vibeTags: 'crossover dnb rap sample high octane',
   }),
   defineCrateTrack({
@@ -656,7 +621,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.81,
     valence: 0.31,
     playlistIds: [P_WAREHOUSE],
-    genreHint: 'Dubstep / UK Bass',
     vibeTags: 'heavy sub bass dark grime drop peak intensity',
   }),
   defineCrateTrack({
@@ -670,7 +634,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.8,
     valence: 0.33,
     playlistIds: [P_WAREHOUSE],
-    genreHint: 'Bass / Dubstep',
     vibeTags: 'minimal dark 140 dub sub wobble',
   }),
   defineCrateTrack({
@@ -684,7 +647,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.72,
     valence: 0.36,
     playlistIds: [P_WAREHOUSE],
-    genreHint: 'Drum & Bass',
     vibeTags: 'fast dnb neuro bass festival finale',
   }),
   defineCrateTrack({
@@ -698,7 +660,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.71,
     valence: 0.51,
     playlistIds: [P_WAREHOUSE],
-    genreHint: 'Dancefloor DnB',
     vibeTags: 'soaring vocal anthem 174 bpm peak',
   }),
   defineCrateTrack({
@@ -711,7 +672,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.77,
     valence: 0.49,
     playlistIds: [P_WAREHOUSE],
-    genreHint: 'UK Breakbeat',
     vibeTags: 'pitched vocal chop heavy breakbeat sub',
   }),
   defineCrateTrack({
@@ -724,7 +684,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.76,
     valence: 0.46,
     playlistIds: [P_WAREHOUSE],
-    genreHint: 'UK Breakbeat',
     vibeTags: 'atmospheric rave breaks deep bassline',
   }),
   defineCrateTrack({
@@ -737,7 +696,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.75,
     valence: 0.38,
     playlistIds: [P_WAREHOUSE, P_AFTER],
-    genreHint: 'Breakbeat / Electronica',
     vibeTags: 'euphoric rave pads emotional warehouse',
   }),
   defineCrateTrack({
@@ -751,7 +709,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.81,
     valence: 0.58,
     playlistIds: [P_WAREHOUSE],
-    genreHint: 'Club / Plunderphonics',
     vibeTags: 'driving tribal drums hypnotic vocal chant',
   }),
   defineCrateTrack({
@@ -765,7 +722,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.69,
     valence: 0.47,
     playlistIds: [P_WAREHOUSE],
-    genreHint: 'Halftime / UK Bass',
     vibeTags: 'halftime 64bpm lock matches 128bpm club tracks',
   }),
 
@@ -782,7 +738,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.84,
     valence: 0.72,
     playlistIds: [P_POP],
-    genreHint: 'Electro-Pop / Club',
     vibeTags: 'minimal rubbery synth brat summer pop',
   }),
   defineCrateTrack({
@@ -795,7 +750,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.81,
     valence: 0.58,
     playlistIds: [P_POP, P_WAREHOUSE],
-    genreHint: 'Hyperpop / Electroclash',
     vibeTags: 'frenetic club electroclash bass drop',
   }),
   defineCrateTrack({
@@ -808,7 +762,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.85,
     valence: 0.75,
     playlistIds: [P_POP],
-    genreHint: 'Synth-Pop',
     vibeTags: 'bright synth arpeggio viral dance hook',
   }),
   defineCrateTrack({
@@ -821,7 +774,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.8,
     valence: 0.61,
     playlistIds: [P_POP, P_WAREHOUSE],
-    genreHint: 'Hyperpop',
     vibeTags: 'sophie metallic percussion hyperpop classic',
   }),
   defineCrateTrack({
@@ -834,7 +786,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.69,
     valence: 0.56,
     playlistIds: [P_POP, P_SUNSET],
-    genreHint: 'Synth-Pop',
     vibeTags: 'lush synth piano emotional pop closer',
   }),
   defineCrateTrack({
@@ -847,7 +798,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.74,
     valence: 0.62,
     playlistIds: [P_POP],
-    genreHint: 'Dance-Pop',
     vibeTags: 'euphoric piano chords festival singalong',
   }),
   defineCrateTrack({
@@ -860,7 +810,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.83,
     valence: 0.88,
     playlistIds: [P_POP],
-    genreHint: 'Synth-Pop',
     vibeTags: 'arena synth pop stadium chant upbeat',
   }),
   defineCrateTrack({
@@ -873,7 +822,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.77,
     valence: 0.79,
     playlistIds: [P_POP],
-    genreHint: 'Pop / Indie',
     vibeTags: 'driving snare glittery synth pop',
   }),
   defineCrateTrack({
@@ -886,7 +834,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.85,
     valence: 0.84,
     playlistIds: [P_POP, P_SUNSET],
-    genreHint: 'Nu-Disco Pop',
     vibeTags: 'funky bass guitar breezy summer pop',
   }),
   defineCrateTrack({
@@ -899,7 +846,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.86,
     valence: 0.91,
     playlistIds: [P_POP, P_SUNSET],
-    genreHint: 'Disco-Pop',
     vibeTags: 'handclap disco groove bright pop chorus',
   }),
   defineCrateTrack({
@@ -912,7 +858,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.85,
     valence: 0.68,
     playlistIds: [P_POP, P_AFTER],
-    genreHint: 'Nu-Disco Pop',
     vibeTags: 'cowbell slap bass disco floorfiller',
   }),
   defineCrateTrack({
@@ -925,7 +870,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.72,
     valence: 0.45,
     playlistIds: [P_POP],
-    genreHint: 'Synthwave Pop',
     vibeTags: '80s synthwave pulse arena anthem',
   }),
   defineCrateTrack({
@@ -938,7 +882,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.8,
     valence: 0.71,
     playlistIds: [P_POP],
-    genreHint: 'Electro-Pop',
     vibeTags: 'iconic synth hook theatrical club pop',
   }),
   defineCrateTrack({
@@ -951,7 +894,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.78,
     valence: 0.74,
     playlistIds: [P_POP],
-    genreHint: 'K-Pop / Jersey Club',
     vibeTags: 'jersey club kick liquid break kpop',
   }),
   defineCrateTrack({
@@ -964,7 +906,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.72,
     valence: 0.61,
     playlistIds: [P_POP],
-    genreHint: 'Synth-Pop',
     vibeTags: 'shimmering guitar riff 80s synth pop',
   }),
   defineCrateTrack({
@@ -977,7 +918,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.74,
     valence: 0.67,
     playlistIds: [P_POP],
-    genreHint: 'Synth-Pop',
     vibeTags: 'glittering synth chorus festival pop',
   }),
   defineCrateTrack({
@@ -990,7 +930,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.89,
     valence: 0.63,
     playlistIds: [P_POP, P_AFTER],
-    genreHint: 'Alt-Pop / Electro',
     vibeTags: 'punchy bass riff minimal club pop',
   }),
   defineCrateTrack({
@@ -1003,7 +942,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.76,
     valence: 0.59,
     playlistIds: [P_POP, P_INDIE],
-    genreHint: 'Alt-Pop',
     vibeTags: 'dreamy new wave synth upbeat romance',
   }),
 
@@ -1021,7 +959,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.73,
     valence: 0.36,
     playlistIds: [P_HIPHOP],
-    genreHint: 'West Coast Hip-Hop',
     vibeTags: 'reversed beach house sample laid back classic',
   }),
   defineCrateTrack({
@@ -1034,7 +971,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.88,
     valence: 0.71,
     playlistIds: [P_HIPHOP],
-    genreHint: 'G-Funk / Hip-Hop',
     vibeTags: 'funk bassline west coast bounce',
   }),
   defineCrateTrack({
@@ -1047,7 +983,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.9,
     valence: 0.42,
     playlistIds: [P_HIPHOP],
-    genreHint: 'Hip-Hop / Trap',
     vibeTags: 'staccato piano heavy 808 crowd anthem',
   }),
   defineCrateTrack({
@@ -1061,7 +996,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.74,
     valence: 0.31,
     playlistIds: [P_HIPHOP],
-    genreHint: 'Rage Trap',
     vibeTags: 'distorted synth stadium rage mosh pit',
   }),
   defineCrateTrack({
@@ -1075,7 +1009,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.83,
     valence: 0.44,
     playlistIds: [P_HIPHOP],
-    genreHint: 'Trap / Hip-Hop',
     vibeTags: 'beat switch heavy sub iconic festival trap',
   }),
   defineCrateTrack({
@@ -1089,7 +1022,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.65,
     valence: 0.41,
     playlistIds: [P_HIPHOP, P_RNB],
-    genreHint: 'Synth Hip-Hop',
     vibeTags: 'cinematic strings glowing synth nocturnal',
   }),
   defineCrateTrack({
@@ -1102,7 +1034,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.74,
     valence: 0.52,
     playlistIds: [P_HIPHOP],
-    genreHint: 'Electro Hip-Hop',
     vibeTags: 'daft punk vocoder sample stadium bounce',
   }),
   defineCrateTrack({
@@ -1115,7 +1046,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.71,
     valence: 0.62,
     playlistIds: [P_HIPHOP],
-    genreHint: 'Southern Hip-Hop / Break',
     vibeTags: 'hyper-speed breakbeat electric guitar solo',
   }),
   defineCrateTrack({
@@ -1129,7 +1059,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.76,
     valence: 0.4,
     playlistIds: [P_HIPHOP],
-    genreHint: 'Trap',
     vibeTags: 'brass stabs cinematic dark trap',
   }),
   defineCrateTrack({
@@ -1142,7 +1071,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.84,
     valence: 0.61,
     playlistIds: [P_HIPHOP],
-    genreHint: 'Hip-Hop',
     vibeTags: 'jazzy storytelling crisp boom bap snare',
   }),
   defineCrateTrack({
@@ -1155,7 +1083,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.72,
     valence: 0.49,
     playlistIds: [P_HIPHOP],
-    genreHint: 'Hip-Hop',
     vibeTags: 'singalong rap classic warm keys',
   }),
   defineCrateTrack({
@@ -1168,7 +1095,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.63,
     valence: 0.48,
     playlistIds: [P_HIPHOP, P_RNB],
-    genreHint: 'Alt-R&B / Hip-Hop',
     vibeTags: 'warm electric piano pitch-shifted vocal hook',
   }),
   defineCrateTrack({
@@ -1182,7 +1108,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.73,
     valence: 0.25,
     playlistIds: [P_HIPHOP, P_RNB],
-    genreHint: 'Dark R&B / Trap',
     vibeTags: 'moody nocturnal vocal flip 808',
   }),
 
@@ -1199,7 +1124,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.59,
     valence: 0.52,
     playlistIds: [P_RNB],
-    genreHint: 'Alt-R&B / Neo-Soul',
     vibeTags: 'lush strings waltz groove warm summer nostalgia',
   }),
   defineCrateTrack({
@@ -1212,7 +1136,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.58,
     valence: 0.39,
     playlistIds: [P_RNB, P_HIPHOP],
-    genreHint: 'Alt-R&B',
     vibeTags: 'iconic beat switch dreamy guitar arpeggio',
   }),
   defineCrateTrack({
@@ -1225,7 +1148,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.78,
     valence: 0.55,
     playlistIds: [P_RNB],
-    genreHint: 'R&B / Pop-Soul',
     vibeTags: 'bright synth bass bouncy midtempo groove',
   }),
   defineCrateTrack({
@@ -1239,7 +1161,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.79,
     valence: 0.44,
     playlistIds: [P_RNB],
-    genreHint: 'R&B / Trap-Soul',
     vibeTags: 'silky vocal melodic trap bounce',
   }),
   defineCrateTrack({
@@ -1252,7 +1173,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.67,
     valence: 0.43,
     playlistIds: [P_RNB, P_POP],
-    genreHint: 'R&B',
     vibeTags: 'chill moody bassline smooth chorus',
   }),
   defineCrateTrack({
@@ -1265,7 +1185,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.61,
     valence: 0.39,
     playlistIds: [P_RNB],
-    genreHint: 'R&B',
     vibeTags: 'late night slow jam lush vocal runs',
   }),
   defineCrateTrack({
@@ -1278,7 +1197,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.78,
     valence: 0.64,
     playlistIds: [P_RNB, P_SUNSET],
-    genreHint: 'Sophisti-Pop / Soul',
     vibeTags: 'silky sax bassline timeless velvet groove',
   }),
   defineCrateTrack({
@@ -1292,7 +1210,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.66,
     valence: 0.4,
     playlistIds: [P_RNB],
-    genreHint: 'Neo-Soul',
     vibeTags: 'intimate bass pocket soulful duet',
   }),
   defineCrateTrack({
@@ -1305,7 +1222,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.62,
     valence: 0.68,
     playlistIds: [P_RNB],
-    genreHint: '70s Soul / R&B',
     vibeTags: 'velvet harmony retro soul ballad',
   }),
   defineCrateTrack({
@@ -1318,7 +1234,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.87,
     valence: 0.56,
     playlistIds: [P_LATIN, P_POP],
-    genreHint: 'Latin Pop / Afrobeat-Reggaeton',
     vibeTags: 'breezy tropical dembow sunny vocal hook',
   }),
   defineCrateTrack({
@@ -1332,7 +1247,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.85,
     valence: 0.62,
     playlistIds: [P_RNB, P_LATIN],
-    genreHint: 'Afrobeats / R&B',
     vibeTags: 'silky afro-r&b duet warm summer bounce',
   }),
   defineCrateTrack({
@@ -1346,7 +1260,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.85,
     valence: 0.56,
     playlistIds: [P_RNB, P_LATIN],
-    genreHint: 'Dancehall / R&B',
     vibeTags: 'hypnotic dancehall riddim club classic',
   }),
 
@@ -1363,7 +1276,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.49,
     valence: 0.35,
     playlistIds: [P_INDIE],
-    genreHint: 'Art Rock',
     vibeTags: 'interlocking guitar arpeggios soaring crescendo',
   }),
   defineCrateTrack({
@@ -1376,7 +1288,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.61,
     valence: 0.51,
     playlistIds: [P_INDIE],
-    genreHint: 'Art Rock / Electronic',
     vibeTags: '5/4 electronic percussion crisp guitar',
   }),
   defineCrateTrack({
@@ -1389,7 +1300,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.58,
     valence: 0.41,
     playlistIds: [P_INDIE],
-    genreHint: 'Indie Rock',
     vibeTags: 'stomping fuzz guitar riff nocturnal rock',
   }),
   defineCrateTrack({
@@ -1402,7 +1312,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.62,
     valence: 0.64,
     playlistIds: [P_INDIE],
-    genreHint: 'Indie Rock',
     vibeTags: 'motorik drums falsetto chorus interlocking guitars',
   }),
   defineCrateTrack({
@@ -1415,7 +1324,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.77,
     valence: 0.68,
     playlistIds: [P_INDIE, P_SUNSET],
-    genreHint: 'Indie Electronic',
     vibeTags: 'psychedelic funk bass synth anthem',
   }),
   defineCrateTrack({
@@ -1428,7 +1336,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.81,
     valence: 0.78,
     playlistIds: [P_INDIE],
-    genreHint: 'Classic Rock',
     vibeTags: 'hypnotic two-chord groove timeless chorus',
   }),
   defineCrateTrack({
@@ -1441,7 +1348,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.92,
     valence: 0.84,
     playlistIds: [P_INDIE, P_POP, P_SUNSET],
-    genreHint: 'Classic Pop / Funk',
     vibeTags: 'iconic synth bass drum pocket dancefloor lock',
   }),
   defineCrateTrack({
@@ -1454,7 +1360,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.79,
     valence: 0.82,
     playlistIds: [P_INDIE, P_SUNSET],
-    genreHint: 'Yacht Rock / Jazz-Pop',
     vibeTags: 'silky slap bass crisp pocket horns',
   }),
   defineCrateTrack({
@@ -1467,7 +1372,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.64,
     valence: 0.71,
     playlistIds: [P_INDIE, P_POP],
-    genreHint: 'Indie Pop / Synth-Rock',
     vibeTags: 'driving indie synth riff soaring chorus',
   }),
   defineCrateTrack({
@@ -1480,7 +1384,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.61,
     valence: 0.67,
     playlistIds: [P_INDIE],
-    genreHint: 'Indie Rock',
     vibeTags: 'driving piano sax break upbeat indie',
   }),
   defineCrateTrack({
@@ -1493,7 +1396,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.67,
     valence: 0.58,
     playlistIds: [P_INDIE, P_AFTER],
-    genreHint: 'Psychedelic Synth-Rock',
     vibeTags: 'looping synth build phaser breakdown classic',
   }),
 
@@ -1510,7 +1412,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.67,
     valence: 0.46,
     playlistIds: [P_LATIN],
-    genreHint: 'Reggaeton / Dembow',
     vibeTags: 'high energy dembow drop perreo crowd favorite',
   }),
   defineCrateTrack({
@@ -1524,7 +1425,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.91,
     valence: 0.44,
     playlistIds: [P_LATIN],
-    genreHint: 'Reggaeton',
     vibeTags: 'infectious reggaeton bounce summer anthem',
   }),
   defineCrateTrack({
@@ -1537,7 +1437,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.81,
     valence: 0.54,
     playlistIds: [P_LATIN],
-    genreHint: 'Reggaeton / Synth',
     vibeTags: 'warm synth arpeggio smooth dembow',
   }),
   defineCrateTrack({
@@ -1550,7 +1449,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.78,
     valence: 0.59,
     playlistIds: [P_LATIN, P_AFTER],
-    genreHint: 'Latin House / Techno',
     vibeTags: 'bumping bassline puerto rican house outro',
   }),
   defineCrateTrack({
@@ -1564,7 +1462,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.74,
     valence: 0.54,
     playlistIds: [P_LATIN],
-    genreHint: 'Flamenco-Pop / Latin Urbano',
     vibeTags: 'modern rumba bachata acoustic guitar bounce',
   }),
   defineCrateTrack({
@@ -1577,7 +1474,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.84,
     valence: 0.68,
     playlistIds: [P_LATIN, P_POP],
-    genreHint: 'Reggaeton / Latin Pop',
     vibeTags: 'melodic reggaeton synth chorus club ready',
   }),
   defineCrateTrack({
@@ -1590,7 +1486,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.81,
     valence: 0.57,
     playlistIds: [P_LATIN],
-    genreHint: 'Afrobeats',
     vibeTags: 'toni braxton flip hypnotic afro groove',
   }),
   defineCrateTrack({
@@ -1604,7 +1499,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.79,
     valence: 0.69,
     playlistIds: [P_LATIN, P_RNB],
-    genreHint: 'Afro-Pop',
     vibeTags: 'warm guitar pluck romantic afro groove',
   }),
   defineCrateTrack({
@@ -1617,7 +1511,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.84,
     valence: 0.76,
     playlistIds: [P_LATIN, P_RNB],
-    genreHint: 'Afrobeats / R&B',
     vibeTags: 'sunny afro percussion warm bass pocket',
   }),
   defineCrateTrack({
@@ -1630,7 +1523,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.81,
     valence: 0.71,
     playlistIds: [P_LATIN, P_RNB],
-    genreHint: 'Alté / Afrobeats',
     vibeTags: 'breezy guitar log drum bounce',
   }),
   defineCrateTrack({
@@ -1643,7 +1535,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.74,
     valence: 0.81,
     playlistIds: [P_RNB, P_SUNSET],
-    genreHint: 'Classic Soul / Funk',
     vibeTags: 'clavinet funk groove iconic bass bounce',
   }),
   defineCrateTrack({
@@ -1656,7 +1547,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.66,
     valence: 0.63,
     playlistIds: [P_RNB],
-    genreHint: 'Classic Soul',
     vibeTags: 'lush strings congas timeless soul groove',
   }),
   defineCrateTrack({
@@ -1669,7 +1559,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.82,
     valence: 0.68,
     playlistIds: [P_RNB, P_HIPHOP],
-    genreHint: 'Neo-Soul / Hip-Hop',
     vibeTags: 'classic boom-bap horns golden-era bounce',
   }),
   defineCrateTrack({
@@ -1682,7 +1571,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.86,
     valence: 0.76,
     playlistIds: [P_RNB, P_HIPHOP, P_SUNSET],
-    genreHint: 'Funk / Hip-Hop',
     vibeTags: 'dirty funk bassline live drums festival groove',
   }),
   defineCrateTrack({
@@ -1695,7 +1583,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.45,
     valence: 0.56,
     playlistIds: [P_INDIE],
-    genreHint: '90s Britpop / Rock',
     vibeTags: 'singalong piano anthem soaring guitar chorus',
   }),
   defineCrateTrack({
@@ -1708,7 +1595,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.79,
     valence: 0.83,
     playlistIds: [P_INDIE, P_SUNSET],
-    genreHint: 'New Wave / Art Funk',
     vibeTags: 'polyrhythmic afro-funk groove hypnotic chorus',
   }),
   defineCrateTrack({
@@ -1721,7 +1607,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.68,
     valence: 0.74,
     playlistIds: [P_POP, P_AFTER],
-    genreHint: 'Indie Electronic / Synth-Pop',
     vibeTags: 'euphoric bright synth chords uplifting anthem',
   }),
   defineCrateTrack({
@@ -1734,7 +1619,6 @@ export const SPOTKIT_DEMO_CRATE_TRACKS: SharedDemoTrackSeed[] = [
     danceability: 0.71,
     valence: 0.84,
     playlistIds: [P_INDIE, P_SUNSET],
-    genreHint: 'Indie Pop',
     vibeTags: 'crisp guitar stabs upbeat french indie classic',
   }),
 ]
@@ -1905,7 +1789,6 @@ export function buildSharedDemoTracksForMode(
         valence: seed.valence,
         featureSource: 'curated' as const,
         sources: origins,
-        genreHint: seed.genreHint,
         vibeTags: seed.vibeTags,
       },
     ]

@@ -131,7 +131,7 @@ export function SetBuilderView({
       }
       if (bpmFilter === 'fast' && track.bpm <= 129) return false
       if (!q) return true
-      const haystack = `${track.name} ${track.artistNames} ${track.albumName} ${track.camelot} ${track.musicalKey} ${track.genreHint || ''} ${track.vibeTags || ''}`.toLowerCase()
+      const haystack = `${track.name} ${track.artistNames} ${track.albumName} ${track.camelot} ${track.musicalKey} ${track.vibeTags || ''}`.toLowerCase()
       return haystack.includes(q)
     })
 
@@ -162,7 +162,7 @@ export function SetBuilderView({
     const q = searchQuery.trim().toLowerCase()
     if (!q) return ranked
     return ranked.filter(({ track }) => {
-      const haystack = `${track.name} ${track.artistNames} ${track.albumName} ${track.camelot} ${track.musicalKey} ${track.genreHint || ''} ${track.vibeTags || ''}`.toLowerCase()
+      const haystack = `${track.name} ${track.artistNames} ${track.albumName} ${track.camelot} ${track.musicalKey} ${track.vibeTags || ''}`.toLowerCase()
       return haystack.includes(q)
     })
   }, [currentAnchor, remainingTracks, searchQuery])
