@@ -915,6 +915,32 @@
   color: #fde68a;
 }
 
+.demoSwitcherStrip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  margin-top: 16px;
+  border-radius: 12px;
+  background: rgba(139, 92, 246, 0.09);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.demoSwitcherLabel {
+  font-size: 12px;
+  font-weight: 750;
+  color: #e9d5ff;
+}
+
+.demoSwitcherPills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .setTrailBox {
   margin-top: 16px;
   padding: 14px 16px;
@@ -1254,6 +1280,12 @@
   background: rgba(255, 255, 255, 0.04);
   color: rgba(255, 255, 255, 0.72);
   cursor: pointer;
+  transition: all 0.14s ease;
+}
+
+.chipToggle:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #fff;
 }
 
 .chipToggle.active {

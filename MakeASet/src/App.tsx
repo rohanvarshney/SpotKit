@@ -398,6 +398,20 @@ export function App() {
     runDemoAnalysis(sourceMode, playlistUrl, false)
   }
 
+  const handleSwitchDemoSource = (
+    nextMode: SourceMode,
+    nextPlaylistUrl: string,
+    replayAnimation: boolean,
+  ) => {
+    if (demoTimerRef.current) window.clearInterval(demoTimerRef.current)
+    analysisRunRef.current += 1
+    setError(null)
+    setIsDemo(true)
+    setSourceMode(nextMode)
+    setPlaylistUrl(nextPlaylistUrl)
+    runDemoAnalysis(nextMode, nextPlaylistUrl, !replayAnimation)
+  }
+
   const handleRevertLast = () => {
     setSetTracks((prev) => prev.slice(0, -1))
   }
@@ -599,6 +613,7 @@ export function App() {
           <SetBuilderView
             crate={crate}
             setTracks={setTracks}
+            currentPlaylistUrl={playlistUrl}
             onSelectTrack={handleSelectTrack}
             onRevertLast={handleRevertLast}
             onRevertToIndex={handleRevertToIndex}
@@ -610,6 +625,9 @@ export function App() {
             }
             onReplayAnalysis={
               crate.isDemo ? handleReplayDemoAnalysis : undefined
+            }
+            onSwitchDemoSource={
+              crate.isDemo ? handleSwitchDemoSource : undefined
             }
             onConnectRealSpotify={
               crate.isDemo ? () => void handleLoginClick(false) : undefined

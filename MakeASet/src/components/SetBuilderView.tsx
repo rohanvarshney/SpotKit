@@ -8,18 +8,25 @@ import {
   camelotToPitchAndMode,
   formatDuration,
   getCompatibleCamelotKeys,
+  parsePlaylistId,
   rankRemainingTracksByCohesion,
 } from '../lib/camelotEngine'
+import {
+  DEMO_LIKED_TRACK_COUNT,
+  DEMO_PLAYLIST_PRESETS,
+} from '../mocks/demoData'
 import type {
   AnalyzedCrate,
   AnalyzedTrack,
   CamelotCode,
   CohesionTier,
+  SourceMode,
 } from '../types/spotify'
 
 interface SetBuilderViewProps {
   crate: AnalyzedCrate
   setTracks: AnalyzedTrack[]
+  currentPlaylistUrl?: string
   onSelectTrack: (track: AnalyzedTrack) => void
   onRevertLast: () => void
   onRevertToIndex: (index: number) => void
@@ -28,6 +35,11 @@ interface SetBuilderViewProps {
   onChangeSources: () => void
   onAutoPickDemoSet?: () => void
   onReplayAnalysis?: () => void
+  onSwitchDemoSource?: (
+    mode: SourceMode,
+    playlistUrl: string,
+    replayAnimation: boolean,
+  ) => void
   onConnectRealSpotify?: () => void
   onBackToLogin: () => void
   onUpdateTrackMeta: (
@@ -79,6 +91,7 @@ function featureSourceTag(track: AnalyzedTrack): string {
 export function SetBuilderView({
   crate,
   setTracks,
+  currentPlaylistUrl = '',
   onSelectTrack,
   onRevertLast,
   onRevertToIndex,
@@ -87,6 +100,7 @@ export function SetBuilderView({
   onChangeSources,
   onAutoPickDemoSet,
   onReplayAnalysis,
+  onSwitchDemoSource,
   onConnectRealSpotify,
   onBackToLogin,
   onUpdateTrackMeta,
@@ -195,6 +209,19 @@ export function SetBuilderView({
     setEditingTrackId(null)
   }
 
+  const handleDemoSourceClick = (
+    nextMode: SourceMode,
+    nextPlaylistUrl: string,
+  ) => {
+    if (!onSwitchDemoSource) return
+    setSearchQuery('')
+    setCamelotFilter('all')
+    setBpmFilter('all')
+    setSourceFilter('all')
+    setEditingTrackId(null)
+    onSwitchDemoSource(nextMode, nextPlaylistUrl, false)
+  }
+
   const showEstimationNote = crate.featureSummary.estimated > 0
 
   return (
@@ -283,6 +310,53 @@ export function SetBuilderView({
             </button>
           </div>
         </div>
+
+        {crate.isDemo && onSwitchDemoSource && (
+          <div className="demoSwitcherStrip">
+            <div className="demoSwitcherLabel">Demo Mock Crate Switcher:</div>
+            <div className="demoSwitcherPills">
+              <button
+                type="button"
+                className={`chipToggle ${crate.sourceMode === 'liked' ? 'active' : ''}`}
+                onClick={() => handleDemoSourceClick('liked', '')}
+              >
+                💚 Demo Liked Songs ({DEMO_LIKED_TRACK_COUNT} tracks)
+              </button>
+              {DEMO_PLAYLIST_PRESETS.map((preset) => {
+                const activePlaylistId =
+                  crate.playlistMeta?.id || parsePlaylistId(currentPlaylistUrl)
+                const isSelected =
+                  crate.sourceMode === 'playlist' &&
+                  activePlaylistId === preset.id
+                return (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    className={`chipToggle ${isSelected ? 'active' : ''}`}
+                    onClick={() =>
+                      handleDemoSourceClick('playlist', preset.url)
+                    }
+                    title={preset.description}
+                  >
+                    {preset.shortLabel}
+                  </button>
+                )
+              })}
+              <button
+                type="button"
+                className={`chipToggle ${crate.sourceMode === 'both' ? 'active' : ''}`}
+                onClick={() =>
+                  handleDemoSourceClick(
+                    'both',
+                    currentPlaylistUrl || DEMO_PLAYLIST_PRESETS[0].url,
+                  )
+                }
+              >
+                ✨ Merged Crate (Liked + Preset)
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Interactive Set Path / Revert Trail + End Set */}
         <div className="setTrailBox">
